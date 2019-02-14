@@ -58,6 +58,9 @@ class Expectations:
     def __init__(self):
         self.Equal = Equal
 
+    def err_msg(actual, expected):
+        return f"Expected {expected}, but got {actual}"
+
     class Equal:
         def __init__(self, expected):
             self.expected = expected
@@ -68,8 +71,7 @@ class Expectations:
             except Exception as e:
                 actual_res = type(e)
 
-            if not actual_res == self.expected:
-                raise AssertionError(self.expected, actual)
+            assert actual_res == self.expected, err_msg(actual, expected)
 
     class Error:
         def __init__(self, exception_class):
