@@ -1,9 +1,7 @@
-from runner import *
+from runner import describe
 
 ### EXPECTATIONS ###
-# Describe a group of tests by defining a class that inherits from 
-# Runner's Describe class
-# class Expectations(Describe):
+# group tests together by creating a new Describe object using `describe()`
 expectations = describe('set expectations')
 
 # tests can be set up to expect a return value
@@ -25,7 +23,7 @@ expectations.run()
 
 ### COMMON###
 # You can also define common variables for a group of tests
-common = Describe('set common state')
+common = describe('set common state')
 
 # this is done by creating new attributes on the test group
 common.five = 5
@@ -47,7 +45,7 @@ common.run()
 failures = describe('communicate failures')
 
 # to do this, first create a failing test
-failures.fail = Describe('failure').it('should fail', 1).should.eq(2)
+failures.fail = describe('failure').it('should fail', 1).should.eq(2)
 
 # create a new function to deferr re-raising the error
 def failed():
