@@ -71,7 +71,7 @@ class Expectations:
             except Exception as e:
                 actual_res = type(e)
 
-            assert actual_res == self.expected, err_msg(actual, expected)
+            assert actual_res == self.expected, err_msg(actual_res, self.expected)
 
     class Error:
         def __init__(self, exception_class):
@@ -83,8 +83,7 @@ class Expectations:
             except Exception as e:
                 actual_res = type(e)
 
-            if not actual_res == self.exception_class:
-                raise AssertionError(self.exception_class, actual)
+            assert actual_res == self.exception_class, err_msg(actual_res, self.exception_class)
 
 class AssertionError(Exception):
     def __init__(self, expected, actual):
