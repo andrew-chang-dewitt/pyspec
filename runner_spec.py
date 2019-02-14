@@ -30,6 +30,10 @@ class Expectations(Describe):
         # all tests are named & stored using the same pattern
         self.it('can expect exceptions', can_expect_exceptions)
 
+        # you can also test that a given test will always fail as expected
+        # def correct_failure_type():
+        #     expect(expect(1).to(eq(2))).to(raise_error(AssertionError))
+
 # A group of tests is ran by initializing the defined class with a description, 
 # then calling the `run()` method it inherits from `Describe`
 Expectations('set expectations & test versus actual expression results').run()
