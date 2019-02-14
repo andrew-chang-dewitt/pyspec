@@ -7,15 +7,6 @@ COLOR_RESET = "\033[0m"
 def describe(description):
     return Describe(description)
 
-# def expect(test):
-#     return Actual(test)
-# 
-# def eq(expected):
-#     return Expectations.Equal(expected)
-
-# def raise_error(exception_class):
-#     return Expectations.Error(exception_class)
-
 class Describe:
     def __init__(self, description, parent=None):
         self.description = description
@@ -99,56 +90,3 @@ class Test:
                 self.test_called.tb = traceback.format_exc().splitlines()
 
             return self.test_called
-
-# class Actual:
-#     def __init__(self, actual):
-#         self.actual = actual
-# 
-#     def to(self, expectation):
-#         return expectation.run(self.actual) 
-# 
-# class Expectations:
-#     def __init__(self):
-#         self.Equal = Equal
-# 
-#     def err_msg(actual, expected):
-#         return f"Expected {expected}, but got {actual}"
-# 
-#     class Equal:
-#         def __init__(self, expected):
-#             self.expected = expected
-# 
-#         def run(self, actual):
-#             try:
-#                 actual_res = actual() if callable(actual) else actual 
-#             except Exception as e:
-#                 actual_res = type(e)
-# 
-#             try:
-#                 assert actual_res == self.expected, Expectations.err_msg(
-#                     actual_res,
-#                     self.expected)
-#             except AssertionError as e:
-#                 return Expectations.Result(False, e)
-# 
-#             return Expectations.Result(True)
-# 
-#     class Error:
-#         def __init__(self, exception_class):
-#             self.exception_class = exception_class
-# 
-#         def run(self, actual):
-#             try:
-#                 actual_res = actual() if callable(actual) else actual 
-#             except Exception as e:
-#                 actual_res = type(e)
-# 
-#             assert actual_res == self.exception_class, Expectations.err_msg(
-#                 actual_res,
-#                 self.exception_class)
-# 
-#     class Result:
-#         def __init__(self, success, name, err=None):
-#             self.success = success
-#             self.name = name
-#             self.err = err

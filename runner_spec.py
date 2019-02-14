@@ -16,6 +16,9 @@ expectations.it('can expect values',
 # tests can also be set up to expect a specific error class
 expectations.it('can expect exceptions',
     lambda: 1/0).should.raise_error(ZeroDivisionError)
+# note: when directly evaluating an expression that will result in an error, it 
+# must be wrapped in a function, otherwise the error will be raised before the 
+# expression is passed to the test runner
 
 # A group of tests is ran by calling it's `run()` method
 expectations.run()
@@ -66,6 +69,9 @@ failures.it('can show the expected error message',
 
 failures.run()
 
+####
+# FIXME: below needs changed into new syntax
+#      : features may need added
 # 
 # # You can also have one group of tests inherit class & instance variables from
 # # another group of tests by passing the intended parent class 
