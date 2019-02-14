@@ -84,7 +84,3 @@ class Expectations:
                 actual_res = type(e)
 
             assert actual_res == self.exception_class, err_msg(actual_res, self.exception_class)
-
-class AssertionError(Exception):
-    def __init__(self, expected, actual):
-        super().__init__(f"Expected {expected}, but got {actual}")
