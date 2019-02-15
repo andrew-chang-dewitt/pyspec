@@ -99,5 +99,4 @@ outer.it('but outer methods/attributes will remain unchanged',
 outer.it('outer groups can also access the attributes of an inner group',
     inner.attr).should.eq('inner attribute')
 
-inner.run()
 outer.run()

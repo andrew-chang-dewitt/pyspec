@@ -11,9 +11,16 @@ class Describe:
     def __init__(self, description, outer=None):
         self.description = description
         self.tests = []
-        self.tab = '\t'
+        self.inners = []
+        self.base = ''
+        self.tab = '  '
+        self.tabplus = self.tab + '  '
 
-        self.outer = outer
+        if outer is not None:
+            self.outer = outer
+            self.base = self.tab
+            self.tab += '  '
+            outer.inners.append(self)
 
     def it(self, description, code):
         test_obj = Test(description, code)
@@ -22,22 +29,25 @@ class Describe:
         return test_obj
 
     def run(self):
-        print(self.description)
+        print(f'{self.base}{self.description}')
+
+        if self.inners is not None:
+            for inner in self.inners: inner.run()
 
         for test in self.tests:
-            print(f'  - {test.name}', end='')
+            print(f'{self.tab}- {test.name}', end='')
 
             if test.success == True:
                 print(f': {COLOR_GREEN}ok{COLOR_RESET}')
             else:
                 print(f': {COLOR_RED}fail{COLOR_RESET}')
 
-                print(f'{self.tab}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
+                print(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
                 for line in test.tb[:-1]:
-                    print(f'{self.tab}{COLOR_RED}|{COLOR_RESET} {line}')
+                    print(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
-                print(f'{self.tab}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
+                print(f'{self.tabplus}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
 
     def __getattr__(self, method_name):
         for key in dir(self.outer):
