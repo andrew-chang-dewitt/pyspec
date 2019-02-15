@@ -111,6 +111,6 @@ outer.it('but outer methods/attributes will remain unchanged',
 outer.it('outer groups can also access the attributes of an inner group',
     inner.attr).should.eq('inner attribute')
 
-# lastly, inner test groups do not need to be explicitly called, as they will
+# lastly, inner test groups can not be be explicitly called, as they will
 # instead be called by their enclosing test group at run time
 outer.run()

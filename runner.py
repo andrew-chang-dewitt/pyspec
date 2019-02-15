@@ -21,6 +21,8 @@ class Describe:
             self.base = self.tab
             self.tab += '  '
             outer.inners.append(self)
+        else:
+            self.run = self._run
 
     def it(self, description, code):
         test_obj = Test(description, code)
@@ -28,11 +30,11 @@ class Describe:
 
         return test_obj
 
-    def run(self):
+    def _run(self):
         print(f'{self.base}{self.description}')
 
         if self.inners is not None:
-            for inner in self.inners: inner.run()
+            for inner in self.inners: inner._run()
 
         for test in self.tests:
             print(f'{self.tab}- {test.name}', end='')
@@ -50,11 +52,16 @@ class Describe:
                 print(f'{self.tabplus}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
 
     def __getattr__(self, method_name):
+        def doesnt_exist():
+            raise AttributeError(f'No such attribute: {method_name}')
+
+        if method_name == 'run': return doesnt_exist()
+
         for key in dir(self.outer):
             if key == method_name:
                 return getattr(self.outer, key)
 
-        else: raise AttributeError(f'No such attribute: {method_name}')
+        else: return doesnt_exist()
 
 class Test:
     def __init__(self, name, code):
