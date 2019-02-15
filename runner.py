@@ -4,14 +4,16 @@ COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description):
-    return Describe(description)
+def describe(description, outer=None):
+    return Describe(description, outer)
 
 class Describe:
-    def __init__(self, description, parent=None):
+    def __init__(self, description, outer=None):
         self.description = description
         self.tests = []
         self.tab = '\t'
+
+        self.outer = outer
 
     def it(self, description, code):
         test_obj = Test(description, code)
@@ -36,6 +38,13 @@ class Describe:
                     print(f'{self.tab}{COLOR_RED}|{COLOR_RESET} {line}')
 
                 print(f'{self.tab}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
+
+    def __getattr__(self, method_name):
+        for key in dir(self.outer):
+            if key == method_name:
+                return getattr(self.outer, key)
+
+        else: raise AttributeError(f'No such attribute: {method_name}')
 
 class Test:
     def __init__(self, name, code):

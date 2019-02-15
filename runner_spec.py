@@ -70,44 +70,34 @@ failures.run()
 ####
 # FIXME: below needs changed into new syntax
 #      : features may need added
-# 
-# # You can also have one group of tests inherit class & instance variables from
-# # another group of tests by passing the intended parent class 
-# # instead of Runner's `Describe` class
-# class Inherit(Let):
-#     def test(self):
-#         def see_inherited_variables():
-#             # then you can refer to it as if it were a variable of this class
-#             # instance:
-#             expect(self.five).to(eq(5))
-#             # class:
-#             expect(self.five_prop).to(eq(5))
-#             expect(self.five_inst).to(eq(5))
-#         self.it('see inherited variables', see_inherited_variables)
-# 
-#         # you can even modify the inherited instance & class variables without
-#         # modifying it in the parent test group class
-#         def modify_inherited_variables():
-#             self.five_inst = 6
-#             expect(self.five_inst).to(eq(6))
-#         self.it('modify inherited variables', modify_inherited_variables)
-# 
-#         # unmodified variables from the parent test group can be accessed directly
-#         def access_original_variable():
-#             # do this by initializing an instance of the parent & requesting 
-#             # it's instance variable directly with dot notation
-#             expect(Let('let').five_inst).to(eq(5))
-# 
-#             # or by initializing it & assigning it to a variable, then
-#             # using it as needed
-#             let = Let('let')
-#             six = let.five_inst + 1
-#             expect(six).to(eq(6))
-#         self.it('access original variable from parent', access_original_variable)
-# 
-#         # but original values are not changed in the parent test group
-#         def original_values_unchanged():
-#             expect(Let('let').five_inst).to(eq(5))
-#         self.it("won't change original values in parent", original_values_unchanged)
-# 
-# Inherit('inherit state from a parent test group').run()
+
+# You can also have one group of tests inherit state from another
+outer = describe('outer')
+
+def method(arg):
+    return f'cool method, {arg}'
+
+outer.attr = 'attribute'
+outer.mthd = method
+
+inner = describe('inner', outer)
+
+inner.it('can see outer attributes',
+    inner.attr).should.eq('attribute')
+
+inner.it('can use outer methods',
+    lambda: inner.mthd('brah')).should.eq('cool method, brah')
+
+inner.attr = 'inner attribute'
+
+inner.it('can redefine/reassign outer methods/attributes',
+    inner.attr).should.eq('inner attribute')
+
+outer.it('but outer methods/attributes will remain unchanged',
+    outer.attr).should.eq('attribute')
+
+outer.it('outer groups can also access the attributes of an inner group',
+    inner.attr).should.eq('inner attribute')
+
+inner.run()
+outer.run()
