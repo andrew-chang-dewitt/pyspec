@@ -1,3 +1,5 @@
+"""tests for python test runner"""
+
 from runner import describe
 
 ### EXPECTATIONS ###
