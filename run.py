@@ -1,4 +1,4 @@
-import app
+from app.runner import Describe
 import tests
 from types import ModuleType
 
@@ -10,13 +10,13 @@ def all_tests():
             _run(mod_obj)
 
 def one_file(file_name):
-    mod = getattr(tests, file_name)
-    _run(mod)
+    mod_obj = getattr(tests, file_name)
+    _run(mod_obj)
 
 def _run(mod):
     for item in dir(mod):
         item_obj = getattr(mod, item)
-        if isinstance(item_obj, app.runner.Describe) and not hasattr(item_obj, 'outer'):
+        if isinstance(item_obj, Describe) and not hasattr(item_obj, 'outer'):
             item_obj.run()
 
 print('\n\nrunning all tests\n')
