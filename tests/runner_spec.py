@@ -1,6 +1,6 @@
 """tests for python test runner"""
 
-from runner import describe
+from app import describe
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`
