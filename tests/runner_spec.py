@@ -20,9 +20,6 @@ expectations.it('can expect exceptions',
 # must be wrapped in a function, otherwise the error will be raised before the
 # expression is passed to the test runner
 
-# A group of tests is ran by calling it's `run()` method
-expectations.run()
-
 ### COMMON###
 # You can also define common variables for a group of tests
 common = describe('set common state')
@@ -41,8 +38,6 @@ common.it('can use common attributes',
 
 common.it('can use common methods',
           common.five_mthd).should.eq(5)
-
-common.run()
 
 ### FAILURES ###
 # you can also test that a given test will always fail as expected
@@ -69,8 +64,6 @@ failures.it('can show the expected error type',
 
 failures.it('can show the expected error message',
             failures.failed_msg).should.eq('expected 2, but got 1')
-
-failures.run()
 
 # You can also have one group of tests inherit state from another
 # for example, you may have a standard test group
@@ -116,7 +109,3 @@ outer.it('but outer methods/attributes will remain unchanged',
 # specifying it, seen here by using `inner.attr` in a test run by `outer`
 outer.it('outer groups can also access the attributes of an inner group',
          inner.attr).should.eq('inner attribute')
-
-# lastly, inner test groups can not be be explicitly called, as they will
-# instead be called by their enclosing test group at run time
-outer.run()

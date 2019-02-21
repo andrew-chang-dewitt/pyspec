@@ -108,7 +108,8 @@ class Describe:
         def doesnt_exist():
             raise AttributeError(f'No such attribute: {method_name}')
 
-        if method_name == 'run':
+        if method_name in ('run', 'outer'):
+        # if method_name == 'run' or method_name == 'outer':
             return doesnt_exist()
 
         for key in dir(self.outer):
