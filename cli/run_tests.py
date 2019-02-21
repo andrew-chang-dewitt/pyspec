@@ -8,11 +8,11 @@ def all_tests(test_dir_str):
     for mod in dir(test_dir):
         mod_obj = getattr(test_dir, mod)
         if isinstance(mod_obj, ModuleType):
-            print('\n', f'running module {mod}')
+            print('\n' + f'running module {mod}')
             _run(mod_obj)
 
-def one_file(file_name):
-    mod_obj = getattr(tests, file_name)
+def one_file(file_path_str):
+    mod_obj = importlib.import_module(file_path_str)
     _run(mod_obj)
 
 def _run(mod):
