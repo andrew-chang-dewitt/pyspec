@@ -1,4 +1,4 @@
-from app import describe
+from api import describe
 
 example = describe('example')
 

@@ -1,5 +1,5 @@
 import importlib
-from app.runner import Describe
+from api.runner import Describe
 from types import ModuleType
 
 def all_tests(test_dir_str):
