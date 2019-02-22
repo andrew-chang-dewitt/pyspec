@@ -3,20 +3,14 @@
 entry point for the pyspec program
 """
 
-import sys
+import click
 from cli import run_tests
 from api import describe
 
-def main():
-    """
-    entry point for the pyspec program
-    """
-
-    print('in entry.main()')
-    args = sys.argv[1:]
-    for arg in args:
-        print(f'passed arg: {arg}')
-
+@click.command()
+@click.argument('method')
+@click.argument('module')
+def main(method, module):
     def all_tests(path):
         run_tests.all_tests(path)
 
@@ -28,4 +22,4 @@ def main():
         'one': one_file
     }
 
-    options[args[0]](args[1])
+    options[method](module)
