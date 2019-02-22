@@ -29,6 +29,3 @@ def main():
     }
 
     options[args[0]](args[1])
-
-if __name__ == '__main__':
-    main()
