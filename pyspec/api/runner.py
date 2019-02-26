@@ -3,6 +3,7 @@ Test runner for python, see runner_spec for example usage
 """
 
 import traceback
+# from . import pub
 
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
@@ -20,7 +21,10 @@ def describe(description, outer=None):
     - An instance of Describe
     """
 
-    return Describe(description, outer)
+    test_group = Describe(description, outer)
+#     pub.new_test_group(test_group)
+
+    return test_group
 
 class Describe:
     """
@@ -149,19 +153,15 @@ class Test:
     def _init_should(self):
         return self.Should(self.code, self)
 
-#     def result(self, success, err=None, stack_trace=None):
-#         self.success = success
-#         print(f'result set, success is {success}, err is {err}, & stack_ is {stack_trace}')
-#
-#         if err is not None:
-#             self.err = err
-#
-#         if stack_trace is not None:
-#             if isinstance(stack_trace, str):
-#                 self.stack_trace = stack_trace
-#             else:
-#                 self.stack_trace = stack_trace.splitlines()
-#
+    def result(self, success, err=None, stack_trace=None):
+        self.success = success
+
+        if err is not None:
+            self.err = err
+
+        if stack_trace is not None:
+            self.stack_trace = stack_trace
+
     class Should:
         """
         An object containing methods for making Assertations of different types.
@@ -210,6 +210,7 @@ class Test:
             # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
+                self.test_called.result(False, err, traceback.format_exc().splitlines())
                 self.test_called.success = False
                 self.test_called.err = err
                 self.test_called.stack_trace = traceback.format_exc().splitlines()
