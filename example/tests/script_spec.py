@@ -1,4 +1,9 @@
 from api import describe
+import os
+print(os.getcwd())
+import sys
+print(sys.path)
+
 from example import script
 
 test = describe('example test on script.test()')
