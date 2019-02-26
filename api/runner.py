@@ -149,19 +149,19 @@ class Test:
     def _init_should(self):
         return self.Should(self.code, self)
 
-    def result(self, success, err=None, stack_trace=None):
-        self.success = success
-        print(f'result set, success is {success}, err is {err}, & stack_ is {stack_trace}')
-
-        if err is not None:
-            self.err = err
-            
-        if stack_trace is not None:
-            if isinstance(stack_trace, str):
-                self.stack_trace = stack_trace
-            else:
-                self.stack_trace = stack_trace.splitlines()
-
+#     def result(self, success, err=None, stack_trace=None):
+#         self.success = success
+#         print(f'result set, success is {success}, err is {err}, & stack_ is {stack_trace}')
+#
+#         if err is not None:
+#             self.err = err
+#
+#         if stack_trace is not None:
+#             if isinstance(stack_trace, str):
+#                 self.stack_trace = stack_trace
+#             else:
+#                 self.stack_trace = stack_trace.splitlines()
+#
     class Should:
         """
         An object containing methods for making Assertations of different types.
@@ -267,7 +267,7 @@ class Test:
 
                 self.test_called.success = True
 
-            except Exception as err: #pylint: disable=broad-except
+            except Exception as err: # pylint: disable=broad-except
                 self.test_called.success = False
                 self.test_called.err = err
                 self.test_called.stack_trace = traceback.format_exc().splitlines()
@@ -300,7 +300,7 @@ class Test:
             except TypeError:
                 raise TypeError(f'the result of self._code_result is not an iterable')
 
-            except Exception as err:
+            except Exception as err: # pylint: disable=broad-except
                 self.test_called.success = False
                 self.test_called.err = err
                 self.test_called.stack_trace = traceback.format_exc().splitlines()
