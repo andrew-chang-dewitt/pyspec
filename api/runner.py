@@ -99,10 +99,10 @@ class Describe:
 
                 print(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
-                for line in test.tb[:-1]:
+                for line in test.stack_trace[:-1]:
                     print(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
-                print(f'{self.tabplus}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
+                print(f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}')
 
     def __getattr__(self, method_name):
         def doesnt_exist():
@@ -142,9 +142,25 @@ class Test:
         self.name = name
         self.code = code
         self.should = self._init_should()
+        self.success = None
+        self.err = None
+        self.stack_trace = None
 
     def _init_should(self):
         return self.Should(self.code, self)
+
+    def result(self, success, err=None, stack_trace=None):
+        self.success = success
+        print(f'result set, success is {success}, err is {err}, & stack_ is {stack_trace}')
+
+        if err is not None:
+            self.err = err
+            
+        if stack_trace is not None:
+            if isinstance(stack_trace, str):
+                self.stack_trace = stack_trace
+            else:
+                self.stack_trace = stack_trace.splitlines()
 
     class Should:
         """
@@ -191,12 +207,12 @@ class Test:
                 self.test_called.success = True
 
             # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `tb`
+            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
                 self.test_called.success = False
                 self.test_called.err = err
-                self.test_called.tb = traceback.format_exc().splitlines()
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
 
@@ -212,10 +228,10 @@ class Test:
                 self.test_called.success = False
                 no_err_msg = f'No error was raised, instead got {code_result}'
                 self.test_called.err = no_err_msg
-                self.test_called.tb = [no_err_msg]
+                self.test_called.stack_trace = [no_err_msg]
 
             # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `tb`
+            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
                 # disabling pylint warning on typecheck as the only test that should
@@ -233,6 +249,60 @@ class Test:
             except AssertionError as err: # pylint: disable=bad-except-order
                 self.test_called.success = False
                 self.test_called.err = err
-                self.test_called.tb = traceback.format_exc().splitlines()
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
+
+            return self.test_called
+
+        def be_a(self, expected_class):
+            """
+            Compares _code_result() to expected_class & changes outer Test instance's
+            success attribute to True if they match, or False if they don't.
+            """
+
+            try:
+                code_result = self._code_result()
+
+                if not isinstance(code_result, list):
+                    raise AssertionError(f'expected {expected_class}, but got {code_result}')
+
+                self.test_called.success = True
+
+            except Exception as err: #pylint: disable=broad-except
+                self.test_called.success = False
+                self.test_called.err = err
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
+
+            return self.test_called
+
+        def include(self, *args):
+            """
+            Requires `self._code_result()` to return an iterable.
+            Checks all object names given in `*args` against the iterable & returns a
+            successful test if they are found; otherwise returns a failing test with
+            a list of what objects weren't found.
+            """
+
+            try:
+                actual_groups = self._code_result()
+                expected_groups = args
+
+                not_found = []
+
+                for item in expected_groups:
+                    if item not in actual_groups:
+                        not_found.append(item)
+
+                if len(not_found) > 0:
+                    raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
+
+                self.test_called.success = True
+
+            except TypeError:
+                raise TypeError(f'the result of self._code_result is not an iterable')
+
+            except Exception as err:
+                self.test_called.success = False
+                self.test_called.err = err
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called

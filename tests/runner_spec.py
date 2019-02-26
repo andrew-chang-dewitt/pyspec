@@ -1,6 +1,7 @@
 """tests for python test runner"""
 
 from api import describe
+from api import view
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`
@@ -109,3 +110,21 @@ outer.it('but outer methods/attributes will remain unchanged',
 # specifying it, seen here by using `inner.attr` in a test run by `outer`
 outer.it('outer groups can also access the attributes of an inner group',
          inner.attr).should.eq('inner attribute')
+
+list_groups = describe('view list of test groups available in module(s)')
+
+def test_groups():
+    return view.test_groups('tests.runner_spec')
+
+list_groups.test_groups = test_groups
+
+list_groups.it('can compile & return a list object',
+        list_groups.test_groups).should.be_a(list)
+
+list_groups.it('is a list with the containing the correct members',
+        list_groups.test_groups).should.include('expectations',
+                                                'common',
+                                                'failures',
+                                                'outer',
+                                                'inner',
+                                                'list_groups')
