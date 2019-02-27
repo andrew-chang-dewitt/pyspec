@@ -8,11 +8,10 @@ Super simple & not at all well-tested installation instructions:
   `git clone git@github.com:andrew-dewitt/pyspec.git`
 2. change directory to the repo root 
   `cd pyspec`
-2. check out the release branch
+2. check out the release branch because none of the path installation 
+    features for CLI or library are merged to master yet
   `git checkout release`
 3. make sure your desired python environment is activated (if desired)
-4. install requirements using
-  `pip install -r requirements.txt`
 5. install the pyspec package locally
   `pip install .`
   use the `--editable` flag if you wish to make changes and/or contribute
