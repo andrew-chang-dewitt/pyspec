@@ -23,7 +23,7 @@ expectations.it('can expect exceptions',
 expectations.it('can expect a specific object type',
                 1).should.be_a(int)
 
-expectations.it('can check if an object is in a collection',
+expectations.it('can expect an object to be a member of a collection',
                 ['other_member', 'member', 1, 2, 3]).should.include('member')
 
 ### COMMON###
