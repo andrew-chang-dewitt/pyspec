@@ -7,16 +7,11 @@ from pyspec.api.runner import Describe
 cwd = os.getcwd()
 
 def all_tests(test_dir_str):
-    print('running all_tests()')
     path = cwd + '/' + test_dir_str + '/*_spec.py'
-    print(f'searching in {path}')
     spec_files = glob.glob(path)
-    print(f'spec_files found: {spec_files}')
 
     for spec_file in spec_files:
-        print(f'fetching {spec_file}')
         mod_obj = _get_module(spec_file, True)
-        print(f'running')
         _run(mod_obj)
 
 def one_file(file_path_str):

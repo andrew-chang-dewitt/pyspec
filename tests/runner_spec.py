@@ -20,6 +20,12 @@ expectations.it('can expect exceptions',
 # must be wrapped in a function, otherwise the error will be raised before the
 # expression is passed to the test runner
 
+expectations.it('can expect a specific object type',
+                1).should.be_a(int)
+
+expectations.it('can check if an object is in a collection',
+                ['other_member', 'member', 1, 2, 3]).should.include('member')
+
 ### COMMON###
 # You can also define common variables for a group of tests
 common = describe('set common state')
