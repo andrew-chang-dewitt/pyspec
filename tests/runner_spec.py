@@ -1,6 +1,6 @@
 """tests for python test runner"""
 
-from api import describe
+from pyspec.api import describe
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`

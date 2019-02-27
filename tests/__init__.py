@@ -1,1 +1,1 @@
-from . import (runner_spec, another_test)
+from . import (runner_spec,)

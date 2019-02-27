@@ -1,6 +1,6 @@
 import importlib
-from api.runner import Describe
 from types import ModuleType
+from pyspec.api.runner import Describe
 
 def all_tests(test_dir_str):
     test_dir = importlib.import_module(test_dir_str)

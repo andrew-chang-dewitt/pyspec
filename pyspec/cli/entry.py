@@ -4,8 +4,8 @@ entry point for the pyspec program
 """
 
 import click
-from cli import run_tests
-from api import describe
+from pyspec.cli import run_tests
+from pyspec.api import describe
 
 @click.command()
 @click.argument('method')
