@@ -20,15 +20,11 @@ def all_tests(test_dir_str):
         _run(mod_obj)
 
 def one_file(file_path_str):
-    mod_obj = importlib.import_module(file_path_str)
+    mod_obj = _get_module(file_path_str)
     _run(mod_obj)
 
 def _get_module(name, full_path=False):
-    
-    if full_path:
-        path = name
-    else:
-        path = cwd + '/' + name + '.py'
+    path = name if full_path else cwd + '/' + name + '.py'
 
     # using SourceFileLoader & .exec_module from this answer on SO:
     # https://stackoverflow.com/a/19011259/4642869
