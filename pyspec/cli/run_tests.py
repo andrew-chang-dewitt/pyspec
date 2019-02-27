@@ -13,7 +13,6 @@ sys.path.append(cwd)
 def all_tests(test_dir_str):
     path = cwd + '/' + test_dir_str + '/*_spec.py'
     spec_files = glob.glob(path)
-    print(f'spec_files: {spec_files}')
 
     for spec_file in spec_files:
         mod_obj = _get_module(spec_file, True)
