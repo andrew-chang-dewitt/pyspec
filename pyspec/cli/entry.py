@@ -5,14 +5,12 @@ entry point for the pyspec program
 
 import click
 from pyspec.cli import run_tests
-from pyspec.api import describe
 
 @click.group()
 def main():
     """
-    CLI companion tool for the Pyspec testing library. 
+    CLI companion tool for the Pyspec testing library.
     """
-    pass
 
 @main.command('all')
 @click.argument('path')
