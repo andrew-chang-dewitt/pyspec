@@ -1,14 +1,19 @@
 import os
+import sys
 import glob
 import importlib.machinery
 from types import ModuleType
 from pyspec.api.runner import Describe
 
 cwd = os.getcwd()
+# ugly sys.path hack, necessary to allow tests to correctly import any
+# local modules in their package
+sys.path.append(cwd)
 
 def all_tests(test_dir_str):
     path = cwd + '/' + test_dir_str + '/*_spec.py'
     spec_files = glob.glob(path)
+    print(f'spec_files: {spec_files}')
 
     for spec_file in spec_files:
         mod_obj = _get_module(spec_file, True)
