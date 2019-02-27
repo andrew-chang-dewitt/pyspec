@@ -5,7 +5,7 @@ a barebones rspec style test runner for python
 Super simple & not at all well-tested installation instructions:
 
 1. clone this repo wherever you like
-  `git clone ?`
+  `git clone git@github.com:andrew-dewitt/pyspec.git`
 2. change directory to the repo root 
   `cd pyspec`
 2. check out the release branch
