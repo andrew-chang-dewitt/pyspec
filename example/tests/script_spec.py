@@ -1,4 +1,4 @@
-from api import describe
+from pyspec.api import describe
 from example import script
 
 test = describe('example test on script.test()')
