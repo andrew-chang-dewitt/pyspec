@@ -151,8 +151,7 @@ With a file structure like this:
 
 ```
 .
-|
--- example.py
-|
--- example_spec.py
+|__ example.py
+|__ example_spec.py
+
 ```
