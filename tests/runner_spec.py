@@ -1,10 +1,13 @@
 """tests for python test runner"""
 
 from pyspec.api import describe
+from pyspec.api import spec_struct
+
+RUNNER = spec_struct()
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`
-expectations = describe('set expectations')
+expectations = describe('set expectations', RUNNER)
 
 # tests can be set up to expect a return value
 expectations.it('can expect values',
@@ -28,7 +31,7 @@ expectations.it('can expect an object to be a member of a collection',
 
 ### COMMON###
 # You can also define common variables for a group of tests
-common = describe('set common state')
+common = describe('set common state', RUNNER)
 
 # this is done by creating new attributes on the test group
 common.five = 5
@@ -47,7 +50,7 @@ common.it('can use common methods',
 
 ### FAILURES ###
 # you can also test that a given test will always fail as expected
-failures = describe('communicate failures')
+failures = describe('communicate failures', RUNNER)
 
 # to do this, first create a failing test
 failures.fail = describe('failure').it('should fail', 1).should.eq(2)
@@ -73,7 +76,7 @@ failures.it('can show the expected error message',
 
 # You can also have one group of tests inherit state from another
 # for example, you may have a standard test group
-outer = describe('outer')
+outer = describe('outer', RUNNER)
 
 # with some state containing methods & attributes
 def method(arg):
@@ -87,7 +90,7 @@ outer.mthd = method
 # same methods & attributes, but exist as a separate test group
 # to designate this new group as 'nested within' or inheriting from another,
 # just pass the first group as a second argument to `describe()`
-inner = describe('inner', outer)
+inner = describe('inner', RUNNER, outer)
 
 # this inner, nested test will be able to referr to the outer group's
 # attributes & methods as if it were its own without having to directly

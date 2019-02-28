@@ -8,6 +8,6 @@ setup(
     install_requires=['Click'],
     entry_points='''
         [console_scripts]
-        pyspec=pyspec.cli.entry:main
+        pyspec=pyspec.cli.entry:entry_point
     ''',
 )

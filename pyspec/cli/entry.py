@@ -5,14 +5,15 @@ entry point for the pyspec program
 
 import click
 from pyspec.cli import run_tests
+from pyspec.cli.click_cust import ErrorHandlingGroup
 
-@click.group()
-def main():
+@click.group(cls=ErrorHandlingGroup)
+def entry_point():
     """
     CLI companion tool for the Pyspec testing library.
     """
 
-@main.command('all')
+@entry_point.command('all')
 @click.argument('path')
 def all_tests(path):
     """
@@ -21,7 +22,7 @@ def all_tests(path):
     """
     run_tests.all_tests(path)
 
-@main.command()
+@entry_point.command()
 @click.argument('module')
 def one(module):
     """

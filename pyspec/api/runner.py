@@ -3,12 +3,13 @@ Test runner for python, see runner_spec for example usage
 """
 
 import traceback
+from pyspec.api.spec_struct import SpecStruct
 
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description, outer=None):
+def describe(description, runner=None, outer=None):
     """
     Initilizes a new test group object using Describe
 
@@ -20,7 +21,7 @@ def describe(description, outer=None):
     - An instance of Describe
     """
 
-    return Describe(description, outer)
+    return Describe(description, runner, outer)
 
 class Describe:
     """
@@ -45,8 +46,10 @@ class Describe:
     to Ruby's method_missing.
     """
 
-    def __init__(self, description, outer=None):
+    def __init__(self, description, runner, outer=None):
         self.description = description
+
+        self.runner = runner
         self.tests = []
         self.inners = []
         self.base = ''
@@ -59,6 +62,9 @@ class Describe:
             self.tab += '  '
             outer.inners.append(self)
         else:
+            if self.runner is not None:
+                self.runner.add_group(self)
+
             self.run = self._run
 
     # A short name is chosen as the method will be referenced very often by the
