@@ -203,9 +203,16 @@ group = describe('this is a test group', RUNNER)
 ...
 ```
 
-Lastly, you can remove the last line, `group.run()`, of `example_spec.py` 
-as `Describe.run()`will now be invoked by the CLI through the 
-metastructure RUNNER.
+Lastly, you must remove the last line, `group.run()`, of `example_spec.py` 
+as `Describe.run()`will now be invoked by the CLI through the metastructure 
+RUNNER. Alternatively, you can guard the line by wrapping it in an `if` 
+statement checking if the file is imported, or ran directly:
+
+```python
+...
+if __name__ == '__main__':
+    group.run()
+```
 
 Now, you should be able to run the spec using the CLI command `one`, 
 referring to `example_spec` in your arguments:
