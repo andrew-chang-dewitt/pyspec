@@ -45,6 +45,12 @@ a barebones BDD style test runner for python
 Quickstart
 ----------
 
+
+The simplest use case is to write spec files intended to be directly called 
+by python, without any support for the CLI tool.
+
+### Basic example
+
 Writing a test script begins with **describing** a test group, then 
 adding tests to **it** using `describe()` & `Describe.it()`. To do this, first 
 import `describe` from `pyspec` & any modules your are testing: 
@@ -154,4 +160,62 @@ With a file structure like this:
 |__ example.py
 |__ example_spec.py
 
+```
+
+### Adding CLI support
+
+To add CLI support to the above example, a few small changes need to
+be made.
+
+First, another method needs imported from the pyspec library: 
+`spec_struct`. This method builds a meta structure of the spec file
+that is used by the CLI tools to parse & run the tests. Add the following
+import statement between `from pyspec import describe` & `import example` 
+in `example_spec.py`
+
+```python
+from pyspec import describe
+from pyspec import spec_struct
+import example
+...
+```
+
+Next, a SpectStruct object needs to be initialized using the `spect_struct()`
+method after `import example`
+
+```python 
+...
+import example
+
+RUNNER = spect_struct()
+
+group = describe('...
+```
+
+Then, the newly created SpectStruct object, `RUNNER` needs passed as the 
+second argument each time a test group is described:
+
+```python
+...
+RUNNER = spect_struct()
+
+group = describe('this is a test group', RUNNER)
+...
+```
+
+Lastly, you can remove the last line, `group.run()`, of `example_spec.py` 
+as `Describe.run()`will now be invoked by the CLI through the 
+metastructure RUNNER.
+
+Now, you should be able to run the spec using the CLI command `one`, 
+referring to `example_spec` in your arguments:
+
+```bash
+user@host:~/example $ pyspec one example_spec
+
+This is a test group
+  - this test will pass ok
+  - Two should be an instance of Int ok
+  - This test is from `example.py` ok
+  - Another test from `example.py` ok
 ```
