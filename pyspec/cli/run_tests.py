@@ -3,15 +3,15 @@ import sys
 import glob
 import importlib.machinery
 from types import ModuleType
-from pyspec.api.runner import Describe
+from pyspec.cli import click_cust
 
-cwd = os.getcwd()
+CWD = os.getcwd()
 # ugly sys.path hack, necessary to allow tests to correctly import any
 # local modules in their package
-sys.path.append(cwd)
+sys.path.append(CWD)
 
 def all_tests(test_dir_str):
-    path = cwd + '/' + test_dir_str + '/*_spec.py'
+    path = CWD + '/' + test_dir_str + '/*_spec.py'
     spec_files = glob.glob(path)
 
     for spec_file in spec_files:
@@ -23,7 +23,7 @@ def one_file(file_path_str):
     _run(mod_obj)
 
 def _get_module(name, full_path=False):
-    path = name if full_path else cwd + '/' + name + '.py'
+    path = name if full_path else CWD + '/' + name + '.py'
 
     # using SourceFileLoader & .exec_module from this answer on SO:
     # https://stackoverflow.com/a/19011259/4642869
@@ -34,7 +34,7 @@ def _get_module(name, full_path=False):
     return module
 
 def _run(mod):
-    for item in dir(mod):
-        item_obj = getattr(mod, item)
-        if isinstance(item_obj, Describe) and not hasattr(item_obj, 'outer'):
-            item_obj.run()
+    try:
+        mod.RUNNER.run_all()
+    except AttributeError:
+        raise click_cust.NoRunnerError(mod.__name__)
