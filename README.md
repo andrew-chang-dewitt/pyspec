@@ -18,7 +18,7 @@ To install **pyspec**, first clone this repo in the directory of your choosing. 
 this example, we are installing to ~/pyspec.
 
 ```bash
-user@host ~/ $ git clone git@github.com:andrew-dewitt/pyspec.git
+user@host:~/ $ git clone git@github.com:andrew-dewitt/pyspec.git
 ```
 
 Then `cd` into the project root, activate your chosen python virtual
@@ -26,17 +26,17 @@ environment (this example assumes virtualenv, installed at pyspec/env), &
 install using pip:
 
 ```bash
-user@host ~/ $ cd pyspec
-user@host ~/pyspec $ source env/bin/activate
+user@host:~/ $ cd pyspec
+user@host:~/pyspec $ source env/bin/activate
 (env)
-user@host ~/pyspec $ pip install .
+user@host:~/pyspec $ pip install .
 ```
 
 Confirm the CLI installed correctly & is available at your path using 
 `pyspec -V`, which should return the following:
 
 ```bash
-user@host ~/pyspec $ pyspec -V
+user@host:~/pyspec $ pyspec -V
 pyspec: version 0.1.0
 --------------------------------------------
 a barebones BDD style test runner for python
