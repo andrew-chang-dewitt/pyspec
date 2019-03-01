@@ -53,21 +53,21 @@ testing groups as subsets of related test groups.
 
   a string describing the test group
 
-- **runner** (SpecStruct instance), optional 
-  
-  a class used by the CLI to parse the test group, optional
+- **inners** (LIST)			
+
+  an empty list where any nested test groups will be stored
 
 - **outer** (Describe instance), optional
 
   another test group to inherit common state from, optional
   
+- **runner** (SpecStruct instance), optional 
+  
+  a class used by the CLI to parse the test group, optional
+
 - **tests** (LIST)			
 
   an empty list where each test function will be stored
-
-- **inners** (LIST)			
-
-  an empty list where any nested test groups will be stored
 
 - **base**, **tab**, & **tabplus** (STRING)		
   
