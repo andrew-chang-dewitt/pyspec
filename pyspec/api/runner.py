@@ -15,9 +15,9 @@ def describe(description, runner=None, outer=None):
 
     Accepts:
     - description   (STRING)                a string describing the test group
-    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test 
+    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test
                                             group, optional
-    - [outer]       (Describe instance)     another test group to inherit common state 
+    - [outer]       (Describe instance)     another test group to inherit common state
                                             from, optional
 
     Returns:

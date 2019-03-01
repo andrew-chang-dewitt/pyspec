@@ -1,4 +1,4 @@
-PySpec Library API
+ySpec Library API
 ==================
 
 There are two top level functions exposed by the PySpec Library:
@@ -28,6 +28,12 @@ CLI tools, and/or an _outergroup_ that this Describe object will be nested withi
 Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This 
 object can be passed to any Describe object on initialization to make the test
 group available for the CLI tool to view, run, & print.
+
+    Used to initialize a new SpecStruct instance. This is the only function
+    directly exposed by the API from this module.
+    SpecStruct initializes with just one attribute: test_groups.
+    All groups will be stored here. A list is used because it preserves
+    member order with a numbered index & is easily searchable.
 
 Describe class
 --------------
