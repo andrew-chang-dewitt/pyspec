@@ -8,6 +8,10 @@ def spec_struct():
     """
     Used to initialize a new SpecStruct instance. This is the only function
     directly exposed by the API from this module.
+
+    Arguments: 	None
+    Returns: 	An instance of the SpecStruct class with an empty 
+    		test_groups attribute.
     """
     return SpecStruct()
 
