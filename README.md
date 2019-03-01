@@ -18,7 +18,6 @@ Contents
   - [Library API](/docs/lib.md)
 
 [//]: # (FIXME: CLI manual still needs to be created & uploaded)
-[//]: # ( - [CLI manual](/docs/cli.md))
 
 Installation
 ------------
