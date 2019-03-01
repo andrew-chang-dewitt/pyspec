@@ -15,8 +15,10 @@ CLI tools, and/or an _outergroup_ that this Describe object will be nested withi
 
     Accepts:
     - description   (STRING)                a string describing the test group
-    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test group
-    - [outer]       (Describe instance)     another test group to inherit common state from, optional
+    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test
+                                            group, optional
+    - [outer]       (Describe instance)     another test group to inherit common state
+                                            from, optional
 
     Returns:
     - An instance of Describe
