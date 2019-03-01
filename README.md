@@ -2,7 +2,7 @@ PySpec
 ======
 A barebones BDD style test runner for python 
 
-Loosley inspired by RSpec, PySpec is intended for use in a behavior-driven 
+Loosely inspired by RSpec, PySpec is intended for use in a behavior-driven 
 development workflow (although it may work for unit testing, depending on 
 your needs). It includes a testing library & a basic CLI tool. 
 PySpec is a work in progress. 
