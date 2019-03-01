@@ -5,7 +5,7 @@ There are two top level functions exposed by the PySpec Library:
 
 ### pyspec.describe(_description_, _metastructure=None_, _outergroup=None_):
 
-Initializes & returns *Describe()* object
+Initializes & returns **Describe()** object
 
 ### pyspec.spec_struct():
 
