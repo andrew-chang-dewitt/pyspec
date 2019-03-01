@@ -133,11 +133,17 @@ results (stored at Test.result).
   to be handled by one. Alternatively, code can be a non-callable expression such as 
   `1 + 1` or a variable name where a value desired to be tested is stored.
 
+- **should** (Should instance)
+
+  An attribute pointing to an instance of [Should()](#should-class), allowing for more
+  concise & readable syntax when writing tests.
+
 After a test has been run, the Test object will also have the following attribute: 
 
 - **success** (BOOL)
 
-  Represents if the test is successful or not, the value is set by methods on Should.
+  Represents if the test is successful or not, the value is set by methods on 
+  [Should()](#should-class).
 
 
 #### Should class
