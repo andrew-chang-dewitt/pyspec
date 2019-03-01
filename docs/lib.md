@@ -11,17 +11,13 @@ instance of _[SpectStruct](#specstruct-class)_ for making the Describe object av
 to the PySpec CLI tools, and/or an _outergroup_ that this Describe object will be 
 nested within (see _[class Describe.outer](#describe-class)_ for more).
 
-    Initilizes a new test group object using Describe
+_**Accepts**_:
 
-    Accepts:
-    - description   (STRING)                a string describing the test group
-    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test
-                                            group, optional
-    - [outer]       (Describe instance)     another test group to inherit common state
-                                            from, optional
+- `description` (STRING) a string describing the test group
+- [`runner`] \(SpecStruct instance) a class used by the CLI to parse the test group, optional
+- [`outer`] \(Describe instance) another test group to inherit common state from, optional
 
-    Returns:
-    - An instance of Describe
+_**Returns**_: An instance of Describe
 
 #### pyspec.spec_struct():
 
@@ -29,12 +25,8 @@ Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This
 object can be passed to any Describe object on initialization to make the test
 group available for the CLI tool to view, run, & print.
 
-    Used to initialize a new SpecStruct instance. This is the only function
-    directly exposed by the API from this module.
-
-    Arguments: 	None
-    Returns: 	An instance of the SpecStruct class with an empty 
-    		test_groups attribute.
+_**Arguments**_: None
+_**Returns**_: An instance of the SpecStruct class with an empty `test_groups` attribute.
 
 
 Describe class
@@ -85,16 +77,13 @@ included in the `tests` attribute list.
 A method used to create a new test in the group, adds an instance of Test to
 the self.tests list and returns it.
 
-    Accepts:
-    
-    - description (STRING)  a short description to be printed when the test is ran
-    - code (EXPRESSION)     a python expression to be executed & have the result 
-                            used as the ACTUAL value to be compared against an 
-                            EXPECTED value
+_**Accepts**_:
 
-    Returns:
+- `description` (STRING) a short description to be printed when the test is ran
+- `code` (EXPRESSION) a python expression to be executed & have the result used as 
+the ACTUAL value to be compared against an EXPECTED value.
 
-    An instance of Test(), an inner class on Describe()
+_**Returns**_: An instance of Test(), an inner class on Describe()
 
 _**Example usage:**_
 
@@ -157,6 +146,10 @@ that each offer different types of comparisons.
 
 ### Methods:
 
+Each of the following methods is used to make an assertation about the ACTUAL result the code 
+passed to `Test` will evaluate to versus the EXPECTED value given to the method. All of these 
+methods will return the original Test object that the method was called on.
+
 #### Should.eq(_expected_):
 
 Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test 
@@ -164,9 +157,9 @@ instance's success attribute accordingly, then returns the newly modified Test i
 `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal 
 to False, otherwise it will be made to be equal to True.
 
-    Accepts:
+_**Accepts**_:
 
-    - `expected` (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+- `expected` (EXPRESSION) A value that `Test.code` is expected to evaluate to.
 
 #### Should.raise\_error(_expected\_err_):
 
@@ -176,25 +169,35 @@ If `expected_err` does not equal the error that should be raise by executing `Te
 (or if `Test.code` does not raise an error when evaluated), then `Test.success` will be 
 made to equal to False, otherwise it will be made to be equal to True.
 
-    Accepts:
+_**Accepts**_:
 
-    - `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
+- `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
 
-#### Should.(_expected_):
+#### Should.be\_a(_expected\_class_):
 
-Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+Compares the class of the evaluated result of `Test.code` to `expected_class` & modifies the 
+outer Test instance's success attribute accordingly, then returns the newly modified Test 
+instance. If `expected_class` does not equal `Test.code`'s result, then `Test.success` will 
+be made to equal to False, otherwise it will be made to be equal to True.
 
-    Accepts:
+_**Accepts**_:
 
-    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+- `expected_class` (EXPRESSION) a class that the evaluated result of `Test.code` is
+  expected to be a member of.
 
-#### Should.(_expected_):
+#### Should.include(_expected\_member_):
 
-Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+Checks if `expected_member` is a member of a collection returned by the evaluated result of 
+`Test.code` & modifies the outer Test instance's success attribute accordingly, then returns 
+the newly modified Test instance. If `expected_member` is not a member of the collection, or if 
+`Test.code` does not evaluate to a collection searchable using Python's `if member in collection`, 
+then `Test.success` will be made to be False. If `expected_member` is found to be in the 
+collection, then `Test.success` will be assigned a value of True.
 
-    Accepts:
+_**Accepts**_:
 
-    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+- `member` (EXPRESSION) a value that is expected to be a member of the collection that `Test.code` 
+  evaluates to.
 
 
 SpecStruct class
