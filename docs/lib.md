@@ -81,7 +81,7 @@ included in the `tests` attribute list.
 A method used to create a new test in the group, adds an instance of Test to
 the self.tests list.
 
-**Example usage:**
+_**Example usage:**_
 
 ```python
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
