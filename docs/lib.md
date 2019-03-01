@@ -47,27 +47,27 @@ testing groups as subsets of related test groups.
 
 ### Attributes:
 
-- description (STRING)
+- **description** (STRING)
 
   a string describing the test group
 
-- runner (SpecStruct instance), optional 
+- **runner** (SpecStruct instance), optional 
   
   a class used by the CLI to parse the test group, optional
 
-- outer (Describe instance), optional
+- **outer** (Describe instance), optional
 
   another test group to inherit common state from, optional
   
-- tests (LIST)			
+- **tests** (LIST)			
 
   an empty list where each test function will be stored
 
-- inners (LIST)			
+- **inners** (LIST)			
 
   an empty list where any nested test groups will be stored
 
-- base, tab, & tabplus (STRING)		
+- **base**, **tab**, & **tabplus** (STRING)		
   
   strings used to increment tabs for results printing
 
