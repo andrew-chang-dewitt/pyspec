@@ -14,8 +14,9 @@ def describe(description, runner=None, outer=None):
     Initilizes a new test group object using Describe
 
     Accepts:
-    - description (STRING)          a string describing the test group
-    - [outer] (Describe instance)   another test group to inherit common state from, optional
+    - description   (STRING)                a string describing the test group
+    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test group
+    - [outer]       (Describe instance)     another test group to inherit common state from, optional
 
     Returns:
     - An instance of Describe
@@ -28,8 +29,9 @@ class Describe:
     A class to describe a new test group
 
     On initialization, accepts:
-    - description (STRING)          see above
-    - [outer] (Describe instance)   see above, optional
+    - description           (STRING)                see above
+    - [runner]              (SpecStruct instance)   a class used by the CLI to parse the test group
+    - [outer]               (Describe instance)     see above, optional
 
     Returns: An instance of Describe with the following attributes & methods, plus those above:
     - tests                 (LIST)      an empty list where each test function will be stored
