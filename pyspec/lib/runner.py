@@ -113,7 +113,7 @@ class Describe:
                 inner._run() # pylint: disable=protected-access
 
         for test in self.tests:
-            print(f'{self.tab}- {test.name}', end='')
+            print(f'{self.tab}- {test.description}', end='')
 
             if test.success:
                 print(f': {COLOR_GREEN}ok{COLOR_RESET}')
