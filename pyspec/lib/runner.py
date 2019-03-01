@@ -3,7 +3,6 @@ Test runner for python, see runner_spec for example usage
 """
 
 import traceback
-from pyspec.api.spec_struct import SpecStruct
 
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
