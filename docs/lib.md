@@ -36,6 +36,7 @@ group available for the CLI tool to view, run, & print.
     Returns: 	An instance of the SpecStruct class with an empty 
     		test_groups attribute.
 
+
 Describe class
 --------------
 
@@ -44,6 +45,7 @@ contains a series of inner classes that are used to create tests, encapsulate
 and share scope between tests & then run the tests. Describe objects can be 
 nested indefinitely to inherit scope from an outer Describe object & organize 
 testing groups as subsets of related test groups.
+
 
 ### Attributes:
 
@@ -71,6 +73,7 @@ testing groups as subsets of related test groups.
   
   strings used to increment tabs for results printing
 
+
 ### Methods:
 
 The Describe class has two methods used to create new tests & run all tests 
@@ -79,7 +82,7 @@ included in the `tests` attribute list.
 #### Describe.it(_description_, _code_):
 
 A method used to create a new test in the group, adds an instance of Test to
-the self.tests list.
+the self.tests list and returns it.
 
     Accepts:
     
@@ -97,6 +100,15 @@ _**Example usage:**_
 ```python
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
 ```
+
+#### Describe.run():
+
+A method used to run the test group & any inners, accessed via the 
+Describe.run attribute (which will only exist for instances with no
+Describe.outer attribute).
+
+Describe._run accepts no arguments & has no returns.
+
 
 ### Inner classes:
 
