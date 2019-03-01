@@ -78,6 +78,17 @@ class Describe:
         """
         A method used to create a new test in the group, adds an instance of Test to
         the self.tests list.
+
+        Accepts:
+
+        - description (STRING)  a short description to be printed when the test is ran
+        - code (EXPRESSION)     a python expression to be executed & have the result
+                                used as the ACTUAL value to be compared against an
+                                EXPECTED value
+
+        Returns:
+
+        An instance of Test(), an inner class on Describe()
         """
 
         test_obj = Test(description, code)
