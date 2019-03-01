@@ -3,7 +3,8 @@ PySpec Library API
 
 There are two top level functions exposed by the PySpec Library:
 
-#### pyspec.describe(_description_, _metastructure=None_, _outergroup=None_):
+#### pyspec.describe:
+(_description_, _metastructure=None_, _outergroup=None_)
 
 Initializes & returns a **Describe()** object with the given _description_. If given,
 the returned Describe() object will be initialized with a _metastructure_ (an 
@@ -19,7 +20,7 @@ _**Accepts**_:
 
 _**Returns**_: An instance of Describe
 
-#### pyspec.spec_struct():
+#### pyspec.spec_struct:
 
 Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This 
 object can be passed to any Describe object on initialization to make the test
@@ -72,7 +73,8 @@ related test groups.
 The Describe class has two methods used to create new tests & run all tests 
 included in the `tests` attribute list.
 
-#### Describe.it(_description_, _code_):
+#### Describe.it:
+(_description_, _code_)
 
 A method used to create a new test in the group, adds an instance of Test to
 the self.tests list and returns it.
@@ -91,7 +93,7 @@ _**Example usage:**_
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
 ```
 
-#### Describe.\_run():
+#### Describe.\_run:
 
 A method used to run the test group & any inners, accessed via the 
 Describe.run attribute (which will only exist for instances with no
@@ -150,7 +152,8 @@ Each of the following methods is used to make an assertation about the ACTUAL re
 passed to `Test` will evaluate to versus the EXPECTED value given to the method. All of these 
 methods will return the original Test object that the method was called on.
 
-#### Should.eq(_expected_):
+#### Should.eq:
+(_expected_)
 
 Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test 
 instance's success attribute accordingly, then returns the newly modified Test instance. If 
@@ -161,7 +164,8 @@ _**Accepts**_:
 
 - `expected` (EXPRESSION) a value that `Test.code` is expected to evaluate to.
 
-#### Should.raise\_error(_expected\_err_):
+#### Should.raise\_error:
+(_expected\_err_)
 
 Compares the evaluated result of `Test.code` to `expected_err` & modifies the outer Test 
 instance's success attribute accordingly, then returns the newly modified Test instance. 
@@ -173,7 +177,8 @@ _**Accepts**_:
 
 - `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
 
-#### Should.be\_a(_expected\_class_):
+#### Should.be\_a:
+(_expected\_class_)
 
 Compares the class of the evaluated result of `Test.code` to `expected_class` & modifies the 
 outer Test instance's success attribute accordingly, then returns the newly modified Test 
@@ -185,7 +190,8 @@ _**Accepts**_:
 - `expected_class` (EXPRESSION) a class that the evaluated result of `Test.code` is
   expected to be a member of.
 
-#### Should.include(_expected\_member_):
+#### Should.include:
+(_expected\_member_)
 
 Checks if `expected_member` is a member of a collection returned by the evaluated result of 
 `Test.code` & modifies the outer Test instance's success attribute accordingly, then returns 
@@ -202,6 +208,10 @@ _**Accepts**_:
 
 SpecStruct class
 ----------------
+
+The SpecStruct class is a separate part of the PySpec Library that is only necessary if you 
+wish to use the PySpec CLI tool with your test scripts. The class is used by passing an instance 
+to **[pyspec.describe()](#pyspecdescribe)** when creating a test group.
 
     SpecStruct initializes with just one attribute: test_groups.
     All groups will be stored here. A list is used because it preserves
