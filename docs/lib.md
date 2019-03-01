@@ -1,4 +1,4 @@
-ySpec Library API
+PySpec Library API
 ==================
 
 There are two top level functions exposed by the PySpec Library:
