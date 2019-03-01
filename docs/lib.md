@@ -213,6 +213,35 @@ The SpecStruct class is a separate part of the PySpec Library that is only neces
 wish to use the PySpec CLI tool with your test scripts. The class is used by passing an instance 
 to **[pyspec.describe()](#pyspecdescribe)** when creating a test group.
 
-    SpecStruct initializes with just one attribute: test_groups.
-    All groups will be stored here. A list is used because it preserves
-    member order with a numbered index & is easily searchable.
+Attributes:
+
+- `test_groups` (LIST) SpecStruct initializes with just one attribute: test_groups. All groups will be stored here. A list is used because it preserves member order with a numbered index & is easily searchable. This list starts as empty, but each time a SpecStruct instance is passed to **[pyspec.describe()](#pyspecdescribe)** the resulting **[Describe()](#describe-class) will also be added to this list.
+
+Methods:
+
+SpecStruct exposes the following methods for consumption by the CLI.
+
+#### SpecStruct.run\_all:
+
+This function is the single entry point for running all tests held in
+test_groups. This allows any other program interfacing with the library
+to not need to know anything about how individual test groups are
+structured.
+
+`SpecStruct.run_all()` accepts no arguments & returns no results.
+
+#### SpecStruct.run\_one:
+(group)
+
+A simple wrapper to a Describe object's `run()` method. Includes a
+guard against calling `run()` on an inner test group since this would
+result in an AttributeError.
+
+Accepts: 
+
+- `group` (Describe instance) The Describe instance for the single group of 
+  tests you wish to run.
+
+`SpecStruct.run_one()` returns no results.
+
+<div style="text-align: right">Copyright (c) 2019 Andrew DeWitt</div>
