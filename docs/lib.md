@@ -40,11 +40,12 @@ group available for the CLI tool to view, run, & print.
 Describe class
 --------------
 
-The PySpec Library is organized with one core Class, Describe(). This class 
-contains a series of inner classes that are used to create tests, encapsulate 
-and share scope between tests & then run the tests. Describe objects can be 
-nested indefinitely to inherit scope from an outer Describe object & organize 
-testing groups as subsets of related test groups.
+The PySpec Library is organized with one core Class, **[Describe()](#describe-class)**. 
+This class references a few other classes that are used to create tests 
+(**[Test()](#test-class)**) & optionally make tests available to the PySpec CLI tools 
+(**[SpecStruct()](#specstruct-class)**). Describe objects can be nested indefinitely 
+to inherit scope from an outer Describe object & organize testing groups as subsets of 
+related test groups. 
 
 
 ### Attributes:
@@ -107,12 +108,18 @@ A method used to run the test group & any inners, accessed via the
 Describe.run attribute (which will only exist for instances with no
 Describe.outer attribute).
 
-Describe._run accepts no arguments & has no returns.
+Describe.\_run accepts no arguments & has no returns.
 
 
 ### Inner classes:
 
+The Describe class also contains two inner classes, **[Test()](#test-class)** & 
+**[Should()](#should-class)**, used to store test information & assertations.
+
 #### Test class
+
+An instance of the Test class is created with each call to 
+**[Describe.it()](describeitdescription-code)**. This class is used to store a 
 
 #### Should class
 
