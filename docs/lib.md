@@ -159,7 +159,7 @@ to False, otherwise it will be made to be equal to True.
 
 _**Accepts**_:
 
-- `expected` (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+- `expected` (EXPRESSION) a value that `Test.code` is expected to evaluate to.
 
 #### Should.raise\_error(_expected\_err_):
 
