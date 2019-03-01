@@ -98,8 +98,11 @@ class Describe:
 
     def _run(self):
         """
-        a method used to run the test group & any inners,
-        this one will only exist if it has no outer attribute
+        A method used to run the test group & any inners, accessed via the 
+        Describe.run attribute (which will only exist for instances with no
+        Describe.outer attribute).
+        
+        Describe._run accepts no arguments & has no returns.
         """
 
         print(f'{self.base}{self.description}')
@@ -144,12 +147,12 @@ class Test:
     An object used to represent a single test.
 
     On initialization, it takes:
-    - name      (STRING)        a name to print when running the test,
-                                should be descriptive, readable, & concise
-    - code      (FUNCTION)      a function to be run when the test is executed,
-                                the code must return a result to be handled by one
-                                of the methods given by Should
-                (EXPRESSION)    alternatively, code can be a non-callable value
+    - description   (STRING)        a description to print when running the test,
+                                    should be descriptive, readable, & concise
+    - code          (FUNCTION)      a function to be run when the test is executed,
+                                    the code must return a result to be handled by one
+                                    of the methods given by Should
+                    (EXPRESSION)    alternatively, code can be a non-callable value
 
     A test object also has the following attribute:
     - success   (BOOL)          represents if the test is successful or not,
@@ -159,8 +162,8 @@ class Test:
     determines if the test passes or fails
     """
 
-    def __init__(self, name, code):
-        self.name = name
+    def __init__(self, description, code):
+        self.description = description
         self.code = code
         self.should = self._init_should()
 

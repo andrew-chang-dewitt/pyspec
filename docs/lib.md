@@ -111,15 +111,34 @@ Describe.outer attribute).
 Describe.\_run accepts no arguments & has no returns.
 
 
-### Inner classes:
-
-The Describe class also contains two inner classes, **[Test()](#test-class)** & 
-**[Should()](#should-class)**, used to store test information & assertations.
-
-#### Test class
+Test class
+----------
 
 An instance of the Test class is created with each call to 
 **[Describe.it()](describeitdescription-code)**. This class is used to store a 
+test's description, code, & success [attributes](#test-attributes) & exposes an 
+inner class, [Should()](#should-class), used to make assertations & evaluate 
+results (stored at Test.result).
+
+### Attributes:
+
+- **description** (STRING) 
+
+  A description to print when running the test. It should be descriptive, 
+  readable, & concise
+
+- **code** (FUNCTION -or- EXPRESSION)
+
+  A function to be run when the test is executed, the code must return a result 
+  to be handled by one. Alternatively, code can be a non-callable expression such as 
+  `1 + 1` or a variable name where a value desired to be tested is stored.
+
+After a test has been run, the Test object will also have the following attribute: 
+
+- **success** (BOOL)
+
+  Represents if the test is successful or not, the value is set by methods on Should.
+
 
 #### Should class
 
