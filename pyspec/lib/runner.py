@@ -8,27 +8,31 @@ COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description, outer=None):
+def describe(description, runner=None, outer=None):
     """
     Initilizes a new test group object using Describe
 
     Accepts:
-    - description (STRING)          a string describing the test group
-    - [outer] (Describe instance)   another test group to inherit common state from, optional
+    - description   (STRING)                a string describing the test group
+    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test
+                                            group, optional
+    - [outer]       (Describe instance)     another test group to inherit common state
+                                            from, optional
 
     Returns:
     - An instance of Describe
     """
 
-    return Describe(description, outer)
+    return Describe(description, runner, outer)
 
 class Describe:
     """
     A class to describe a new test group
 
     On initialization, accepts:
-    - description (STRING)          see above
-    - [outer] (Describe instance)   see above, optional
+    - description           (STRING)                see above
+    - [runner]              (SpecStruct instance)   a class used by the CLI to parse the test group
+    - [outer]               (Describe instance)     see above, optional
 
     Returns: An instance of Describe with the following attributes & methods, plus those above:
     - tests                 (LIST)      an empty list where each test function will be stored
@@ -37,7 +41,7 @@ class Describe:
     - it                    (METHOD)    a method used to create a new test in the group,
                                         adds an instance of Test to the self.tests list
     - [outer]               (Describe)  the outer test group, if nested, optional
-    - [run]                 (FUNCTION)  a method used to run the test group & any inners,
+    - [run]                 (METHOD)    a method used to run the test group & any inners,
                                         this one will only exist if it has no outer attribute
 
     This class has a modified __get_attr__() method used to inherit attributes & methods
@@ -45,8 +49,10 @@ class Describe:
     to Ruby's method_missing.
     """
 
-    def __init__(self, description, outer=None):
+    def __init__(self, description, runner, outer=None):
         self.description = description
+
+        self.runner = runner
         self.tests = []
         self.inners = []
         self.base = ''
@@ -59,6 +65,9 @@ class Describe:
             self.tab += '  '
             outer.inners.append(self)
         else:
+            if self.runner is not None:
+                self.runner.add_group(self)
+
             self.run = self._run
 
     # A short name is chosen as the method will be referenced very often by the
@@ -68,6 +77,17 @@ class Describe:
         """
         A method used to create a new test in the group, adds an instance of Test to
         the self.tests list.
+
+        Accepts:
+
+        - description (STRING)  a short description to be printed when the test is ran
+        - code (EXPRESSION)     a python expression to be executed & have the result
+                                used as the ACTUAL value to be compared against an
+                                EXPECTED value
+
+        Returns:
+
+        An instance of Test(), an inner class on Describe()
         """
 
         test_obj = Test(description, code)
@@ -77,8 +97,11 @@ class Describe:
 
     def _run(self):
         """
-        a method used to run the test group & any inners,
-        this one will only exist if it has no outer attribute
+        A method used to run the test group & any inners, accessed via the 
+        Describe.run attribute (which will only exist for instances with no
+        Describe.outer attribute).
+        
+        Describe._run accepts no arguments & has no returns.
         """
 
         print(f'{self.base}{self.description}')
@@ -90,7 +113,7 @@ class Describe:
                 inner._run() # pylint: disable=protected-access
 
         for test in self.tests:
-            print(f'{self.tab}- {test.name}', end='')
+            print(f'{self.tab}- {test.description}', end='')
 
             if test.success:
                 print(f': {COLOR_GREEN}ok{COLOR_RESET}')
@@ -99,16 +122,17 @@ class Describe:
 
                 print(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
-                for line in test.tb[:-1]:
+                for line in test.stack_trace[:-1]:
                     print(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
-                print(f'{self.tabplus}{COLOR_RED}* {test.tb[-1]}{COLOR_RESET}')
+                print(f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}')
 
     def __getattr__(self, method_name):
         def doesnt_exist():
             raise AttributeError(f'No such attribute: {method_name}')
 
-        if method_name == 'run':
+        if method_name in ('run', 'outer'):
+        # if method_name == 'run' or method_name == 'outer':
             return doesnt_exist()
 
         for key in dir(self.outer):
@@ -122,12 +146,12 @@ class Test:
     An object used to represent a single test.
 
     On initialization, it takes:
-    - name      (STRING)        a name to print when running the test,
-                                should be descriptive, readable, & concise
-    - code      (FUNCTION)      a function to be run when the test is executed,
-                                the code must return a result to be handled by one
-                                of the methods given by Should
-                (EXPRESSION)    alternatively, code can be a non-callable value
+    - description   (STRING)        a description to print when running the test,
+                                    should be descriptive, readable, & concise
+    - code          (FUNCTION)      a function to be run when the test is executed,
+                                    the code must return a result to be handled by one
+                                    of the methods given by Should
+                    (EXPRESSION)    alternatively, code can be a non-callable value
 
     A test object also has the following attribute:
     - success   (BOOL)          represents if the test is successful or not,
@@ -137,8 +161,8 @@ class Test:
     determines if the test passes or fails
     """
 
-    def __init__(self, name, code):
-        self.name = name
+    def __init__(self, description, code):
+        self.description = description
         self.code = code
         self.should = self._init_should()
 
@@ -190,12 +214,12 @@ class Test:
                 self.test_called.success = True
 
             # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `tb`
+            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
                 self.test_called.success = False
                 self.test_called.err = err
-                self.test_called.tb = traceback.format_exc().splitlines()
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
 
@@ -211,10 +235,10 @@ class Test:
                 self.test_called.success = False
                 no_err_msg = f'No error was raised, instead got {code_result}'
                 self.test_called.err = no_err_msg
-                self.test_called.tb = [no_err_msg]
+                self.test_called.stack_trace = [no_err_msg]
 
             # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `tb`
+            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
                 # disabling pylint warning on typecheck as the only test that should
@@ -232,6 +256,60 @@ class Test:
             except AssertionError as err: # pylint: disable=bad-except-order
                 self.test_called.success = False
                 self.test_called.err = err
-                self.test_called.tb = traceback.format_exc().splitlines()
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
+
+            return self.test_called
+
+        def be_a(self, expected_class):
+            """
+            Compares _code_result() to expected_class & changes outer Test instance's
+            success attribute to True if they match, or False if they don't.
+            """
+
+            try:
+                code_result = self._code_result()
+
+                if not isinstance(code_result, expected_class):
+                    raise AssertionError(f'expected {expected_class}, but got {type(code_result)}')
+
+                self.test_called.success = True
+
+            except Exception as err: # pylint: disable=broad-except
+                self.test_called.success = False
+                self.test_called.err = err
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
+
+            return self.test_called
+
+        def include(self, *args):
+            """
+            Requires `self._code_result()` to return an iterable.
+            Checks all object names given in `*args` against the iterable & returns a
+            successful test if they are found; otherwise returns a failing test with
+            a list of what objects weren't found.
+            """
+
+            try:
+                actual_groups = self._code_result()
+                expected_groups = args
+
+                not_found = []
+
+                for item in expected_groups:
+                    if item not in actual_groups:
+                        not_found.append(item)
+
+                if len(not_found) > 0:
+                    raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
+
+                self.test_called.success = True
+
+            except TypeError:
+                raise TypeError(f'the result of self._code_result is not an iterable')
+
+            except Exception as err: # pylint: disable=broad-except
+                self.test_called.success = False
+                self.test_called.err = err
+                self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
