@@ -1,2 +1,2 @@
 from . import cli
-from .api import describe
+from .lib import (describe, spec_struct)
