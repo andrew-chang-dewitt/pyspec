@@ -6,8 +6,8 @@ There are two top level functions exposed by the PySpec Library:
 #### pyspec.describe:
 (_description_, _metastructure=None_, _outergroup=None_)
 
-Initializes & returns a **Describe()** object with the given _description_. If given,
-the returned Describe() object will be initialized with a _metastructure_ (an 
+Initializes & returns a **Describe()** object with the given `description`. If given,
+the returned Describe() object will be initialized with a `metastructure` (an 
 instance of _[SpectStruct](#specstruct-class)_ for making the Describe object available 
 to the PySpec CLI tools, and/or an _outergroup_ that this Describe object will be 
 nested within (see _[class Describe.outer](#describe-class)_ for more).
@@ -20,13 +20,14 @@ Accepts:
 
 Returns: An instance of Describe
 
-#### pyspec.spec_struct:
+#### pyspec.spec\_struct:
 
 Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This 
 object can be passed to any Describe object on initialization to make the test
 group available for the CLI tool to view, run, & print.
 
-_**Arguments**_: None
+Arguments: None
+
 Returns: An instance of the SpecStruct class with an empty `test_groups` attribute.
 
 
@@ -87,7 +88,7 @@ the ACTUAL value to be compared against an EXPECTED value.
 
 Returns: An instance of Test(), an inner class on Describe()
 
-_**Example usage:**_
+Example usage:
 
 ```python
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
@@ -224,7 +225,7 @@ SpecStruct exposes the following methods for consumption by the CLI.
 #### SpecStruct.run\_all:
 
 This function is the single entry point for running all tests held in
-test_groups. This allows any other program interfacing with the library
+`test_groups`. This allows any other program interfacing with the library
 to not need to know anything about how individual test groups are
 structured.
 
