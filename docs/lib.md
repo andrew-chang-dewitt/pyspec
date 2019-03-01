@@ -12,13 +12,13 @@ instance of _[SpectStruct](#specstruct-class)_ for making the Describe object av
 to the PySpec CLI tools, and/or an _outergroup_ that this Describe object will be 
 nested within (see _[class Describe.outer](#describe-class)_ for more).
 
-Accepts:
+_Accepts_:
 
 - `description` (STRING) a string describing the test group
 - [`runner`] \(SpecStruct instance) a class used by the CLI to parse the test group, optional
 - [`outer`] \(Describe instance) another test group to inherit common state from, optional
 
-Returns: An instance of Describe
+_Returns_: An instance of Describe
 
 #### pyspec.spec\_struct:
 
@@ -28,7 +28,7 @@ group available for the CLI tool to view, run, & print.
 
 Arguments: None
 
-Returns: An instance of the SpecStruct class with an empty `test_groups` attribute.
+_Returns_: An instance of the SpecStruct class with an empty `test_groups` attribute.
 
 
 Describe class
@@ -80,15 +80,15 @@ included in the `tests` attribute list.
 A method used to create a new test in the group, adds an instance of Test to
 the self.tests list and returns it.
 
-Accepts:
+_Accepts_:
 
 - `description` (STRING) a short description to be printed when the test is ran
 - `code` (EXPRESSION) a python expression to be executed & have the result used as 
 the ACTUAL value to be compared against an EXPECTED value.
 
-Returns: An instance of Test(), an inner class on Describe()
+_Returns_: An instance of Test(), an inner class on Describe()
 
-Example usage:
+_Example usage_:
 
 ```python
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
@@ -161,7 +161,7 @@ instance's success attribute accordingly, then returns the newly modified Test i
 `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal 
 to False, otherwise it will be made to be equal to True.
 
-Accepts:
+_Accepts_:
 
 - `expected` (EXPRESSION) a value that `Test.code` is expected to evaluate to.
 
@@ -174,7 +174,7 @@ If `expected_err` does not equal the error that should be raise by executing `Te
 (or if `Test.code` does not raise an error when evaluated), then `Test.success` will be 
 made to equal to False, otherwise it will be made to be equal to True.
 
-Accepts:
+_Accepts_:
 
 - `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
 
@@ -186,7 +186,7 @@ outer Test instance's success attribute accordingly, then returns the newly modi
 instance. If `expected_class` does not equal `Test.code`'s result, then `Test.success` will 
 be made to equal to False, otherwise it will be made to be equal to True.
 
-Accepts:
+_Accepts_:
 
 - `expected_class` (EXPRESSION) a class that the evaluated result of `Test.code` is
   expected to be a member of.
@@ -201,7 +201,7 @@ the newly modified Test instance. If `expected_member` is not a member of the co
 then `Test.success` will be made to be False. If `expected_member` is found to be in the 
 collection, then `Test.success` will be assigned a value of True.
 
-Accepts:
+_Accepts_:
 
 - `member` (EXPRESSION) a value that is expected to be a member of the collection that `Test.code` 
   evaluates to.
@@ -238,7 +238,7 @@ A simple wrapper to a Describe object's `run()` method. Includes a
 guard against calling `run()` on an inner test group since this would
 result in an AttributeError.
 
-Accepts: 
+_Accepts_: 
 
 - `group` (Describe instance) The Describe instance for the single group of 
   tests you wish to run.
