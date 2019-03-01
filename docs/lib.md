@@ -7,9 +7,9 @@ There are two top level functions exposed by the PySpec Library:
 
 Initializes & returns a **Describe()** object with the given _description_. If given,
 the returned Describe() object will be initialized with a _metastructure_ (an 
-instance of _[SpectStruct]()_ for making the Describe object available to the PySpec
-CLI tools, and/or an _outergroup_ that this Describe object will be nested within 
-(see _[class Describe.outer]()_ for more).
+instance of _[SpectStruct](#specstruct-class)_ for making the Describe object available 
+to the PySpec CLI tools, and/or an _outergroup_ that this Describe object will be 
+nested within (see _[class Describe.outer](#describe-class)_ for more).
 
     Initilizes a new test group object using Describe
 
