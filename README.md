@@ -1,11 +1,22 @@
-pyspec
+PySpec
 ======
 A barebones BDD style test runner for python 
 
-Loosley inspired by RSpec, pyspec is intended for use in a behavior-driven 
+Loosley inspired by RSpec, PySpec is intended for use in a behavior-driven 
 development workflow (although it may work for unit testing, depending on 
 your needs). It includes a testing library & a basic CLI tool. 
-Pyspec is a work in progress. 
+PySpec is a work in progress. 
+
+Contents
+--------
+
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+  - [Basic example](#basic-example)
+  - [Adding CLI support](#adding-cli-support)
+- Documentation
+  - [Library API](/docs/lib.md)
+  - [CLI manual](/docs/cli.md)
 
 Installation
 ------------
@@ -14,7 +25,7 @@ Currently, the only installation option is through self-installation using
 `git clone` & `pip install .`. In the future, installation may be made available 
 via distribution on PyPi. 
 
-To install **pyspec**, first clone this repo in the directory of your choosing. For 
+To install **PySpec**, first clone this repo in the directory of your choosing. For 
 this example, we are installing to ~/pyspec. 
 
 ```bash
@@ -37,7 +48,7 @@ Confirm the CLI installed correctly & is available at your path using
 
 ```bash
 user@host:~/pyspec $ pyspec -V
-pyspec: version 0.1.0
+PySpec: version 0.1.0
 --------------------------------------------
 a barebones BDD style test runner for python
 ```
@@ -60,7 +71,7 @@ from pyspec import describe
 import example
 ```
 
-Next, use pyspec's `describe()` method, giving it a short description of 
+Next, use PySpec's `describe()` method, giving it a short description of 
 the test group, & assign it to a variable. 
 
 ```python
@@ -167,7 +178,7 @@ With a file structure like this:
 To add CLI support to the above example, a few small changes need to
 be made.
 
-First, another method needs imported from the pyspec library: 
+First, another method needs imported from the PySpec library: 
 `spec_struct`. This method builds a meta structure of the spec file
 that is used by the CLI tools to parse & run the tests. Add the following
 import statement between `from pyspec import describe` & `import example` 
