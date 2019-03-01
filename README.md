@@ -16,7 +16,9 @@ Contents
   - [Adding CLI support](#adding-cli-support)
 - Documentation
   - [Library API](/docs/lib.md)
-  - [CLI manual](/docs/cli.md)
+
+[//]: # (FIXME: CLI manual still needs to be created & uploaded)
+[//]: # ( - [CLI manual](/docs/cli.md))
 
 Installation
 ------------
