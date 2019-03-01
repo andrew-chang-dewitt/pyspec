@@ -177,6 +177,7 @@ in `example_spec.py`
 from pyspec import describe
 from pyspec import spec_struct
 import example
+
 ...
 ```
 
@@ -185,6 +186,7 @@ method after `import example`
 
 ```python 
 ...
+
 import example
 
 RUNNER = spect_struct()
@@ -197,9 +199,11 @@ second argument each time a test group is described:
 
 ```python
 ...
+
 RUNNER = spect_struct()
 
 group = describe('this is a test group', RUNNER)
+
 ...
 ```
 
