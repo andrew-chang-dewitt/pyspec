@@ -143,10 +143,55 @@ After a test has been run, the Test object will also have the following attribut
 - **success** (BOOL)
 
   Represents if the test is successful or not, the value is set by methods on 
-  [Should()](#should-class).
+  [Should()](#should-class). This attribute will not exist until after a method on Should()
+  has been used to evaluate the result (or value) of Test().code (the ACTUAL value) against 
+  an EXPECTED value given later.
 
 
-#### Should class
+Should class
+------------
+
+An inner class on [Test()](#test-class) used to evaluate expression or function passed to 
+_Test().code_ & make a comparison of ACTUAL vs. EXPECTED values. Exposes a series of methods 
+that each offer different types of comparisons.
+
+### Methods:
+
+#### Should.eq(_expected_):
+
+Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test 
+instance's success attribute accordingly, then returns the newly modified Test instance. If 
+`expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal 
+to False, otherwise it will be made to be equal to True.
+
+    Accepts:
+
+    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+
+#### Should.raise_error(_expected\_err_):
+
+Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+
+    Accepts:
+
+    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+
+#### Should.(_expected_):
+
+Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+
+    Accepts:
+
+    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+
+#### Should.(_expected_):
+
+Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+
+    Accepts:
+
+    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+
 
 SpecStruct class
 ----------------
