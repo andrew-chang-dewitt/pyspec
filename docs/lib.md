@@ -45,6 +45,50 @@ and share scope between tests & then run the tests. Describe objects can be
 nested indefinitely to inherit scope from an outer Describe object & organize 
 testing groups as subsets of related test groups.
 
+### Attributes:
+
+- description (STRING)
+
+  a string describing the test group
+
+- runner (SpecStruct instance), optional 
+  
+  a class used by the CLI to parse the test group, optional
+
+- outer (Describe instance), optional
+
+  another test group to inherit common state from, optional
+  
+- tests (LIST)			
+
+  an empty list where each test function will be stored
+
+- inners (LIST)			
+
+  an empty list where any nested test groups will be stored
+
+- base, tab, & tabplus (STRING)		
+  
+  strings used to increment tabs for results printing
+
+### Methods:
+
+The Describe class has two methods used to create new tests & run all tests 
+included in the `tests` attribute list.
+
+#### Describe.it(_description_, _code_):
+
+A method used to create a new test in the group, adds an instance of Test to
+the self.tests list.
+
+**Example usage:**
+
+```python
+test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
+```
+
+### Inner classes:
+
 #### Test class
 
 #### Should class
