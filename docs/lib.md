@@ -50,27 +50,27 @@ related test groups.
 
 ### Attributes:
 
-- **description** (STRING)
+- `description` (STRING)
 
   a string describing the test group
 
-- **inners** (LIST)			
+- `inners` (LIST)			
 
   an empty list where any nested test groups will be stored
 
-- **outer** (Describe instance), optional
+- `outer` (Describe instance), optional
 
   another test group to inherit common state from, optional
   
-- **runner** (SpecStruct instance), optional 
+- `runner` (SpecStruct instance), optional 
   
   a class used by the CLI to parse the test group, optional
 
-- **tests** (LIST)			
+- `tests` (LIST)			
 
   an empty list where each test function will be stored
 
-- **base**, **tab**, & **tabplus** (STRING)		
+- `base`, `tab`, & `tabplus` (STRING)		
   
   strings used to increment tabs for results printing
 
@@ -102,13 +102,13 @@ _**Example usage:**_
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
 ```
 
-#### Describe._run():
+#### Describe.\_run():
 
 A method used to run the test group & any inners, accessed via the 
 Describe.run attribute (which will only exist for instances with no
 Describe.outer attribute).
 
-Describe.\_run accepts no arguments & has no returns.
+`Describe._run` accepts no arguments & has no returns.
 
 
 Test class
@@ -122,25 +122,25 @@ results (stored at Test.result).
 
 ### Attributes:
 
-- **description** (STRING) 
+- `description` (STRING) 
 
   A description to print when running the test. It should be descriptive, 
   readable, & concise
 
-- **code** (FUNCTION -or- EXPRESSION)
+- `code` (FUNCTION -or- EXPRESSION)
 
   A function to be run when the test is executed, the code must return a result 
   to be handled by one. Alternatively, code can be a non-callable expression such as 
   `1 + 1` or a variable name where a value desired to be tested is stored.
 
-- **should** (Should instance)
+- `should` (Should instance)
 
   An attribute pointing to an instance of [Should()](#should-class), allowing for more
   concise & readable syntax when writing tests.
 
 After a test has been run, the Test object will also have the following attribute: 
 
-- **success** (BOOL)
+- `success` (BOOL)
 
   Represents if the test is successful or not, the value is set by methods on 
   [Should()](#should-class). This attribute will not exist until after a method on Should()
@@ -166,15 +166,19 @@ to False, otherwise it will be made to be equal to True.
 
     Accepts:
 
-    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+    - `expected` (EXPRESSION) A value that `Test.code` is expected to evaluate to.
 
-#### Should.raise_error(_expected\_err_):
+#### Should.raise\_error(_expected\_err_):
 
-Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test instance's success attribute accordingly, then returns the newly modified Test instance. If `expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal to False, otherwise it will be made to be equal to True.
+Compares the evaluated result of `Test.code` to `expected_err` & modifies the outer Test 
+instance's success attribute accordingly, then returns the newly modified Test instance. 
+If `expected_err` does not equal the error that should be raise by executing `Test.code` 
+(or if `Test.code` does not raise an error when evaluated), then `Test.success` will be 
+made to equal to False, otherwise it will be made to be equal to True.
 
     Accepts:
 
-    - expected (EXPRESSION) A value that `Test.code` is expected to evaluate to.
+    - `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
 
 #### Should.(_expected_):
 
