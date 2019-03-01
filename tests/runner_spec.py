@@ -1,7 +1,7 @@
 """tests for python test runner"""
 
-from pyspec.api import describe
-from pyspec.api import spec_struct
+from pyspec import describe
+from pyspec import spec_struct
 
 RUNNER = spec_struct()
 
