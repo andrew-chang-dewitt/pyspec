@@ -101,7 +101,7 @@ _**Example usage:**_
 test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
 ```
 
-#### Describe.run():
+#### Describe._run():
 
 A method used to run the test group & any inners, accessed via the 
 Describe.run attribute (which will only exist for instances with no
