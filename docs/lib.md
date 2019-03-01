@@ -3,7 +3,7 @@ ySpec Library API
 
 There are two top level functions exposed by the PySpec Library:
 
-##### pyspec.describe(_description_, _metastructure=None_, _outergroup=None_):
+#### pyspec.describe(_description_, _metastructure=None_, _outergroup=None_):
 
 Initializes & returns a **Describe()** object with the given _description_. If given,
 the returned Describe() object will be initialized with a _metastructure_ (an 
@@ -23,7 +23,7 @@ CLI tools, and/or an _outergroup_ that this Describe object will be nested withi
     Returns:
     - An instance of Describe
 
-##### pyspec.spec_struct():
+#### pyspec.spec_struct():
 
 Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This 
 object can be passed to any Describe object on initialization to make the test
@@ -31,9 +31,10 @@ group available for the CLI tool to view, run, & print.
 
     Used to initialize a new SpecStruct instance. This is the only function
     directly exposed by the API from this module.
-    SpecStruct initializes with just one attribute: test_groups.
-    All groups will be stored here. A list is used because it preserves
-    member order with a numbered index & is easily searchable.
+
+    Arguments: 	None
+    Returns: 	An instance of the SpecStruct class with an empty 
+    		test_groups attribute.
 
 Describe class
 --------------
@@ -50,3 +51,7 @@ testing groups as subsets of related test groups.
 
 SpecStruct class
 ----------------
+
+    SpecStruct initializes with just one attribute: test_groups.
+    All groups will be stored here. A list is used because it preserves
+    member order with a numbered index & is easily searchable.
