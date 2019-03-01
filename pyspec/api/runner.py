@@ -38,7 +38,7 @@ class Describe:
     - it                    (METHOD)    a method used to create a new test in the group,
                                         adds an instance of Test to the self.tests list
     - [outer]               (Describe)  the outer test group, if nested, optional
-    - [run]                 (FUNCTION)  a method used to run the test group & any inners,
+    - [run]                 (METHOD)    a method used to run the test group & any inners,
                                         this one will only exist if it has no outer attribute
 
     This class has a modified __get_attr__() method used to inherit attributes & methods
