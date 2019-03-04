@@ -223,7 +223,6 @@ class Test:
                 if not code_result == expected:
                     raise AssertionError(f'expected {expected}, but got {code_result}')
 
-                # self.test_called.success = True
                 self._set_result(success=True)
 
             # All exceptions are caught in order to continue parsing other tests.
@@ -235,9 +234,6 @@ class Test:
                     err=err,
                     stack_trace=traceback.format_exc().splitlines()
                 )
-                # self.test_called.success = False
-                # self.test_called.err = err
-                # self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
 
@@ -267,7 +263,7 @@ class Test:
                     # the expected error class, these will be caught in the next block
                     raise AssertionError(f'expected {expected_err}, but got {err}')
 
-                self.test_called.success = True
+                self._set_result(success=True)
 
             # Assertion Errors are caught after the general `except Exception` clause
             # as the Assertion error should be raised by the previous, more general clause
