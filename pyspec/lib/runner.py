@@ -165,9 +165,13 @@ class Test:
         self.description = description
         self.code = code
         self.should = self._init_should()
+        self.should_not = self._init_should_not()
 
     def _init_should(self):
         return self.Should(self.code, self)
+
+    def _init_should_not(self):
+        return self.ShouldNot(self.code, self)
 
     class Should:
         """
@@ -196,6 +200,14 @@ class Test:
         def _code_result(self):
             return self.code() if callable(self.code) else self.code
 
+        def _set_result(self, **kwargs):
+            if kwargs['success']:
+                self.test_called.success = True
+            else:
+                self.test_called.success = False
+                self.test_called.err = kwargs['err']
+                self.test_called.stack_trace = kwargs['stack_trace']
+
         # A short name is chosen as the method will be referenced very often by the
         # end user of this test runner; the pylint warning about name snake case
         # has been disabled.
@@ -211,15 +223,17 @@ class Test:
                 if not code_result == expected:
                     raise AssertionError(f'expected {expected}, but got {code_result}')
 
-                self.test_called.success = True
+                self._set_result(success=True)
 
             # All exceptions are caught in order to continue parsing other tests.
             # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
 
             return self.test_called
 
@@ -232,10 +246,12 @@ class Test:
             try:
                 code_result = self._code_result()
 
-                self.test_called.success = False
                 no_err_msg = f'No error was raised, instead got {code_result}'
-                self.test_called.err = no_err_msg
-                self.test_called.stack_trace = [no_err_msg]
+                self._set_result(
+                    success=False,
+                    err=no_err_msg,
+                    stack_trace=[no_err_msg]
+                )
 
             # All exceptions are caught in order to continue parsing other tests.
             # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
@@ -249,14 +265,16 @@ class Test:
                     # the expected error class, these will be caught in the next block
                     raise AssertionError(f'expected {expected_err}, but got {err}')
 
-                self.test_called.success = True
+                self._set_result(success=True)
 
             # Assertion Errors are caught after the general `except Exception` clause
             # as the Assertion error should be raised by the previous, more general clause
             except AssertionError as err: # pylint: disable=bad-except-order
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
 
             return self.test_called
 
@@ -272,12 +290,14 @@ class Test:
                 if not isinstance(code_result, expected_class):
                     raise AssertionError(f'expected {expected_class}, but got {type(code_result)}')
 
-                self.test_called.success = True
+                self._set_result(success=True)
 
             except Exception as err: # pylint: disable=broad-except
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
 
             return self.test_called
 
@@ -302,14 +322,36 @@ class Test:
                 if len(not_found) > 0:
                     raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
 
-                self.test_called.success = True
+                self._set_result(success=True)
 
             except TypeError:
                 raise TypeError(f'the result of self._code_result is not an iterable')
 
             except Exception as err: # pylint: disable=broad-except
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
 
             return self.test_called
+
+    class ShouldNot(Should):
+        """
+        ShouldNot inherits all comparison methods (e.g. `eq()`, `be_a()`, etc.), but
+        negates the result. It redefines only one attribute/method, _set_result, by
+        setting the opposite result compared to the same function in `Should`.
+
+        An inner class to Test & always initialized when a Test instance is initialized.
+        """
+        def _set_result(self, **kwargs):
+            incorrect_success = (
+                f'The test passed when it should have failed in a should_not statement'
+            )
+
+            if kwargs['success']:
+                self.test_called.success = False
+                self.test_called.err = incorrect_success
+                self.test_called.stack_trace = [incorrect_success]
+            else:
+                self.test_called.success = True
