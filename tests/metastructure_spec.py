@@ -2,33 +2,31 @@
 
 import pyspec
 
-describe = pyspec.describe
-spec_struct = pyspec.spec_struct
 
-RUNNER = spec_struct()
+RUNNER = pyspec.spec_struct()
 
-meta = describe('create & manage metastructures', RUNNER)
+META = pyspec.describe('create & manage metastructures', RUNNER)
 
-meta.struct = spec_struct()
+META.struct = pyspec.spec_struct()
 
-meta.it(
+META.it(
     'can create a new structure',
-    meta.struct
+    META.struct
 ).should.be_a(pyspec.lib.metastructure.SpecStruct)
 
-meta.it(
+META.it(
     'initializes with no test groups',
-    meta.struct.test_groups
+    META.struct.test_groups
 ).should.be_empty()
 
-meta.test_group = describe('this is a test group')
+META.test_group = pyspec.describe('this is a test group')
 
-meta.it(
+META.it(
     'can add new test groups to the metastructure',
-    meta.struct.add_group(meta.test_group)
-).should.include(meta.test_group)
+    META.struct.add_group(META.test_group)
+).should.include(META.test_group)
 
-meta.it(
+META.it(
     'can remove specified test groups',
-    meta.struct.remove_group(meta.test_group)
-).should_not.include(meta.test_group)
+    META.struct.remove_group(META.test_group)
+).should_not.include(META.test_group)
