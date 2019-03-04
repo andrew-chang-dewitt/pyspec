@@ -330,9 +330,11 @@ class Test: # pylint:disable=too-few-public-methods
                 raise TypeError(f'the result of the test is not an iterable')
 
             except Exception as err: # pylint: disable=broad-except
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
 
             return self.test_called
 
