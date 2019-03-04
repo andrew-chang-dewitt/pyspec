@@ -14,7 +14,7 @@ Contents
 - [Quickstart](#quickstart)
   - [Basic example](#basic-example)
   - [Adding CLI support](#adding-cli-support)
-- Documentation
+- [Documentation](#documentation)
   - [Library API](/docs/lib.md)
 
 [//]: # (FIXME: CLI manual still needs to be created & uploaded)
@@ -243,3 +243,33 @@ This is a test group
   - This test is from `example.py` ok
   - Another test from `example.py` ok
 ```
+
+### Using the PySpec CLI
+
+The two most general commands are `all` & `one`.
+
+#### All
+
+`$ pyspec all <PATH>`
+
+Runs all tests in a given directory. The argment given as `<PATH>` must be relative to 
+the current working directory. This command will only find files in the given 
+directory that end in `_spec.py`.
+
+#### One
+
+`$ pyspec one <MODULE>`
+
+Runs the specified test file given as a module name. `<MODULE>` must be just the file
+name, without any file type extensions.
+
+#### See more
+
+For more information on using the CLI, try `$ pyspec --help` for general help text 
+or `$pyspec <command> --help` for more specific assistance.
+
+
+Documentation
+-------------
+
+For more detailed information on using the PySpec Library, see the [API Documentation](/docs/lib.md). Currently, no documentation for the CLI tool exists outside of `$ pyspec --help`, but more detailed documentation will be completed later.
