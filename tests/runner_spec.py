@@ -29,7 +29,17 @@ EXPECTATIONS.it('can expect a specific object type',
 EXPECTATIONS.it('can expect an object to be a member of a collection',
                 ['other_member', 'member', 1, 2, 3]).should.include('member')
 
-### COMMON###
+### BOOLEAN OPERATIONS ###
+# You can use standard boolean operators to modify a test
+
+BOOLEANS = describe('use boolean operators', RUNNER)
+
+BOOLEANS.it(
+    'can negate an expectation using should_not',
+    True
+).should_not.eq(False)
+
+### COMMON ###
 # You can also define common variables for a group of tests
 COMMON = describe('set common state', RUNNER)
 
