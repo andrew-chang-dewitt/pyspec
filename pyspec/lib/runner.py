@@ -141,7 +141,9 @@ class Describe:
 
         return doesnt_exist()
 
-class Test:
+# ignoring too-few-public-methods pylint warning as Test class is a data structure with
+# inner classes that expose all necessary methods
+class Test: # pylint:disable=too-few-public-methods
     """
     An object used to represent a single test.
 
@@ -319,7 +321,7 @@ class Test:
                     if item not in actual_groups:
                         not_found.append(item)
 
-                if len(not_found) > 0:
+                if not_found:
                     raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
 
                 self._set_result(success=True)

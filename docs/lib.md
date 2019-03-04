@@ -1,6 +1,31 @@
 PySpec Library API
 ==================
 
+Contents
+--------
+
+- Top level functions
+  - [pyspec.describe](#pyspecdescribe)
+  - [pyspec.spec_struct](#pyspecspec_struct)
+- [Describe class](#describe-class)
+  - [Attributes](#attributes)
+  - [Methods](#methods)
+    - [Describe.it](#describeit)
+    - [Describe._run](#describe_run)
+- [Test class](#test-class)
+  - [Attributes](#attributes-1)
+- [Should class](#should-class)
+  - [Methods](#methods-1)
+    - [Should.eq](#shouldeq)
+    - [Should.raise_error](#shouldraise_error)
+    - [Should.be_a](#shouldbe_a)
+    - [Should.include](#shouldinclude)
+- [SpecStruct class](#specstruct-class)
+  - [Attributes](#attributes-2)
+  - [Methods](#methods-2)
+    - [SpecStruct.run_all](#specstructrun_all)
+    - [SpecStruct.run_one](#specstructrun_one)
+
 There are two top level functions exposed by the PySpec Library:
 
 #### pyspec.describe:
@@ -214,11 +239,11 @@ The SpecStruct class is a separate part of the PySpec Library that is only neces
 wish to use the PySpec CLI tool with your test scripts. The class is used by passing an instance 
 to **[pyspec.describe()](#pyspecdescribe)** when creating a test group.
 
-Attributes:
+### Attributes:
 
 - `test_groups` (LIST) SpecStruct initializes with just one attribute: test_groups. All groups will be stored here. A list is used because it preserves member order with a numbered index & is easily searchable. This list starts as empty, but each time a SpecStruct instance is passed to **[pyspec.describe()](#pyspecdescribe)** the resulting **[Describe()](#describe-class) will also be added to this list.
 
-Methods:
+### Methods:
 
 SpecStruct exposes the following methods for consumption by the CLI.
 
