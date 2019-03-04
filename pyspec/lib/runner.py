@@ -165,9 +165,13 @@ class Test:
         self.description = description
         self.code = code
         self.should = self._init_should()
+        self.should_not = self._init_should_not()
 
     def _init_should(self):
         return self.Should(self.code, self)
+
+    def _init_should_not(self):
+        return self.ShouldNot(self.code, self)
 
     class Should:
         """
@@ -196,6 +200,14 @@ class Test:
         def _code_result(self):
             return self.code() if callable(self.code) else self.code
 
+        def _set_result(self, **kwargs):
+            if kwargs['success']:
+                self.test_called.success = True
+            else:
+                self.test_called.success = False
+                self.test_called.err = kwargs['err']
+                self.test_called.stack_trace = kwargs['stack_trace']
+
         # A short name is chosen as the method will be referenced very often by the
         # end user of this test runner; the pylint warning about name snake case
         # has been disabled.
@@ -211,15 +223,21 @@ class Test:
                 if not code_result == expected:
                     raise AssertionError(f'expected {expected}, but got {code_result}')
 
-                self.test_called.success = True
+                # self.test_called.success = True
+                self._set_result(success=True)
 
             # All exceptions are caught in order to continue parsing other tests.
             # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
             # attributes & will be displayed in the test failure message
             except Exception as err: # pylint: disable=broad-except
-                self.test_called.success = False
-                self.test_called.err = err
-                self.test_called.stack_trace = traceback.format_exc().splitlines()
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
+                # self.test_called.success = False
+                # self.test_called.err = err
+                # self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
 
@@ -313,3 +331,6 @@ class Test:
                 self.test_called.stack_trace = traceback.format_exc().splitlines()
 
             return self.test_called
+
+    class ShouldNot(Should):
+        pass
