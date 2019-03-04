@@ -10,7 +10,7 @@ def spec_struct():
     directly exposed by the API from this module.
 
     Arguments: 	None
-    Returns: 	An instance of the SpecStruct class with an empty 
+    Returns: 	An instance of the SpecStruct class with an empty
     		test_groups attribute.
     """
     return SpecStruct()
@@ -31,12 +31,16 @@ class SpecStruct:
         """
         self.test_groups.append(group)
 
+        return self.test_groups
+
     def remove_group(self, group):
         """
         Use to remove a group by providing the group desired to be removed as
         the argument. Just a simple wrapper for list.remove()
         """
         self.test_groups.remove(group)
+
+        return self.test_groups
 
     def run_all(self):
         """

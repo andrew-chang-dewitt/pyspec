@@ -327,7 +327,34 @@ class Test: # pylint:disable=too-few-public-methods
                 self._set_result(success=True)
 
             except TypeError:
-                raise TypeError(f'the result of self._code_result is not an iterable')
+                raise TypeError(f'the result of the test is not an iterable')
+
+            except Exception as err: # pylint: disable=broad-except
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
+
+            return self.test_called
+
+        def be_empty(self):
+            """
+            Requires `self._code_result()` to return an iterable.
+            Checks if the iterable is empty. If it is, the test passes; otherwise an
+            AssertionError is raised indicating a failed test.
+            """
+
+            try:
+                actual = self._code_result()
+
+                if len(actual) > 0:
+                    raise AssertionError(f'expected an empty iterable, but got {actual}')
+
+                self.test_called.success = True
+
+            except TypeError:
+                raise TypeError(f'the result of the test is not an iterable')
 
             except Exception as err: # pylint: disable=broad-except
                 self._set_result(
