@@ -55,6 +55,8 @@ class Describe:
         self.runner = runner
         self.tests = []
         self.inners = []
+        self.results = []
+
         self.base = ''
         self.tab = '  '
         self.tabplus = self.tab + '  '
@@ -95,16 +97,16 @@ class Describe:
 
         return test_obj
 
-    def _run(self):
+    def _run(self, muted=False):
         """
-        A method used to run the test group & any inners, accessed via the 
+        A method used to run the test group & any inners, accessed via the
         Describe.run attribute (which will only exist for instances with no
         Describe.outer attribute).
-        
+
         Describe._run accepts no arguments & has no returns.
         """
 
-        print(f'{self.base}{self.description}')
+        self.results.append(f'{self.base}{self.description}')
 
         if self.inners is not None:
             for inner in self.inners:
@@ -112,20 +114,31 @@ class Describe:
                 # test group's results before displaying the outer class results last
                 inner._run() # pylint: disable=protected-access
 
+                for line in inner.results:
+                    self.results.append(line)
+
         for test in self.tests:
-            print(f'{self.tab}- {test.description}', end='')
+            test_title = f'{self.tab}- {test.description}'
 
             if test.success:
-                print(f': {COLOR_GREEN}ok{COLOR_RESET}')
+                self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
             else:
-                print(f': {COLOR_RED}fail{COLOR_RESET}')
+                self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
-                print(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
+                self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
                 for line in test.stack_trace[:-1]:
-                    print(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
+                    self.results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
-                print(f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}')
+                self.results.append(
+                    f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}'
+                )
+
+            if not self.runner and not muted:
+                for line in self.results:
+                    print(line)
+
+        return self.results
 
     def __getattr__(self, method_name):
         def doesnt_exist():

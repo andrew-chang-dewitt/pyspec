@@ -12,7 +12,7 @@ def test_stats():
     """
     STATS.test_group = pyspec.describe('test stats')
     STATS.test_group.it('can do stuff', 1).should.eq(1)
-    STATS.test_results = STATS.test_group.run()
+    STATS.test_results = STATS.test_group.run(True)
     stats_line = STATS.test_results[-1]
 
     return stats_line

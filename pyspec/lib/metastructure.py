@@ -61,3 +61,6 @@ class SpecStruct:
         """
         if not hasattr(group, 'outer'):
             group.run()
+
+            for line in group.results:
+                print(line)
