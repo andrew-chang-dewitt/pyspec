@@ -29,6 +29,14 @@ EXPECTATIONS.it('can expect a specific object type',
 EXPECTATIONS.it('can expect an object to be a member of a collection',
                 ['other_member', 'member', 1, 2, 3]).should.include('member')
 
+EXPECTATIONS.it(
+    'can check for the existance of specified keys in a dictionary',
+    {
+        'a_key': 1,
+        'another_key': 2
+    }
+).should.have_keys('a_key', 'another_key')
+
 ### BOOLEAN OPERATIONS ###
 # You can use standard boolean operators to modify a test
 

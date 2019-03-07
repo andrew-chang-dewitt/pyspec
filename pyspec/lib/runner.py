@@ -53,6 +53,7 @@ class Describe:
         self.description = description
 
         self.runner = runner
+        self.outer = outer
         self.tests = []
         self.inners = []
         self.results = []
@@ -62,7 +63,6 @@ class Describe:
         self.tabplus = self.tab + '  '
 
         if outer is not None:
-            self.outer = outer
             self.base = self.tab
             self.tab += '  '
             outer.inners.append(self)
@@ -108,14 +108,13 @@ class Describe:
 
         self.results.append(f'{self.base}{self.description}')
 
-        if self.inners is not None:
-            for inner in self.inners:
-                # call to inner's protected run() method first to display any nested
-                # test group's results before displaying the outer class results last
-                inner._run() # pylint: disable=protected-access
+        for inner in self.inners:
+            # call to inner's protected run() method first to display any nested
+            # test group's results before displaying the outer class results last
+            inner._run() # pylint: disable=protected-access
 
-                for line in inner.results:
-                    self.results.append(line)
+            for line in inner.results:
+                self.results.append(line)
 
         for test in self.tests:
             test_title = f'{self.tab}- {test.description}'
@@ -145,12 +144,12 @@ class Describe:
             raise AttributeError(f'No such attribute: {method_name}')
 
         if method_name in ('run', 'outer'):
-        # if method_name == 'run' or method_name == 'outer':
             return doesnt_exist()
 
-        for key in dir(self.outer):
-            if key == method_name:
-                return getattr(self.outer, key)
+        if self.outer:
+            for key in dir(self.outer):
+                if key == method_name:
+                    return getattr(self.outer, key)
 
         return doesnt_exist()
 
@@ -378,6 +377,106 @@ class Test: # pylint:disable=too-few-public-methods
 
             return self.test_called
 
+        def have_keys(self, *args):
+            """
+            Requires the tested code to result in a dictionary.
+            Checks the dictionary for any keys given in *args.
+            """
+
+            try:
+                result_dict = self._code_result()
+
+                if not isinstance(result_dict, dict):
+                    raise TypeError(f'the result of the test is not a dictionary')
+
+                actual_keys = result_dict.keys()
+                expected_keys = args
+
+                not_found = []
+
+                for item in expected_keys:
+                    if item not in actual_keys:
+                        not_found.append(item)
+
+                if not_found:
+                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+                self._set_result(success=True)
+
+            except Exception as err: # pylint: disable=broad-except
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
+
+            return self.test_called
+
+        def have_attributes(self, *args):
+            """
+            Checks a given object for the attributes given as arguments.
+            """
+
+            try:
+                result = self._code_result()
+                actual_keys = dir(result)
+                expected_keys = args
+
+                not_found = []
+
+                for item in expected_keys:
+                    if item not in actual_keys:
+                        not_found.append(item)
+
+                if not_found:
+                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+                self._set_result(success=True)
+
+            except Exception as err: # pylint: disable=broad-except
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
+
+            return self.test_called
+
+        def have_methods(self, *args):
+            """
+            Checks a given object for the methods given as arguments.
+            """
+
+            try:
+                result = self._code_result()
+                actual_keys = []
+
+                for attribute in dir(result):
+                    if callable(getattr(result, attribute)):
+                        actual_keys.append(attribute)
+
+                expected_keys = args
+
+                not_found = []
+
+                for item in expected_keys:
+                    if item not in actual_keys:
+                        not_found.append(item)
+
+                if not_found:
+                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+                self._set_result(success=True)
+
+            except Exception as err: # pylint: disable=broad-except
+                self._set_result(
+                    success=False,
+                    err=err,
+                    stack_trace=traceback.format_exc().splitlines()
+                )
+
+            return self.test_called
+
     class ShouldNot(Should):
         """
         ShouldNot inherits all comparison methods (e.g. `eq()`, `be_a()`, etc.), but
@@ -397,3 +496,41 @@ class Test: # pylint:disable=too-few-public-methods
                 self.test_called.stack_trace = [incorrect_success]
             else:
                 self.test_called.success = True
+
+    # class BooleanShould(Should):
+    #     """
+    #     BooleanShould inherits all comparison methods, just like ShouldNot, but it
+    #     also modifies the test to take multiple pending results, then determines the final
+    #     result using standard boolean rules combining each pending result.
+
+    #     For example, if BooleanShould is initialized with 'and' passed to it, then
+    #     it will give a final result of `Test.success = True` only if BOTH pending
+    #     results succeeded, otherwise the final result will be false.
+
+    #     An inner class to Test & always initialized when a Test instance is initialized.
+    #     """
+
+    #     def __init__(self, option):
+    #         super().__init__()
+    #         self.pending_results = [self.test_called.result]
+    #         self.test_called.result = self.get_results
+    #         self.option = option
+
+    #     def get_results(self):
+    #         """
+    #         This method is used to compile results according to the option stored at
+    #         self.option
+    #         """
+    #         is_and = True if self.option == 'and' else False
+    #         is_or = True if self.option == 'or' else False
+
+    #         for result in pending_results:
+    #             if not result.success and is_and:
+    #                 msg = f'One of the tests failed in the and_should statement'
+
+    #                 return self._set_result(
+    #                     success=False
+    #                     err=msg
+    #                     stack_trace=[msg]
+    #                 )
+    #             elif not result.success and is_or:

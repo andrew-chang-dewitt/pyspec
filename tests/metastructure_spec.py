@@ -2,7 +2,6 @@
 
 import pyspec
 
-
 RUNNER = pyspec.spec_struct()
 
 META = pyspec.describe('create & manage metastructures', RUNNER)

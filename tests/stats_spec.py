@@ -4,20 +4,45 @@ import pyspec
 
 RUNNER = pyspec.spec_struct()
 
-STATS = pyspec.describe('fetch stats info', RUNNER)
+STATS_OBJ = pyspec.describe('generate stats info in the runner metastructure', RUNNER)
 
-def test_stats():
+def test_run():
     """
     Test run to get stats
     """
-    STATS.test_group = pyspec.describe('test stats')
-    STATS.test_group.it('can do stuff', 1).should.eq(1)
-    STATS.test_results = STATS.test_group.run(True)
-    stats_line = STATS.test_results[-1]
+    runner = pyspec.spec_struct()
+    test_group = pyspec.describe('test stats', runner)
+    test_group.it('can do stuff', 1).should.eq(1)
+    runner.run_all(True)
 
-    return stats_line
+    return runner
 
-STATS.it(
+STATS_OBJ.test_run = test_run
+
+STATS_OBJ.it(
+    'has a stats object',
+    lambda: STATS_OBJ.test_run().stats
+).should.be_a(pyspec.lib.metastructure.StatsObj)
+
+STATS_OBJ.it(
+    'that stats object has attributes for time, number of tests, & success/failure rates',
+    lambda: STATS_OBJ.test_run().stats
+).should.have_attributes(
+    'total_time_elapsed',
+    'number_of_tests',
+    'success_failure_rate'
+)
+
+STATS_OBJ.it(
+    'tracks time on spec_struct() using methods on Stats class',
+    STATS_OBJ.test_run().stats
+).should.have_methods('start_time_tracking', 'stop_time_tracking')
+
+DISPLAY = pyspec.describe('display stats info to the user', RUNNER)
+
+DISPLAY.test_run = test_run
+
+DISPLAY.it(
     'prints stats on the last line of a test',
-    test_stats
-    ).should.eq('Total time:')
+    lambda: DISPLAY.test_run().results[-1]
+).should.eq('Total time:')

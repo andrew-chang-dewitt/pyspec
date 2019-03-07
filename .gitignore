@@ -70,7 +70,8 @@ typings/
 # env/ folder; python packages need installed locally to work correctly
 env/
 
-# pycache folders
+# python cache
+*.pyc
 __pycache__/
 
 # egg-info folders
