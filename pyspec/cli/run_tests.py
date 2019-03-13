@@ -18,9 +18,13 @@ def all_tests(test_dir_str):
         mod_obj = _get_module(spec_file, True)
         _run(mod_obj)
 
+    return True
+
 def one_file(file_path_str):
     mod_obj = _get_module(file_path_str)
     _run(mod_obj)
+
+    return True
 
 def _get_module(name, full_path=False):
     path = name if full_path else CWD + '/' + name + '.py'

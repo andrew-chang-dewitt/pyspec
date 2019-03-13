@@ -153,4 +153,8 @@ class StatsObj:
         Property getter for failure rate, derived from number_of_tests &
         number_of_failed_tests
         """
-        return (self.number_of_tests - self.number_of_failed_tests) / self.number_of_tests
+        try:
+            return (self.number_of_tests - self.number_of_failed_tests) / self.number_of_tests
+        except ZeroDivisionError:
+            return 0
+
