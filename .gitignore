@@ -68,7 +68,12 @@ typings/
 *.swp
 
 # env/ folder; python packages need installed locally to work correctly
+.env/
 env/
+.venv/
+venv/
+.python-version
+.envrc
 
 # python cache
 *.pyc
