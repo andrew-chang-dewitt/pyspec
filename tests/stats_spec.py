@@ -2,7 +2,7 @@
 
 import pyspec
 
-RUNNER = pyspec.spec_struct()
+RUNNER = pyspec.runner()
 
 STATS_OBJ = pyspec.describe('generate stats info in the runner metastructure', RUNNER)
 
@@ -10,7 +10,7 @@ def test_run():
     """
     Test run to get stats
     """
-    runner = pyspec.spec_struct()
+    runner = pyspec.runner()
     test_group = pyspec.describe('test stats', runner)
     test_group.it('can do stuff', 1).should.eq(1)
     test_group.it('this will fail', 1).should.eq(2)
@@ -23,7 +23,7 @@ STATS_OBJ.test_run = test_run
 STATS_OBJ.it(
     'has a stats object',
     lambda: STATS_OBJ.test_run().stats
-).should.be_a(pyspec.lib.metastructure.StatsObj)
+).should.be_a(pyspec.lib.runner.StatsObj)
 
 STATS_OBJ.it(
     'tracks number the number of tests',

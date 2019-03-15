@@ -4,14 +4,11 @@ import glob
 import importlib.machinery
 from types import ModuleType
 from pyspec.cli import click_cust
-from pyspec import spec_struct
 
 CWD = os.getcwd()
 # ugly sys.path hack, necessary to allow tests to correctly import any
 # local modules in their package
 sys.path.append(CWD)
-
-RUNNER = spec_struct()
 
 def all_tests(test_dir_str):
     path = CWD + '/' + test_dir_str + '/*_spec.py'

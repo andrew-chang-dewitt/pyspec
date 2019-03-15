@@ -4,9 +4,9 @@ Testing the cli functions
 
 import os
 import shutil
-from pyspec import describe, spec_struct, cli
+from pyspec import describe, runner, cli
 
-RUNNER = spec_struct()
+RUNNER = runner()
 
 COMMANDS = describe('the cli has commands for running *_spec files', RUNNER)
 
@@ -14,8 +14,8 @@ PATH = os.getcwd()
 TEMP = PATH + '/temp'
 os.mkdir(TEMP)
 with open(TEMP + '/temp_spec.py', 'w') as temp_spec:
-    temp_spec.write('from pyspec import describe, spec_struct')
-    temp_spec.write('RUNNER = spec_struct()')
+    temp_spec.write('from pyspec import describe, runner')
+    temp_spec.write('RUNNER = runner()')
     temp_spec.write('TEST = describe("this is a test")')
     temp_spec.write('TEST.it("can pass", 1).should.eq(1)')
     temp_spec.write('TEST.it("can fail", 1).should.eq(2)')

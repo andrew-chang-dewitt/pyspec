@@ -1,3 +1,3 @@
 from . import cli
-from .lib.runner import describe
-from .lib.metastructure import spec_struct
+from .lib.describe import describe
+from .lib.runner import runner
