@@ -1,13 +1,10 @@
 """tests for python test runner"""
 
 from pyspec import describe
-from pyspec import runner
-
-RUNNER = runner()
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`
-EXPECTATIONS = describe('set expectations', RUNNER)
+EXPECTATIONS = describe('set expectations')
 
 # tests can be set up to expect a return value
 EXPECTATIONS.it('can expect values',
@@ -40,7 +37,7 @@ EXPECTATIONS.it(
 ### BOOLEAN OPERATIONS ###
 # You can use standard boolean operators to modify a test
 
-BOOLEANS = describe('use boolean operators', RUNNER)
+BOOLEANS = describe('use boolean operators')
 
 BOOLEANS.it(
     'can negate an expectation using should_not',
@@ -49,7 +46,7 @@ BOOLEANS.it(
 
 ### COMMON ###
 # You can also define common variables for a group of tests
-COMMON = describe('set common state', RUNNER)
+COMMON = describe('set common state')
 
 # this is done by creating new attributes on the test group
 COMMON.five = 5
@@ -68,7 +65,7 @@ COMMON.it('can use common methods',
 
 ### FAILURES ###
 # you can also test that a given test will always fail as expected
-FAILURES = describe('communicate failures', RUNNER)
+FAILURES = describe('communicate failures')
 
 # to do this, first create a failing test
 FAILURES.fail = describe('failure').it('should fail', 1).should.eq(2)
@@ -94,7 +91,7 @@ FAILURES.it('can show the expected error message',
 
 # You can also have one group of tests inherit state from another
 # for example, you may have a standard test group
-OUTER = describe('outer', RUNNER)
+OUTER = describe('outer')
 
 # with some state containing methods & attributes
 def method(arg):
@@ -108,7 +105,7 @@ OUTER.mthd = method
 # same methods & attributes, but exist as a separate test group
 # to designate this new group as 'nested within' or inheriting from another,
 # just pass the first group as a second argument to `describe()`
-INNER = describe('inner', RUNNER, OUTER)
+INNER = describe('inner', OUTER)
 
 # this inner, nested test will be able to referr to the outer group's
 # attributes & methods as if it were its own without having to directly

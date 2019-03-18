@@ -3,12 +3,13 @@ Test runner for python, see runner_spec for example usage
 """
 
 import traceback
+from pub_sub import pub_sub
 
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description, runner=None, outer=None):
+def describe(description, outer=None):
     """
     Initilizes a new test group object using Describe
 
@@ -23,7 +24,12 @@ def describe(description, runner=None, outer=None):
     - An instance of Describe
     """
 
-    return Describe(description, runner, outer)
+    group = Describe(description, outer)
+
+    if outer is None:
+        pub_sub.topic('new test group').pub(group)
+
+    return group
 
 class Describe:
     """
@@ -49,10 +55,9 @@ class Describe:
     to Ruby's method_missing.
     """
 
-    def __init__(self, description, runner, outer=None):
+    def __init__(self, description, outer=None):
         self.description = description
 
-        self.runner = runner
         self.outer = outer
         self.tests = []
         self.inners = []
@@ -67,9 +72,6 @@ class Describe:
             self.tab += '  '
             outer.inners.append(self)
         else:
-            if self.runner is not None:
-                self.runner.add_group(self)
-
             self.run = self._run
 
     # A short name is chosen as the method will be referenced very often by the
@@ -106,12 +108,14 @@ class Describe:
         Describe._run accepts no arguments & has no returns.
         """
 
+        self.results = []
+
         self.results.append(f'{self.base}{self.description}')
 
         for inner in self.inners:
             # call to inner's protected run() method first to display any nested
             # test group's results before displaying the outer class results last
-            inner._run() # pylint: disable=protected-access
+            inner._run(muted) # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
@@ -133,10 +137,11 @@ class Describe:
                     f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}'
                 )
 
-            if not self.runner and not muted:
-                for line in self.results:
-                    print(line)
+        if not muted:
+            for line in self.results:
+                print(line)
 
+        pub_sub.topic('test group results').pub(self.results)
         return self.results
 
     def __getattr__(self, method_name):

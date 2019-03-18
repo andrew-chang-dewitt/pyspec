@@ -2,11 +2,9 @@
 
 import pyspec
 
-RUNNER = pyspec.runner()
+META = pyspec.describe('create & manage metastructures')
 
-META = pyspec.describe('create & manage metastructures', RUNNER)
-
-META.struct = pyspec.runner()
+META.struct = pyspec.lib.runner.Runner()
 
 META.it(
     'can create a new structure',
@@ -18,7 +16,7 @@ META.it(
     META.struct.test_groups
 ).should.be_empty()
 
-META.test_group = pyspec.describe('this is a test group')
+META.test_group = pyspec.lib.describe.Describe('this is a test group')
 
 META.it(
     'can add new test groups to the metastructure',

@@ -5,6 +5,7 @@ running all test groups in a Runner.
 """
 
 import datetime
+from pub_sub import pub_sub
 
 def runner():
     """
@@ -15,7 +16,12 @@ def runner():
     Returns: 	An instance of the Runner class with an empty
     		test_groups attribute.
     """
-    return Runner()
+    result = Runner()
+
+    pub_sub.topic('new test group').sub(result.add_group)
+    pub_sub.topic('run requested').sub(result.run_all)
+
+    return result
 
 class Runner:
     """
@@ -42,7 +48,9 @@ class Runner:
         Use to remove a group by providing the group desired to be removed as
         the argument. Just a simple wrapper for list.remove()
         """
+        print(f'Removing {group.description}')
         self.test_groups.remove(group)
+        print(f'{group.description} has been removed')
 
         return self.test_groups
 
@@ -92,7 +100,7 @@ class Runner:
                     self.stats.number_of_failed_tests += 1
 
         if not group.outer:
-            group.run()
+            group.run(True)
 
             for line in group.results:
                 self.results.append(line)

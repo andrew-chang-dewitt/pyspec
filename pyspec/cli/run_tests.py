@@ -3,12 +3,16 @@ import sys
 import glob
 import importlib.machinery
 from types import ModuleType
-from pyspec.cli import click_cust
+from pyspec import runner
+# from pyspec.cli import click_cust
+from pub_sub import pub_sub
 
 CWD = os.getcwd()
 # ugly sys.path hack, necessary to allow tests to correctly import any
 # local modules in their package
 sys.path.append(CWD)
+
+pub_sub.topic('runner').pub(runner())
 
 def all_tests(test_dir_str):
     path = CWD + '/' + test_dir_str + '/*_spec.py'
@@ -38,7 +42,8 @@ def _get_module(name, full_path=False):
     return module
 
 def _run(mod):
-    try:
-        mod.RUNNER.run_all()
-    except AttributeError:
-        raise click_cust.NoRunnerError(mod.__name__)
+    pub_sub.topic('run requested').pub(False)
+    # try:
+    #     mod.RUNNER.run_all()
+    # except AttributeError:
+    #     raise click_cust.NoRunnerError(mod.__name__)
