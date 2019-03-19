@@ -12,25 +12,30 @@ CWD = os.getcwd()
 # local modules in their package
 sys.path.append(CWD)
 
-pub_sub.topic('runner').pub(runner())
+def all_tests(test_dir_str, passed_pub_sub=None, muted=False):
+    used_pub_sub = _passed_pub_sub(passed_pub_sub)
+    _publish_runner(passed_pub_sub)
 
-def all_tests(test_dir_str):
     path = CWD + '/' + test_dir_str + '/*_spec.py'
     spec_files = glob.glob(path)
 
     for spec_file in spec_files:
-        mod_obj = _get_module(spec_file, True)
-        _run(mod_obj)
+        _import_module(spec_file, True)
+
+    used_pub_sub.topic('run requested').pub(muted)
 
     return True
 
-def one_file(file_path_str):
-    mod_obj = _get_module(file_path_str)
-    _run(mod_obj)
+def one_file(file_path_str, passed_pub_sub=None, muted=False):
+    used_pub_sub = _passed_pub_sub(passed_pub_sub)
+    _publish_runner(passed_pub_sub)
+
+    _import_module(file_path_str)
+    used_pub_sub.topic('run requested').pub(muted)
 
     return True
 
-def _get_module(name, full_path=False):
+def _import_module(name, full_path=False):
     path = name if full_path else CWD + '/' + name + '.py'
 
     # using SourceFileLoader & .exec_module from this answer on SO:
@@ -41,9 +46,14 @@ def _get_module(name, full_path=False):
 
     return module
 
-def _run(mod):
-    pub_sub.topic('run requested').pub(False)
-    # try:
-    #     mod.RUNNER.run_all()
-    # except AttributeError:
-    #     raise click_cust.NoRunnerError(mod.__name__)
+def _passed_pub_sub(passed):
+    if passed is None:
+        return pub_sub
+
+    return passed
+
+def _publish_runner(passed):
+    if passed is None:
+        return pub_sub.topic('runner').pub(runner())
+
+    return passed.topic('runner').pub(runner(passed))

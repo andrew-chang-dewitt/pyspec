@@ -2,35 +2,17 @@
 Testing the cli functions
 """
 
-import os
-import shutil
 from pyspec import describe, cli
+from tests.test_examples.temp_pub_sub import temp_pub_sub
 
 COMMANDS = describe('the cli has commands for running *_spec files')
 
-# PATH = os.getcwd()
-# print(PATH)
-# print(f'cli: {dir(cli)}')
-# TEMP = PATH + '/temp'
-# os.mkdir(TEMP)
-# with open(TEMP + '/temp_spec.py', 'w') as temp_spec:
-#     temp_spec.write('from pyspec import describe')
-#     temp_spec.write('\n')
-#     temp_spec.write('TEST = describe("this is a test")')
-#     temp_spec.write('\n')
-#     temp_spec.write('TEST.it("can pass", 1).should.eq(1)')
-#     temp_spec.write('\n')
-#     temp_spec.write('TEST.it("can fail", 1).should.eq(2)')
-#     temp_spec.write('\n')
-
 COMMANDS.it(
     'can run all tests in a given directory',
-    lambda: cli.run_tests.all_tests('temp')
+    lambda: cli.run_tests.all_tests('tests/test_examples', temp_pub_sub, True)
 ).should.eq(True)
 
 COMMANDS.it(
     'can run just the tests for one file',
-    lambda: cli.run_tests.one_file('temp/temp_spec')
+    lambda: cli.run_tests.one_file('tests/test_examples/temp_spec', temp_pub_sub, True)
 ).should.eq(True)
-
-# shutil.rmtree(TEMP)

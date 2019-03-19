@@ -7,7 +7,7 @@ running all test groups in a Runner.
 import datetime
 from pub_sub import pub_sub
 
-def runner():
+def runner(passed_pub_sub=None):
     """
     Used to initialize a new Runner instance. This is the only function
     directly exposed by the API from this module.
@@ -18,8 +18,13 @@ def runner():
     """
     result = Runner()
 
-    pub_sub.topic('new test group').sub(result.add_group)
-    pub_sub.topic('run requested').sub(result.run_all)
+    if passed_pub_sub:
+        used_pub_sub = passed_pub_sub
+    else:
+        used_pub_sub = pub_sub
+
+    used_pub_sub.topic('new test group').sub(result.add_group)
+    used_pub_sub.topic('run requested').sub(result.run_all)
 
     return result
 
@@ -48,13 +53,11 @@ class Runner:
         Use to remove a group by providing the group desired to be removed as
         the argument. Just a simple wrapper for list.remove()
         """
-        print(f'Removing {group.description}')
         self.test_groups.remove(group)
-        print(f'{group.description} has been removed')
 
         return self.test_groups
 
-    def run_all(self, mute=False):
+    def run_all(self, muted=False):
         """
         This function is the single entry point for running all tests held in
         test_groups. This allows any other program interfacing with the library
@@ -72,7 +75,7 @@ class Runner:
         # compile stats into final line & append for printout
         self.results.append(self.stats.get_stats_string())
 
-        if not mute:
+        if not muted:
             for line in self.results:
                 print(line)
 
@@ -165,4 +168,3 @@ class StatsObj:
             return (self.number_of_tests - self.number_of_failed_tests) / self.number_of_tests
         except ZeroDivisionError:
             return 0
-

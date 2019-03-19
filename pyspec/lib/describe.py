@@ -9,7 +9,7 @@ COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description, outer=None):
+def describe(description, outer=None, alt_pub_sub=None):
     """
     Initilizes a new test group object using Describe
 
@@ -26,8 +26,13 @@ def describe(description, outer=None):
 
     group = Describe(description, outer)
 
+    if alt_pub_sub:
+        used_pub_sub = alt_pub_sub
+    else:
+        used_pub_sub = pub_sub
+
     if outer is None:
-        pub_sub.topic('new test group').pub(group)
+        used_pub_sub.topic('new test group').pub(group)
 
     return group
 
