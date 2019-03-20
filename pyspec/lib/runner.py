@@ -5,7 +5,9 @@ running all test groups in a Runner.
 """
 
 import datetime
-from pub_sub import pub_sub
+from pub_sub import stable
+
+PUB_SUB = stable.event('pyspec')
 
 def runner(passed_pub_sub=None):
     """
@@ -21,7 +23,7 @@ def runner(passed_pub_sub=None):
     if passed_pub_sub:
         used_pub_sub = passed_pub_sub
     else:
-        used_pub_sub = pub_sub
+        used_pub_sub = PUB_SUB
 
     used_pub_sub.topic('new test group').sub(result.add_group)
     used_pub_sub.topic('run requested').sub(result.run_all)

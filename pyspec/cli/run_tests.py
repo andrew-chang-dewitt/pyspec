@@ -5,7 +5,9 @@ import importlib.machinery
 from types import ModuleType
 from pyspec import runner
 # from pyspec.cli import click_cust
-from pub_sub import pub_sub
+from pub_sub import stable
+
+PUB_SUB = stable.event('pyspec')
 
 CWD = os.getcwd()
 # ugly sys.path hack, necessary to allow tests to correctly import any
@@ -48,12 +50,12 @@ def _import_module(name, full_path=False):
 
 def _passed_pub_sub(passed):
     if passed is None:
-        return pub_sub
+        return PUB_SUB
 
     return passed
 
 def _publish_runner(passed):
     if passed is None:
-        return pub_sub.topic('runner').pub(runner())
+        return PUB_SUB.topic('runner').pub(runner())
 
     return passed.topic('runner').pub(runner(passed))

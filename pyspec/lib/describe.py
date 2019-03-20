@@ -3,7 +3,9 @@ Test runner for python, see runner_spec for example usage
 """
 
 import traceback
-from pub_sub import pub_sub
+from pub_sub import stable
+
+PUB_SUB = stable.event('pyspec')
 
 COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
@@ -29,7 +31,7 @@ def describe(description, outer=None, alt_pub_sub=None):
     if alt_pub_sub:
         used_pub_sub = alt_pub_sub
     else:
-        used_pub_sub = pub_sub
+        used_pub_sub = PUB_SUB
 
     if outer is None:
         used_pub_sub.topic('new test group').pub(group)
@@ -146,7 +148,7 @@ class Describe:
             for line in self.results:
                 print(line)
 
-        pub_sub.topic('test group results').pub(self.results)
+        PUB_SUB.topic('test group results').pub(self.results)
         return self.results
 
     def __getattr__(self, method_name):
