@@ -18,12 +18,12 @@ def runner(passed_pub_sub=None):
     Returns: 	An instance of the Runner class with an empty
     		test_groups attribute.
     """
-    result = Runner()
-
     if passed_pub_sub:
         used_pub_sub = passed_pub_sub
     else:
         used_pub_sub = PUB_SUB
+
+    result = Runner(used_pub_sub)
 
     used_pub_sub.topic('new test group').sub(result.add_group)
     used_pub_sub.topic('run requested').sub(result.run_all)
@@ -36,7 +36,8 @@ class Runner:
     All groups will be stored here. A list is used because it preserves
     member order with a numbered index & is easily searchable.
     """
-    def __init__(self):
+    def __init__(self, passed_pub_sub):
+        self.pub_sub = passed_pub_sub
         self.test_groups = []
         self.results = []
         self.stats = StatsObj()
@@ -81,7 +82,8 @@ class Runner:
             for line in self.results:
                 print(line)
 
-        return self.results
+        self.pub_sub.topic('run results').pub(self)
+        return self
 
     def run_one(self, group):
         """
