@@ -3,13 +3,10 @@
 import pyspec
 from pub_sub import stable
 
-ISOLATED_PUB_SUB = stable.event('stats test')
-
 STATS_OBJ = pyspec.describe('generate stats info in the runner metastructure')
 
-STATS_OBJ.test_run = pyspec.cli.run_tests.one_file(
+STATS_OBJ.test_run = pyspec.cli.run_tests.RunTests(stable.event('stats test')).one_file(
     'tests/test_examples/temp_spec',
-    ISOLATED_PUB_SUB,
     True
 )
 
