@@ -1,10 +1,12 @@
-from pyspec.api import describe
+from pyspec import describe, spec_struct
 from example import script
 
-test = describe('example test on script.test()')
+RUNNER = spec_struct()
 
-test.it('returns 1',
+TEST = describe('example test on script.test()', RUNNER)
+
+TEST.it('returns 1',
         lambda: script.test()).should.eq(1)
 
-test.it('errors when given an argument',
+TEST.it('errors when given an argument',
         lambda: script.test('unexpected arg')).should.raise_error(TypeError)
