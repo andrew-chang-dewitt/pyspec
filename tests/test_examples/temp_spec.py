@@ -1,7 +1,7 @@
 import  pyspec
 from pub_sub import stable
 
-PUB_SUB = stable.event('CLI test')
+PUB_SUB = stable.event('temp spec')
 
 TEST = pyspec.describe('this is a test', None, PUB_SUB)
 

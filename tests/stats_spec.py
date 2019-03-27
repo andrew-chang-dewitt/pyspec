@@ -5,15 +5,17 @@ from pub_sub import stable
 
 STATS_OBJ = pyspec.describe('generate stats info in the runner metastructure')
 
-STATS_OBJ.test_run = pyspec.cli.run_tests.RunTests(stable.event('stats test')).one_file(
+STATS_OBJ.test_run = pyspec.cli.run_tests.RunTests(stable.event('temp spec')).one_file(
     'tests/test_examples/temp_spec',
     True
 )
 
-# print(STATS_OBJ.test_run.stats.get_stats_string())
-# print(STATS_OBJ.test_run.pub_sub.name)
+print(f'test run: { STATS_OBJ.test_run }')
+print(STATS_OBJ.test_run.pub_sub.name)
+print(f'Runner test_groups is {STATS_OBJ.test_run.test_groups}')
 for item in STATS_OBJ.test_run.test_groups:
     print(item.description)
+print(STATS_OBJ.test_run.stats.get_stats_string())
 
 STATS_OBJ.it(
     'has a stats object',
