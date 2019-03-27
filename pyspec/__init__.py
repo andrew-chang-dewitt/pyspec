@@ -1,2 +1,3 @@
 from . import cli
-from .lib import (describe, spec_struct)
+from .lib.describe import describe
+from .lib.runner import runner
