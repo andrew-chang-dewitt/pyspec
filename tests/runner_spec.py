@@ -4,7 +4,7 @@ import pyspec
 
 META = pyspec.describe('create & manage metastructures')
 
-META.struct = pyspec.lib.runner.Runner()
+META.struct = pyspec.lib.runner.Runner(None)
 
 META.it(
     'can create a new structure',
