@@ -4,8 +4,10 @@ entry point for the pyspec program
 """
 
 import click
-from pyspec.cli import run_tests
+from pyspec.cli.run_tests import RunTests
 from pyspec.cli.click_cust import ErrorHandlingGroup
+
+run_tests = RunTests()
 
 @click.group(cls=ErrorHandlingGroup)
 def entry_point():

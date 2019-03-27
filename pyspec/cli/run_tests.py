@@ -7,55 +7,54 @@ from pyspec import runner
 # from pyspec.cli import click_cust
 from pub_sub import stable
 
-PUB_SUB = stable.event('pyspec')
+class RunTests:
+    CWD = os.getcwd()
+    # ugly sys.path hack, necessary to allow tests to correctly import any
+    # local modules in their package
+    sys.path.append(CWD)
 
-CWD = os.getcwd()
-# ugly sys.path hack, necessary to allow tests to correctly import any
-# local modules in their package
-sys.path.append(CWD)
+    def __init__(self, pub_sub=stable.event('pyspec')):
+        self.results = None
+        self.pub_sub = pub_sub
 
-def all_tests(test_dir_str, passed_pub_sub=None, muted=False):
-    used_pub_sub = _passed_pub_sub(passed_pub_sub)
-    _publish_runner(passed_pub_sub)
+    def all_tests(self, test_dir_str, muted=False):
+        self._publish_runner()
 
-    path = CWD + '/' + test_dir_str + '/*_spec.py'
-    spec_files = glob.glob(path)
+        path = self.CWD + '/' + test_dir_str + '/*_spec.py'
+        spec_files = glob.glob(path)
 
-    for spec_file in spec_files:
-        _import_module(spec_file, True)
+        for spec_file in spec_files:
+            self._import_module(spec_file, True)
 
-    used_pub_sub.topic('run requested').pub(muted)
+        self.pub_sub.topic('run results').sub(self._results_received)
+        self.pub_sub.topic('run requested').pub(muted)
 
-    return True
+        return self.results
 
-def one_file(file_path_str, passed_pub_sub=None, muted=False):
-    used_pub_sub = _passed_pub_sub(passed_pub_sub)
-    _publish_runner(passed_pub_sub)
+    def one_file(self, file_path_str, muted=False):
+        self._publish_runner()
 
-    _import_module(file_path_str)
-    used_pub_sub.topic('run requested').pub(muted)
+        self._import_module(file_path_str)
+        self.pub_sub.topic('run results').sub(self._results_received)
+        self.pub_sub.topic('run requested').pub(muted)
 
-    return True
+        return self.results
 
-def _import_module(name, full_path=False):
-    path = name if full_path else CWD + '/' + name + '.py'
+    def _import_module(self, name, full_path=False):
+        path = name if full_path else self.CWD + '/' + name + '.py'
 
-    # using SourceFileLoader & .exec_module from this answer on SO:
-    # https://stackoverflow.com/a/19011259/4642869
-    loader = importlib.machinery.SourceFileLoader(name, path)
-    module = ModuleType(loader.name)
-    loader.exec_module(module)
+        # using SourceFileLoader & .exec_module from this answer on SO:
+        # https://stackoverflow.com/a/19011259/4642869
+        loader = importlib.machinery.SourceFileLoader(name, path)
+        module = ModuleType(loader.name)
+        loader.exec_module(module)
 
-    return module
+        return module
 
-def _passed_pub_sub(passed):
-    if passed is None:
-        return PUB_SUB
+    def _publish_runner(self):
+        return self.pub_sub.topic('runner').pub(runner(self.pub_sub))
 
-    return passed
+    def _results_received(self, results):
+        self.results = results
 
-def _publish_runner(passed):
-    if passed is None:
-        return PUB_SUB.topic('runner').pub(runner())
-
-    return passed.topic('runner').pub(runner(passed))
+        return bool(self.results is not None)
