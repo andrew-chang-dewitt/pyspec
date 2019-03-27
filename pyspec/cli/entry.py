@@ -32,3 +32,31 @@ def one(module):
     name, without any file type extensions.
     """
     return run_tests.one_file(module)
+
+@entry_point.command()
+@click.argument('path')
+def list(path):
+    """
+    Lists all test groups available in in a given directory. PATH must be relative
+    to the current $PWD. This command will only find files in the given directory
+    that end in `_spec.py`.
+    """
+    res = run_tests.explore(path)
+    num = 0
+
+    click.echo('')
+    for group in res:
+        click.echo('%(num)s. %(desc)s' % { 'num': num, 'desc': group.description })
+        num += 1
+
+    req = input('\nWhich test group would you like to run? ')
+    req_int = int(req)
+    print('')
+    results_str = res[req_int].run()
+
+    for line in results_str:
+        click.echo(line)
+
+        return True
+
+    return False

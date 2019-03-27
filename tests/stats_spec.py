@@ -10,13 +10,6 @@ STATS_OBJ.test_run = pyspec.cli.run_tests.RunTests(stable.event('temp spec')).on
     True
 )
 
-print(f'test run: { STATS_OBJ.test_run }')
-print(STATS_OBJ.test_run.pub_sub.name)
-print(f'Runner test_groups is {STATS_OBJ.test_run.test_groups}')
-for item in STATS_OBJ.test_run.test_groups:
-    print(item.description)
-print(STATS_OBJ.test_run.stats.get_stats_string())
-
 STATS_OBJ.it(
     'has a stats object',
     lambda: STATS_OBJ.test_run.stats

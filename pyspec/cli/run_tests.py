@@ -16,15 +16,11 @@ class RunTests:
     def __init__(self, pub_sub=stable.event('pyspec')):
         self.results = None
         self.pub_sub = pub_sub
+        self.runner = None
 
     def all_tests(self, test_dir_str, muted=False):
         self._publish_runner()
-
-        path = self.CWD + '/' + test_dir_str + '/*_spec.py'
-        spec_files = glob.glob(path)
-
-        for spec_file in spec_files:
-            self._import_module(spec_file, True)
+        self._get_directory(test_dir_str)
 
         self.pub_sub.topic('run results').sub(self._results_received)
         self.pub_sub.topic('run requested').pub(muted)
@@ -40,6 +36,16 @@ class RunTests:
 
         return self.results
 
+    def explore(self, test_dir_str, muted=False):
+        self._publish_runner()
+        self._get_directory(test_dir_str)
+        res = []
+
+        for group in self.runner.test_groups:
+            res.append(group)
+
+        return res
+
     def _import_module(self, name, full_path=False):
         path = name if full_path else self.CWD + '/' + name + '.py'
 
@@ -51,8 +57,20 @@ class RunTests:
 
         return module
 
+    def _get_directory(self, test_dir_str):
+        path = self.CWD + '/' + test_dir_str + '/*_spec.py'
+        spec_files = glob.glob(path)
+
+        for spec_file in spec_files:
+            self._import_module(spec_file, True)
+
+        return True
+
     def _publish_runner(self):
-        return self.pub_sub.topic('runner').pub(runner(self.pub_sub))
+        self.runner = runner(self.pub_sub)
+        self.pub_sub.topic('runner').pub(self.runner)
+
+        return self.runner
 
     def _results_received(self, results):
         self.results = results
