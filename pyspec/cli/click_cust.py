@@ -16,7 +16,7 @@ class ErrorHandlingGroup(click.Group):
             return self.main(*args, **kwargs)
         except Exception as err:
             click.echo(err)
-            click.echo(traceback.format_exc())
+            # click.echo(traceback.format_exc())
 
 class NoRunnerError(Exception):
     def __init__(self, module_name):
