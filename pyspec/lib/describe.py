@@ -128,20 +128,21 @@ class Describe:
                 self.results.append(line)
 
         for test in self.tests:
+            test.run()
             test_title = f'{self.tab}- {test.description}'
 
-            if test.success:
+            if test.result['success']:
                 self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
             else:
                 self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
                 self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
-                for line in test.stack_trace[:-1]:
+                for line in test.result['stack_trace'][:-1]:
                     self.results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
                 self.results.append(
-                    f'{self.tabplus}{COLOR_RED}* {test.stack_trace[-1]}{COLOR_RESET}'
+                    f'{self.tabplus}{COLOR_RED}* {test.result["stack_trace"][-1]}{COLOR_RESET}'
                 )
 
         if not muted:
@@ -165,9 +166,7 @@ class Describe:
 
         return doesnt_exist()
 
-# ignoring too-few-public-methods pylint warning as Test class is a data structure with
-# inner classes that expose all necessary methods
-class Test: # pylint:disable=too-few-public-methods
+class Test:
     """
     An object used to represent a single test.
 
@@ -190,324 +189,380 @@ class Test: # pylint:disable=too-few-public-methods
     def __init__(self, description, code):
         self.description = description
         self.code = code
-        self.should = self._init_should()
-        self.should_not = self._init_should_not()
+        self.comparison = None
+        self.expected = None
+        self._set_result = None
+        self.result = {
+            'success': None,
+            'err': None,
+            'stack_trace': None
+        }
 
-    def _init_should(self):
-        return self.Should(self.code, self)
+    def run(self):
+        return self.comparison(self, self.expected)
 
-    def _init_should_not(self):
-        return self.ShouldNot(self.code, self)
-
-    class Should:
+    def should(self, comparison, expected):
         """
-        An object containing methods for making Assertations of different types.
-        An inner class to Test & always initialized when a Test instance is initialized.
+        Sets the given comparison method & expected values for the Test instance
+        so that `run` can evalutate them later.
 
-        On initialization, it takes:
-        - code          (FUNCTION)      a function that evaluates to an Actual result, to be
-                                        compared against the Expected result using one of the
-                                        methods of Should
-                        (EXPRESSION)    alternatively, code can be a non-callable value
-        - test_called   (Test)          the instance of Test that initialized this instance
-                                        of Should
-
-        Contains the following methods:
-        - eq            compares the result of code to a given value, modifies test.success
-                        accordingly, & returns the newly modified Test object
-        - raise_error   compares the code result to an expected Exception class,
-                        otherwise the same as eq
+        Defines how the results will be set by giving set_result as an instance
+        attribute to be used by `run` when evaluated.
         """
 
-        def __init__(self, code, test_called):
-            self.code = code
-            self.test_called = test_called
+        self.comparison = comparison
+        self.expected = expected
 
-        def _code_result(self):
-            return self.code() if callable(self.code) else self.code
-
-        def _set_result(self, **kwargs):
+        def set_result(self, **kwargs):
             if kwargs['success']:
-                self.test_called.success = True
+                self.result['success'] = True
             else:
-                self.test_called.success = False
-                self.test_called.err = kwargs['err']
-                self.test_called.stack_trace = kwargs['stack_trace']
+                self.result['success'] = False
+                self.result['err'] = kwargs['err']
+                self.result['stack_trace'] = kwargs['stack_trace']
 
-        # A short name is chosen as the method will be referenced very often by the
-        # end user of this test runner; the pylint warning about name snake case
-        # has been disabled.
-        def eq(self, expected): # pylint: disable=invalid-name
-            """
-            Compares _code_result() to expected, modifies the outer Test instance's
-            success attribute accordingly, & returns the newly modified Test instance
-            """
+        self._set_result = set_result
 
-            try:
-                code_result = self._code_result()
+        return self
 
-                if not code_result == expected:
-                    raise AssertionError(f'expected {expected}, but got {code_result}')
-
-                self._set_result(success=True)
-
-            # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
-            # attributes & will be displayed in the test failure message
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def raise_error(self, expected_err):
-            """
-            Compares _code_result() to expected_err, modifies the outer Test instance's
-            success attribute accordingly, & returns the newly modified Test instance
-            """
-
-            try:
-                code_result = self._code_result()
-
-                no_err_msg = f'No error was raised, instead got {code_result}'
-                self._set_result(
-                    success=False,
-                    err=no_err_msg,
-                    stack_trace=[no_err_msg]
-                )
-
-            # All exceptions are caught in order to continue parsing other tests.
-            # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
-            # attributes & will be displayed in the test failure message
-            except Exception as err: # pylint: disable=broad-except
-                # disabling pylint warning on typecheck as the only test that should
-                # pass is if the exact specified error is passed, not any children of
-                # the exception class
-                if not type(err) == expected_err: # pylint: disable=unidiomatic-typecheck
-                    # AssertionErrors are re-raised if the type of error does not match
-                    # the expected error class, these will be caught in the next block
-                    raise AssertionError(f'expected {expected_err}, but got {err}')
-
-                self._set_result(success=True)
-
-            # Assertion Errors are caught after the general `except Exception` clause
-            # as the Assertion error should be raised by the previous, more general clause
-            except AssertionError as err: # pylint: disable=bad-except-order
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def be_a(self, expected_class):
-            """
-            Compares _code_result() to expected_class & changes outer Test instance's
-            success attribute to True if they match, or False if they don't.
-            """
-
-            try:
-                code_result = self._code_result()
-
-                if not isinstance(code_result, expected_class):
-                    raise AssertionError(f'expected {expected_class}, but got {type(code_result)}')
-
-                self._set_result(success=True)
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def include(self, *args):
-            """
-            Requires `self._code_result()` to return an iterable.
-            Checks all object names given in `*args` against the iterable & returns a
-            successful test if they are found; otherwise returns a failing test with
-            a list of what objects weren't found.
-            """
-
-            try:
-                actual_groups = self._code_result()
-                expected_groups = args
-
-                not_found = []
-
-                for item in expected_groups:
-                    if item not in actual_groups:
-                        not_found.append(item)
-
-                if not_found:
-                    raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
-
-                self._set_result(success=True)
-
-            except TypeError:
-                raise TypeError(f'the result of the test is not an iterable')
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def be_empty(self):
-            """
-            Requires `self._code_result()` to return an iterable.
-            Checks if the iterable is empty. If it is, the test passes; otherwise an
-            AssertionError is raised indicating a failed test.
-            """
-
-            try:
-                actual = self._code_result()
-
-                if len(actual) > 0:
-                    raise AssertionError(f'expected an empty iterable, but got {actual}')
-
-                self.test_called.success = True
-
-            except TypeError:
-                raise TypeError(f'the result of the test is not an iterable')
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def have_keys(self, *args):
-            """
-            Requires the tested code to result in a dictionary.
-            Checks the dictionary for any keys given in *args.
-            """
-
-            try:
-                result_dict = self._code_result()
-
-                if not isinstance(result_dict, dict):
-                    raise TypeError(f'the result of the test is not a dictionary')
-
-                actual_keys = result_dict.keys()
-                expected_keys = args
-
-                not_found = []
-
-                for item in expected_keys:
-                    if item not in actual_keys:
-                        not_found.append(item)
-
-                if not_found:
-                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
-
-                self._set_result(success=True)
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def have_attributes(self, *args):
-            """
-            Checks a given object for the attributes given as arguments.
-            """
-
-            try:
-                result = self._code_result()
-                actual_keys = dir(result)
-                expected_keys = args
-
-                not_found = []
-
-                for item in expected_keys:
-                    if item not in actual_keys:
-                        not_found.append(item)
-
-                if not_found:
-                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
-
-                self._set_result(success=True)
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-        def have_methods(self, *args):
-            """
-            Checks a given object for the methods given as arguments.
-            """
-
-            try:
-                result = self._code_result()
-                actual_keys = []
-
-                for attribute in dir(result):
-                    if callable(getattr(result, attribute)):
-                        actual_keys.append(attribute)
-
-                expected_keys = args
-
-                not_found = []
-
-                for item in expected_keys:
-                    if item not in actual_keys:
-                        not_found.append(item)
-
-                if not_found:
-                    raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
-
-                self._set_result(success=True)
-
-            except Exception as err: # pylint: disable=broad-except
-                self._set_result(
-                    success=False,
-                    err=err,
-                    stack_trace=traceback.format_exc().splitlines()
-                )
-
-            return self.test_called
-
-    class ShouldNot(Should):
+    def should_not(self, comparison, expected):
         """
-        ShouldNot inherits all comparison methods (e.g. `eq()`, `be_a()`, etc.), but
-        negates the result. It redefines only one attribute/method, _set_result, by
-        setting the opposite result compared to the same function in `Should`.
-
-        An inner class to Test & always initialized when a Test instance is initialized.
+        Same as `should`, but negates the results.
         """
-        def _set_result(self, **kwargs):
+
+        self.comparison = comparison
+        self.expected = expected
+
+        def set_result(self, **kwargs):
             incorrect_success = (
                 f'The test passed when it should have failed in a should_not statement'
             )
 
             if kwargs['success']:
-                self.test_called.success = False
-                self.test_called.err = incorrect_success
-                self.test_called.stack_trace = [incorrect_success]
+                self.result['success'] = False
+                self.result['err'] = incorrect_success
+                self.result['stack_trace'] = [incorrect_success]
             else:
-                self.test_called.success = True
+                self.result['success'] = True
+
+        self._set_result = set_result
+
+        return self
+
+    # # # # # # # # # # #
+    # Comparison methods
+    #
+    # The following methods are all functions that can be used in a test
+    # to compare an actual result (stored in the test at the `code`
+    # attribute) against the expected attribute (passed to each method).
+    #
+    # Typical usage will be to pass the method to a `should` or `should_not`
+    # call (above) as the first argument, with the expected value (that will
+    # be passed to this Comparison method) as the second argument. This
+    # structure allows the execution of the comparison to be deferred until
+    # the Test's `run` method is called.
+
+    # A short name is chosen as the method will be referenced very often by the
+    # end user of this test runner; the pylint warning about name snake case
+    # has been disabled.
+    def eq(self, expected): # pylint: disable=invalid-name
+        """
+        Compares _code_result() to expected, modifies the outer Test instance's
+        success attribute accordingly, & returns the newly modified Test instance
+        """
+
+        try:
+            code_result = self._code_result()
+
+            if not code_result == expected:
+                raise AssertionError(f'expected {expected}, but got {code_result}')
+
+            self._set_result(success=True)
+
+        # All exceptions are caught in order to continue parsing other tests.
+        # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
+        # attributes & will be displayed in the test failure message
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def raise_error(self, expected_err):
+        """
+        Compares _code_result() to expected_err, modifies the outer Test instance's
+        success attribute accordingly, & returns the newly modified Test instance
+        """
+
+        try:
+            code_result = self._code_result()
+
+            no_err_msg = f'No error was raised, instead got {code_result}'
+            self._set_result(
+                success=False,
+                err=no_err_msg,
+                stack_trace=[no_err_msg]
+            )
+
+        # All exceptions are caught in order to continue parsing other tests.
+        # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
+        # attributes & will be displayed in the test failure message
+        except Exception as err: # pylint: disable=broad-except
+            # disabling pylint warning on typecheck as the only test that should
+            # pass is if the exact specified error is passed, not any children of
+            # the exception class
+            if not type(err) == expected_err: # pylint: disable=unidiomatic-typecheck
+                # AssertionErrors are re-raised if the type of error does not match
+                # the expected error class, these will be caught in the next block
+                raise AssertionError(f'expected {expected_err}, but got {err}')
+
+            self._set_result(success=True)
+
+        # Assertion Errors are caught after the general `except Exception` clause
+        # as the Assertion error should be raised by the previous, more general clause
+        except AssertionError as err: # pylint: disable=bad-except-order
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def be_a(self, expected_class):
+        """
+        Compares _code_result() to expected_class & changes outer Test instance's
+        success attribute to True if they match, or False if they don't.
+        """
+
+        try:
+            code_result = self._code_result()
+
+            if not isinstance(code_result, expected_class):
+                raise AssertionError(f'expected {expected_class}, but got {type(code_result)}')
+
+            self._set_result(success=True)
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def include(self, *args):
+        """
+        Requires `self._code_result()` to return an iterable.
+        Checks all object names given in `*args` against the iterable & returns a
+        successful test if they are found; otherwise returns a failing test with
+        a list of what objects weren't found.
+        """
+
+        try:
+            actual_groups = self._code_result()
+            expected_groups = args
+
+            not_found = []
+
+            for item in expected_groups:
+                if item not in actual_groups:
+                    not_found.append(item)
+
+            if not_found:
+                raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
+
+            self._set_result(success=True)
+
+        except TypeError:
+            raise TypeError(f'the result of the test is not an iterable')
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def be_empty(self):
+        """
+        Requires `self._code_result()` to return an iterable.
+        Checks if the iterable is empty. If it is, the test passes; otherwise an
+        AssertionError is raised indicating a failed test.
+        """
+
+        try:
+            actual = self._code_result()
+
+            if len(actual) > 0:
+                raise AssertionError(f'expected an empty iterable, but got {actual}')
+
+            self._set_result(success=True)
+
+        except TypeError:
+            raise TypeError(f'the result of the test is not an iterable')
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def have_keys(self, *args):
+        """
+        Requires the tested code to result in a dictionary.
+        Checks the dictionary for any keys given in *args.
+        """
+
+        try:
+            result_dict = self._code_result()
+
+            if not isinstance(result_dict, dict):
+                raise TypeError(f'the result of the test is not a dictionary')
+
+            actual_keys = result_dict.keys()
+            expected_keys = args
+
+            not_found = []
+
+            for item in expected_keys:
+                if item not in actual_keys:
+                    not_found.append(item)
+
+            if not_found:
+                raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+            self._set_result(success=True)
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def have_attributes(self, *args):
+        """
+        Checks a given object for the attributes given as arguments.
+        """
+
+        try:
+            result = self._code_result()
+            actual_keys = dir(result)
+            expected_keys = args
+
+            not_found = []
+
+            for item in expected_keys:
+                if item not in actual_keys:
+                    not_found.append(item)
+
+            if not_found:
+                raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+            self._set_result(success=True)
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def have_methods(self, *args):
+        """
+        Checks a given object for the methods given as arguments.
+        """
+
+        try:
+            result = self._code_result()
+            actual_keys = []
+
+            for attribute in dir(result):
+                if callable(getattr(result, attribute)):
+                    actual_keys.append(attribute)
+
+            expected_keys = args
+
+            not_found = []
+
+            for item in expected_keys:
+                if item not in actual_keys:
+                    not_found.append(item)
+
+            if not_found:
+                raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
+
+            self._set_result(success=True)
+
+        except Exception as err: # pylint: disable=broad-except
+            self._set_result(
+                success=False,
+                err=err,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return self
+
+    def _code_result(self):
+        return self.code() if callable(self.code) else self.code
+
+    # class Should:
+    #     """
+    #     An object containing methods for making Assertations of different types.
+    #     An inner class to Test & always initialized when a Test instance is initialized.
+
+    #     On initialization, it takes:
+    #     - code          (FUNCTION)      a function that evaluates to an Actual result, to be
+    #                                     compared against the Expected result using one of the
+    #                                     methods of Should
+    #                     (EXPRESSION)    alternatively, code can be a non-callable value
+    #     - test_called   (Test)          the instance of Test that initialized this instance
+    #                                     of Should
+
+    #     Contains the following methods:
+    #     - eq            compares the result of code to a given value, modifies test.success
+    #                     accordingly, & returns the newly modified Test object
+    #     - raise_error   compares the code result to an expected Exception class,
+    #                     otherwise the same as eq
+    #     """
+
+    #     def __init__(self, code, test_called):
+    #         self.code = code
+    #         self.test_called = test_called
+
+    # class ShouldNot(Should):
+    #     """
+    #     ShouldNot inherits all comparison methods (e.g. `eq()`, `be_a()`, etc.), but
+    #     negates the result. It redefines only one attribute/method, _set_result, by
+    #     setting the opposite result compared to the same function in `Should`.
+
+    #     An inner class to Test & always initialized when a Test instance is initialized.
+    #     """
+    #     def _set_result(self, **kwargs):
+    #         incorrect_success = (
+    #             f'The test passed when it should have failed in a should_not statement'
+    #         )
+
+    #         if kwargs['success']:
+    #             self.test_called.success = False
+    #             self.test_called.err = incorrect_success
+    #             self.test_called.stack_trace = [incorrect_success]
+    #         else:
+    #             self.test_called.success = True
 
     # class BooleanShould(Should):
     #     """
