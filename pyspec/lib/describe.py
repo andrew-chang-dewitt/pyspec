@@ -2,6 +2,7 @@
 Test runner for python, see runner_spec for example usage
 """
 
+import sys
 import traceback
 from pub_sub import stable
 
@@ -191,7 +192,7 @@ class Test:
         self.code = code
         self.comparison = None
         self.expected = None
-        self._set_result = None
+        self.set_result = None
         self.result = {
             'success': None,
             'err': None,
@@ -199,9 +200,29 @@ class Test:
         }
 
     def run(self):
-        return self.comparison(self, self.expected)
+        """
+        execute the test
 
-    def should(self, comparison, expected):
+        accepts no args & returns the evaluated test with new values in self.result
+        """
+        try:
+            comparison = getattr(Comparisons, self.comparison)
+            code_result = self._code_result()
+            comparison(self, code_result, self.expected)
+        except Exception as err:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+
+            self.set_result(
+                self,
+                success=False,
+                err=exc_obj,
+                stack_trace=traceback.format_exc().splitlines()
+            )
+
+        return comparison(self, self.expected)
+
+    @property
+    def should(self):
         """
         Sets the given comparison method & expected values for the Test instance
         so that `run` can evalutate them later.
@@ -209,9 +230,6 @@ class Test:
         Defines how the results will be set by giving set_result as an instance
         attribute to be used by `run` when evaluated.
         """
-
-        self.comparison = comparison
-        self.expected = expected
 
         def set_result(self, **kwargs):
             if kwargs['success']:
@@ -221,17 +239,17 @@ class Test:
                 self.result['err'] = kwargs['err']
                 self.result['stack_trace'] = kwargs['stack_trace']
 
-        self._set_result = set_result
+            return self
 
-        return self
+        self.set_result = set_result
 
-    def should_not(self, comparison, expected):
+        return Should(self)
+
+    @property
+    def should_not(self):
         """
         Same as `should`, but negates the results.
         """
-
-        self.comparison = comparison
-        self.expected = expected
 
         def set_result(self, **kwargs):
             incorrect_success = (
@@ -245,26 +263,69 @@ class Test:
             else:
                 self.result['success'] = True
 
-        self._set_result = set_result
+            return self
 
-        return self
+        self.set_result = set_result
 
-    # # # # # # # # # # #
-    # Comparison methods
-    #
-    # The following methods are all functions that can be used in a test
-    # to compare an actual result (stored in the test at the `code`
-    # attribute) against the expected attribute (passed to each method).
-    #
-    # Typical usage will be to pass the method to a `should` or `should_not`
-    # call (above) as the first argument, with the expected value (that will
-    # be passed to this Comparison method) as the second argument. This
-    # structure allows the execution of the comparison to be deferred until
-    # the Test's `run` method is called.
+        return Should(self)
 
-    # A short name is chosen as the method will be referenced very often by the
-    # end user of this test runner; the pylint warning about name snake case
-    # has been disabled.
+    def _code_result(self):
+        return self.code() if callable(self.code) else self.code
+
+class Should:
+    """
+    Contains methods for assigning a method from Comparisons to a value on
+    Test, passed on __ini__, to be executed later
+    """
+    def __init__(self, test_called):
+        self.test_called = test_called
+
+    def __getattr__(self, method_name):
+        def doesnt_exist():
+            raise AttributeError(f'No such attribute: {method_name}')
+
+        def assign_expected(*args, **kwargs):
+            if args:
+                self.test_called.expected = []
+                for arg in args:
+                    self.test_called.expected.append(arg)
+
+            if kwargs:
+                self.test_called.expected = kwargs
+
+        for key in dir(Comparisons):
+            if key == method_name:
+                self.test_called.comparison = key
+
+                return assign_expected
+
+        return doesnt_exist()
+
+
+class Comparisons:
+    """
+    Comparison methods
+
+    The following methods are all functions that can be used in a test
+    to compare an actual result (stored in the test at the `code`
+    attribute) against the expected attribute (passed to each method).
+
+    Typical usage will be to pass the method to a `should` or `should_not`
+    call (above) as the first argument, with the expected value (that will
+    be passed to this Comparison method) as the second argument. This
+    structure allows the execution of the comparison to be deferred until
+    the Test's `run` method is called.
+
+    A short name is chosen as the method will be referenced very often by the
+    end user of this test runner; the pylint warning about name snake case
+    has been disabled.
+    """
+
+    def __init__(self, test_called):
+        self.test_called = test_called
+        self.set_result = self.test_called.set_result
+        self._code_result = self.test_called._code_result
+
     def eq(self, expected): # pylint: disable=invalid-name
         """
         Compares _code_result() to expected, modifies the outer Test instance's
@@ -277,13 +338,14 @@ class Test:
             if not code_result == expected:
                 raise AssertionError(f'expected {expected}, but got {code_result}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         # All exceptions are caught in order to continue parsing other tests.
         # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
         # attributes & will be displayed in the test failure message
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
+                self,
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -301,7 +363,7 @@ class Test:
             code_result = self._code_result()
 
             no_err_msg = f'No error was raised, instead got {code_result}'
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=no_err_msg,
                 stack_trace=[no_err_msg]
@@ -319,12 +381,12 @@ class Test:
                 # the expected error class, these will be caught in the next block
                 raise AssertionError(f'expected {expected_err}, but got {err}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         # Assertion Errors are caught after the general `except Exception` clause
         # as the Assertion error should be raised by the previous, more general clause
         except AssertionError as err: # pylint: disable=bad-except-order
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -344,10 +406,10 @@ class Test:
             if not isinstance(code_result, expected_class):
                 raise AssertionError(f'expected {expected_class}, but got {type(code_result)}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -376,13 +438,13 @@ class Test:
             if not_found:
                 raise AssertionError(f'expected {expected_groups}, but got {actual_groups}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         except TypeError:
             raise TypeError(f'the result of the test is not an iterable')
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -403,13 +465,13 @@ class Test:
             if len(actual) > 0:
                 raise AssertionError(f'expected an empty iterable, but got {actual}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         except TypeError:
             raise TypeError(f'the result of the test is not an iterable')
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -441,10 +503,10 @@ class Test:
             if not_found:
                 raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -471,10 +533,10 @@ class Test:
             if not_found:
                 raise AssertionError(f'expected {expected_keys}, but got {actual_keys}')
 
-            self._set_result(success=True)
+            self.set_result(success=True)
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
@@ -509,95 +571,10 @@ class Test:
             self._set_result(success=True)
 
         except Exception as err: # pylint: disable=broad-except
-            self._set_result(
+            self.set_result(
                 success=False,
                 err=err,
                 stack_trace=traceback.format_exc().splitlines()
             )
 
         return self
-
-    def _code_result(self):
-        return self.code() if callable(self.code) else self.code
-
-    # class Should:
-    #     """
-    #     An object containing methods for making Assertations of different types.
-    #     An inner class to Test & always initialized when a Test instance is initialized.
-
-    #     On initialization, it takes:
-    #     - code          (FUNCTION)      a function that evaluates to an Actual result, to be
-    #                                     compared against the Expected result using one of the
-    #                                     methods of Should
-    #                     (EXPRESSION)    alternatively, code can be a non-callable value
-    #     - test_called   (Test)          the instance of Test that initialized this instance
-    #                                     of Should
-
-    #     Contains the following methods:
-    #     - eq            compares the result of code to a given value, modifies test.success
-    #                     accordingly, & returns the newly modified Test object
-    #     - raise_error   compares the code result to an expected Exception class,
-    #                     otherwise the same as eq
-    #     """
-
-    #     def __init__(self, code, test_called):
-    #         self.code = code
-    #         self.test_called = test_called
-
-    # class ShouldNot(Should):
-    #     """
-    #     ShouldNot inherits all comparison methods (e.g. `eq()`, `be_a()`, etc.), but
-    #     negates the result. It redefines only one attribute/method, _set_result, by
-    #     setting the opposite result compared to the same function in `Should`.
-
-    #     An inner class to Test & always initialized when a Test instance is initialized.
-    #     """
-    #     def _set_result(self, **kwargs):
-    #         incorrect_success = (
-    #             f'The test passed when it should have failed in a should_not statement'
-    #         )
-
-    #         if kwargs['success']:
-    #             self.test_called.success = False
-    #             self.test_called.err = incorrect_success
-    #             self.test_called.stack_trace = [incorrect_success]
-    #         else:
-    #             self.test_called.success = True
-
-    # class BooleanShould(Should):
-    #     """
-    #     BooleanShould inherits all comparison methods, just like ShouldNot, but it
-    #     also modifies the test to take multiple pending results, then determines the final
-    #     result using standard boolean rules combining each pending result.
-
-    #     For example, if BooleanShould is initialized with 'and' passed to it, then
-    #     it will give a final result of `Test.success = True` only if BOTH pending
-    #     results succeeded, otherwise the final result will be false.
-
-    #     An inner class to Test & always initialized when a Test instance is initialized.
-    #     """
-
-    #     def __init__(self, option):
-    #         super().__init__()
-    #         self.pending_results = [self.test_called.result]
-    #         self.test_called.result = self.get_results
-    #         self.option = option
-
-    #     def get_results(self):
-    #         """
-    #         This method is used to compile results according to the option stored at
-    #         self.option
-    #         """
-    #         is_and = True if self.option == 'and' else False
-    #         is_or = True if self.option == 'or' else False
-
-    #         for result in pending_results:
-    #             if not result.success and is_and:
-    #                 msg = f'One of the tests failed in the and_should statement'
-
-    #                 return self._set_result(
-    #                     success=False
-    #                     err=msg
-    #                     stack_trace=[msg]
-    #                 )
-    #             elif not result.success and is_or:
