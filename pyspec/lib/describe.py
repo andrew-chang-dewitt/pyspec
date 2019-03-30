@@ -231,27 +231,48 @@ class Test:
 
         return self
 
-    def _set_result(self, **kwargs):
-        if kwargs['success']:
-            self.result['success'] = True
-        else:
-            self.result['success'] = False
-            self.result['err'] = kwargs['err']
-            self.result['stack_trace'] = kwargs['stack_trace']
-
-        return self
-
 class Actual:
     def __init__(self, calling_test, actual):
         self.calling_test = calling_test
         self.actual = actual
 
     def to(self, comparison_method, *args):
+        def set_result(**kwargs):
+            if kwargs['success']:
+                self.calling_test.result['success'] = True
+            else:
+                self.calling_test.result['success'] = False
+                self.calling_test.result['err'] = kwargs['err']
+                self.calling_test.result['stack_trace'] = kwargs['stack_trace']
+
+            return self.calling_test
+
         self.calling_test.comparison = comparison_method
         self.calling_test.expected = args
         self.calling_test.actual = self
+        self.calling_test._set_result = set_result
 
         return self.calling_test
+
+    def to_not(self, comparison_method, *args):
+        def set_result(**kwargs):
+            incorrect_success = (
+                f'The test passed when it should have failed in a should_not statement'
+            )
+
+            if kwargs['success']:
+                self.calling_test.result['success'] = False
+                self.calling_test.result['err'] = incorrect_success
+                self.calling_test.result['stack_trace'] = [incorrect_success]
+            else:
+                self.calling_test.result['success'] = True
+
+            return self.calling_test
+
+        self.calling_test.comparison = comparison_method
+        self.calling_test.expected = args
+        self.calling_test.actual = self
+        self.calling_test._set_result = set_result
 
     def result(self):
         return self.actual() if callable(self.actual) else self.actual

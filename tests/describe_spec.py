@@ -53,16 +53,15 @@ EXPECTATIONS.it(
     'can check for methods on an object'
 ).expect(EXPECTATIONS).to(C.have_methods, 'it', 'run')
 
-# ### BOOLEAN OPERATIONS ###
-# # You can use standard boolean operators to modify a test
-# 
-# BOOLEANS = describe('use boolean operators')
-# 
-# BOOLEANS.it(
-#     'can negate an expectation using should_not',
-#     True
-# ).should_not.eq(False)
-# 
+### BOOLEAN OPERATIONS ###
+# You can use standard boolean operators to modify a test
+
+BOOLEANS = describe('use boolean operators')
+
+BOOLEANS.it(
+    'can negate an expectation using should_not'
+).expect(True).to_not(C.eq, False)
+
 # ### COMMON ###
 # # You can also define common variables for a group of tests
 # COMMON = describe('set common state')
