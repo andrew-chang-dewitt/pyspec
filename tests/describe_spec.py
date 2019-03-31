@@ -106,6 +106,8 @@ def five_mthd():
     return 5
 LET.let('five_mthd', five_mthd)
 
+LET.let('will_error', lambda: 1/0)
+
 LET.it(
     'can use common attributes'
 ).expect(LET.five).to(C.eq, 5)
@@ -113,6 +115,13 @@ LET.it(
 LET.it(
     'can use common methods'
 ).expect(LET.five_mthd).to(C.eq, 5)
+
+# FIXME: this only works if the `let` value isn't called in the test, but
+# instead is deferred until runtime
+LET.it(
+    'can deferr errors thrown by a let'
+).expect(LET.will_error).to(C.raise_error, ZeroDivisionError)
+
 
 # # You can also have one group of tests inherit state from another
 # # for example, you may have a standard test group

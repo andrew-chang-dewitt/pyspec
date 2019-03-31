@@ -189,10 +189,6 @@ class Test:
     On initialization, it takes:
     - description   (STRING)        a description to print when running the test,
                                     should be descriptive, readable, & concise
-    - code          (FUNCTION)      a function to be run when the test is executed,
-                                    the code must return a result to be handled by one
-                                    of the methods given by Should
-                    (EXPRESSION)    alternatively, code can be a non-callable value
 
     A test object also has the following attribute:
     - success   (BOOL)          represents if the test is successful or not,
@@ -241,6 +237,14 @@ class Test:
             )
 
 class Actual:
+    # FIXME: improve docstring
+    """
+    - code          (FUNCTION)      a function to be run when the test is executed,
+                                    the code must return a result to be handled by one
+                                    of the methods given by Should
+                    (EXPRESSION)    alternatively, code can be a non-callable value
+    """
+
     def __init__(self, calling_test, actual):
         self.calling_test = calling_test
         self.actual = actual
