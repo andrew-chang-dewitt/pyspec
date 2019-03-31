@@ -2,7 +2,8 @@
 
 from pyspec import describe
 from pyspec import comparisons as C
-# from pub_sub import stable
+from pyspec.lib.comparisons import AssertionError
+from pub_sub import stable
 
 ### EXPECTATIONS ###
 # group tests together by creating a new Describe object using `describe()`
@@ -62,54 +63,57 @@ BOOLEANS.it(
     'can negate an expectation using should_not'
 ).expect(True).to_not(C.eq, False)
 
-# ### COMMON ###
-# # You can also define common variables for a group of tests
-# COMMON = describe('set common state')
-# 
+### FAILURES ###
+# you can also test that a given test will always fail as expected
+FAILURES = describe('communicate failures')
+
+# to do this, first create a failing test
+FAILURES.fail_pubsub = stable.event('FAILURES')
+FAILURES.fail_group = describe('failure', None, FAILURES.fail_pubsub)
+FAILURES.fail_group.it('should fail').expect(1).to(C.eq, 2)
+FAILURES.fail_group.run(True)
+
+# create a new function to deferr re-raising the error
+def failed():
+    """this mehod will fail"""
+    # & grab the error off the test result object & re-raise it
+    raise FAILURES.fail_group.tests[0].result['err']
+
+# then assign that function to a method on common state for the test group
+FAILURES.failed = failed
+# you can grab just the error message from the args attribute of the returned error
+FAILURES.failed_msg = FAILURES.fail_group.tests[0].result['err']
+
+# lastly, call it on the common method as the expected value with
+# AssertionError as the error that should be raised by the failing test
+FAILURES.it(
+    'can show the expected error type'
+).expect(FAILURES.failed).to(C.raise_error, AssertionError)
+
+FAILURES.it(
+    'can show the expected error message'
+).expect(str(FAILURES.failed_msg)).to(C.eq, 'expected 2, but got 1')
+
+LET = describe('let')
+
 # # this is done by creating new attributes on the test group
-# COMMON.five = 5
-# # you can assign simple values (or values from expressions) as above,
-# # or you can define a function & assign it as a new method
-# def five_mthd():
-#     """testing common methods"""
-#     return 5
-# COMMON.five_mthd = five_mthd
-# 
-# COMMON.it('can use common attributes',
-#           COMMON.five).should.eq(5)
-# 
-# COMMON.it('can use common methods',
-#           COMMON.five_mthd).should.eq(5)
-# 
-# ### FAILURES ###
-# # you can also test that a given test will always fail as expected
-# FAILURES = describe('communicate failures')
-# 
-# # to do this, first create a failing test
-# FAILURES.fail_pubsub = stable.event('FAILURES')
-# FAILURES.fail_group = describe('failure', None, FAILURES.fail_pubsub)
-# FAILURES.fail_group.it('should fail', 1).should.eq(2)
-# FAILURES.fail_group.run(True)
-# 
-# # create a new function to deferr re-raising the error
-# def failed():
-#     """this mehod will fail"""
-#     # & grab the error off the test result object & re-raise it
-#     raise FAILURES.fail_group.tests[0].result['err']
-# 
-# # then assign that function to a method on common state for the test group
-# FAILURES.failed = failed
-# # you can grab just the error message from the args attribute of the returned error
-# FAILURES.failed_msg = FAILURES.fail_group.tests[0].result['err']
-# 
-# # lastly, call it on the common method as the expected value with
-# # AssertionError as the error that should be raised by the failing test
-# FAILURES.it('can show the expected error type',
-#             FAILURES.failed).should.raise_error(AssertionError)
-# 
-# FAILURES.it('can show the expected error message',
-#             FAILURES.failed_msg).should.eq('expected 2, but got 1')
-# 
+LET.let('five', 5)
+
+# you can assign simple values (or values from expressions) as above,
+# or you can define a function & assign it as a new method
+def five_mthd():
+    """testing common methods"""
+    return 5
+LET.let('five_mthd', five_mthd)
+
+LET.it(
+    'can use common attributes'
+).expect(LET.five).to(C.eq, 5)
+
+LET.it(
+    'can use common methods'
+).expect(LET.five_mthd).to(C.eq, 5)
+
 # # You can also have one group of tests inherit state from another
 # # for example, you may have a standard test group
 # OUTER = describe('outer')

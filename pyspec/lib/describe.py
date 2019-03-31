@@ -71,6 +71,7 @@ class Describe:
         self.tests = []
         self.inners = []
         self.results = []
+        self.lets = {}
 
         self.base = ''
         self.tab = '  '
@@ -82,6 +83,12 @@ class Describe:
             outer.inners.append(self)
         else:
             self.run = self._run
+
+    def let(self, name, value):
+        """
+        set common values
+        """
+        self.lets[name] = value
 
     # A short name is chosen as the method will be referenced very often by the
     # end user of this test runner; the pylint warning about name snake case
@@ -103,7 +110,7 @@ class Describe:
         An instance of Test(), an inner class on Describe()
         """
 
-        test_obj = Test(description)
+        test_obj = Test(description, self.lets)
         self.tests.append(test_obj)
 
         return test_obj
@@ -164,12 +171,16 @@ class Describe:
         if method_name in ('run', 'outer'):
             return doesnt_exist()
 
-        if self.outer:
-            for key in dir(self.outer):
-                if key == method_name:
-                    return getattr(self.outer, key)
+        try:
+            return self.lets[method_name]
+        except KeyError:
+            if self.outer:
+                try:
+                    return self.outer.lets[method_name]
+                except KeyError:
+                    return doesnt_exist()
 
-        return doesnt_exist()
+            return doesnt_exist()
 
 class Test:
     """
@@ -191,7 +202,7 @@ class Test:
     determines if the test passes or fails
     """
 
-    def __init__(self, description):
+    def __init__(self, description, lets):
         self.description = description
         self.comparison = lambda x, y, z: x
         self.actual = None
@@ -228,8 +239,6 @@ class Test:
                 err=exc_obj,
                 stack_trace=traceback.format_tb(exc_tb)
             )
-
-        return self
 
 class Actual:
     def __init__(self, calling_test, actual):
@@ -276,80 +285,3 @@ class Actual:
 
     def result(self):
         return self.actual() if callable(self.actual) else self.actual
-
-#     @property
-#     def should(self):
-#         """
-#         Sets the given comparison method & expected values for the Test instance
-#         so that `run` can evalutate them later.
-# 
-#         Defines how the results will be set by giving set_result as an instance
-#         attribute to be used by `run` when evaluated.
-#         """
-# 
-#         def set_result(self, **kwargs):
-#             if kwargs['success']:
-#                 self.result['success'] = True
-#             else:
-#                 self.result['success'] = False
-#                 self.result['err'] = kwargs['err']
-#                 self.result['stack_trace'] = kwargs['stack_trace']
-# 
-#             return self
-# 
-#         self.set_result = set_result
-# 
-#         return Should(self)
-# 
-#     @property
-#     def should_not(self):
-#         """
-#         Same as `should`, but negates the results.
-#         """
-# 
-#         def set_result(self, **kwargs):
-#             incorrect_success = (
-#                 f'The test passed when it should have failed in a should_not statement'
-#             )
-# 
-#             if kwargs['success']:
-#                 self.result['success'] = False
-#                 self.result['err'] = incorrect_success
-#                 self.result['stack_trace'] = [incorrect_success]
-#             else:
-#                 self.result['success'] = True
-# 
-#             return self
-# 
-#         self.set_result = set_result
-# 
-#         return Should(self)
-# 
-# class Should:
-#     """
-#     Contains methods for assigning a method from Comparisons to a value on
-#     Test, passed on __ini__, to be executed later
-#     """
-#     def __init__(self, test_called):
-#         self.test_called = test_called
-# 
-#     def __getattr__(self, method_name):
-#         def doesnt_exist():
-#             raise AttributeError(f'No such attribute: {method_name}')
-# 
-#         def assign_expected(*args, **kwargs):
-#             if args:
-#                 self.test_called.expected = []
-#                 for arg in args:
-#                     self.test_called.expected.append(arg)
-# 
-#             if kwargs:
-#                 self.test_called.expected = kwargs
-# 
-#         for key in dir(Comparisons):
-#             if key == method_name:
-#                 self.test_called.comparison = key
-# 
-#                 return assign_expected
-# 
-#         return doesnt_exist()
