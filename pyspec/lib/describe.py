@@ -19,8 +19,6 @@ def describe(description, outer=None, alt_pub_sub=None):
 
     Accepts:
     - description   (STRING)                a string describing the test group
-    - [runner]      (SpecStruct instance)   a class used by the CLI to parse the test
-                                            group, optional
     - [outer]       (Describe instance)     another test group to inherit common state
                                             from, optional
 
@@ -70,7 +68,6 @@ class Describe:
         self.outer = outer
         self.tests = []
         self.inners = []
-        self.results = []
         self.lets = {}
 
         self.base = ''
@@ -124,9 +121,9 @@ class Describe:
         Describe._run accepts no arguments & has no returns.
         """
 
-        self.results = []
+        results = []
 
-        self.results.append(f'{self.base}{self.description}')
+        results.append(f'{self.base}{self.description}')
 
         for inner in self.inners:
             # call to inner's protected run() method first to display any nested
@@ -134,35 +131,33 @@ class Describe:
             inner._run(muted) # pylint: disable=protected-access
 
             for line in inner.results:
-                self.results.append(line)
+                results.append(line)
 
         for test in self.tests:
             test.run()
             test_title = f'{self.tab}- {test.description}'
 
             if test.result['success']:
-                self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
+                results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
             else:
-                self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
+                results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
-                self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
+                results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
                 for line in test.result['stack_trace']:
-                    self.results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
+                    results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
                 err_text = test.result['err']
-                err_name = err_text.__class__.__name__
-
-                self.results.append(
+                results.append(
                     f'{self.tabplus}{COLOR_RED}* {err_name}: {err_text}{COLOR_RESET}'
                 )
 
         if not muted:
-            for line in self.results:
+            for line in results:
                 print(line)
 
-        PUB_SUB.topic('test group results').pub(self.results)
-        return self.results
+        PUB_SUB.topic('test group results').pub(results)
+        return results
 
     def __getattr__(self, method_name):
         def doesnt_exist():
