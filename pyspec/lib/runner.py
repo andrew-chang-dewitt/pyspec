@@ -95,7 +95,7 @@ class Runner:
         self.stats.number_of_tests += len(group.tests)
         # parse for failed tests & increment failure counter
         for test in group.tests:
-            if not test.success:
+            if not test.result['success']:
                 self.stats.number_of_failed_tests += 1
 
         # also increment both stats for tests in inner groups
