@@ -205,9 +205,9 @@ class Test:
         }
 
     def expect(self, actual):
-        self.actual = Actual(self, actual)
+        self.actual = actual
 
-        return self.actual
+        return self
 
     def run(self):
         """
@@ -219,7 +219,7 @@ class Test:
             if isinstance(self.comparison, Exception):
                 raise self.comparison
 
-            self.comparison(self, self.actual.result, self.expected)
+            self.comparison(self, self.actual_result, self.expected)
             self._set_result(success=True)
         except Exception:
             exc_obj = sys.exc_info()[1]
@@ -231,36 +231,22 @@ class Test:
                 stack_trace=traceback.format_tb(exc_tb)
             )
 
-class Actual:
-    # FIXME: improve docstring
-    """
-    - code          (FUNCTION)      a function to be run when the test is executed,
-                                    the code must return a result to be handled by one
-                                    of the methods given by Should
-                    (EXPRESSION)    alternatively, code can be a non-callable value
-    """
-
-    def __init__(self, calling_test, actual):
-        self.calling_test = calling_test
-        self.actual = actual
-
     def to(self, comparison_method, *args):
         def set_result(**kwargs):
             if kwargs['success']:
-                self.calling_test.result['success'] = True
+                self.result['success'] = True
             else:
-                self.calling_test.result['success'] = False
-                self.calling_test.result['err'] = kwargs['err']
-                self.calling_test.result['stack_trace'] = kwargs['stack_trace']
+                self.result['success'] = False
+                self.result['err'] = kwargs['err']
+                self.result['stack_trace'] = kwargs['stack_trace']
 
-            return self.calling_test
+            return self
 
-        self.calling_test.comparison = comparison_method
-        self.calling_test.expected = args
-        self.calling_test.actual = self
-        self.calling_test._set_result = set_result
+        self.comparison = comparison_method
+        self.expected = args
+        self._set_result = set_result
 
-        return self.calling_test
+        return self
 
     def to_not(self, comparison_method, *args):
         def set_result(**kwargs):
@@ -269,18 +255,17 @@ class Actual:
             )
 
             if kwargs['success']:
-                self.calling_test.result['success'] = False
-                self.calling_test.result['err'] = incorrect_success
-                self.calling_test.result['stack_trace'] = [incorrect_success]
+                self.result['success'] = False
+                self.result['err'] = incorrect_success
+                self.result['stack_trace'] = [incorrect_success]
             else:
-                self.calling_test.result['success'] = True
+                self.result['success'] = True
 
-            return self.calling_test
+            return self
 
-        self.calling_test.comparison = comparison_method
-        self.calling_test.expected = args
-        self.calling_test.actual = self
-        self.calling_test._set_result = set_result
+        self.comparison = comparison_method
+        self.expected = args
+        self._set_result = set_result
 
-    def result(self):
+    def actual_result(self):
         return self.actual() if callable(self.actual) else self.actual
