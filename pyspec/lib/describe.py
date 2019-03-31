@@ -68,6 +68,7 @@ class Describe:
         self.outer = outer
         self.tests = []
         self.inners = []
+        self.results = []
         self.lets = {}
 
         self.base = ''
@@ -121,9 +122,9 @@ class Describe:
         Describe._run accepts no arguments & has no returns.
         """
 
-        results = []
+        self.results = []
 
-        results.append(f'{self.base}{self.description}')
+        self.results.append(f'{self.base}{self.description}')
 
         for inner in self.inners:
             # call to inner's protected run() method first to display any nested
@@ -131,33 +132,35 @@ class Describe:
             inner._run(muted) # pylint: disable=protected-access
 
             for line in inner.results:
-                results.append(line)
+                self.results.append(line)
 
         for test in self.tests:
-            test.run()
+            test._run()
             test_title = f'{self.tab}- {test.description}'
 
             if test.result['success']:
-                results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
+                self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
             else:
-                results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
+                self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
-                results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
+                self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
                 for line in test.result['stack_trace']:
-                    results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
+                    self.results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
                 err_text = test.result['err']
-                results.append(
+                err_name = err_text.__class__.__name__
+
+                self.results.append(
                     f'{self.tabplus}{COLOR_RED}* {err_name}: {err_text}{COLOR_RESET}'
                 )
 
         if not muted:
-            for line in results:
+            for line in self.results:
                 print(line)
 
-        PUB_SUB.topic('test group results').pub(results)
-        return results
+        PUB_SUB.topic('test group results').pub(self.results)
+        return self.results
 
     def __getattr__(self, method_name):
         def doesnt_exist():
@@ -208,29 +211,6 @@ class Test:
         self.actual = actual
 
         return self
-
-    def run(self):
-        """
-        execute the test
-
-        accepts no args & returns the evaluated test with new values in self.result
-        """
-        try:
-            if isinstance(self.comparison, Exception):
-                raise self.comparison
-
-            self.comparison(self, self.actual_result, self.expected)
-            self._set_result(success=True)
-        except Exception:
-            exc_obj = sys.exc_info()[1]
-            exc_tb = sys.exc_info()[2]
-
-            self._set_result(
-                success=False,
-                err=exc_obj,
-                stack_trace=traceback.format_tb(exc_tb)
-            )
-
     def to(self, comparison_method, *args):
         def set_result(**kwargs):
             if kwargs['success']:
@@ -267,5 +247,28 @@ class Test:
         self.expected = args
         self._set_result = set_result
 
-    def actual_result(self):
+    def _run(self):
+        """
+        execute the test
+
+        accepts no args & returns the evaluated test with new values in self.result
+        """
+        try:
+            if isinstance(self.comparison, Exception):
+                raise self.comparison
+
+            self.comparison(self, self._actual_result, self.expected)
+            self._set_result(success=True)
+        except Exception:
+            exc_obj = sys.exc_info()[1]
+            exc_tb = sys.exc_info()[2]
+
+            self._set_result(
+                success=False,
+                err=exc_obj,
+                stack_trace=traceback.format_tb(exc_tb)
+            )
+
+
+    def _actual_result(self):
         return self.actual() if callable(self.actual) else self.actual
