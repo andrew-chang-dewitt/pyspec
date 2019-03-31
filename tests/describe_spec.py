@@ -73,7 +73,7 @@ FAILURES.fail_group = describe('failure', None, FAILURES.fail_pubsub)
 FAILURES.fail_group.it('should fail').expect(1).to(C.eq, 2)
 FAILURES.fail_group.run(True)
 
-# create a new function to deferr re-raising the error
+# create a new function to defer re-raising the error
 def failed():
     """this mehod will fail"""
     # & grab the error off the test result object & re-raise it
@@ -119,7 +119,7 @@ LET.it(
 # FIXME: this only works if the `let` value isn't called in the test, but
 # instead is deferred until runtime
 LET.it(
-    'can deferr errors thrown by a let'
+    'can defer errors thrown by a let'
 ).expect(LET.will_error).to(C.raise_error, ZeroDivisionError)
 
 
