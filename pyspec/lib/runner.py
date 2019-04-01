@@ -93,6 +93,12 @@ class Runner:
         """
         # increment number of tests counter by number of tests in group
         self.stats.number_of_tests += len(group.tests)
+        if not group.outer:
+            group.run(True)
+
+            for line in group.results:
+                self.results.append(line)
+
         # parse for failed tests & increment failure counter
         for test in group.tests:
             if not test.result['success']:
@@ -106,8 +112,3 @@ class Runner:
                 if not test.success:
                     self.stats.number_of_failed_tests += 1
 
-        if not group.outer:
-            group.run(True)
-
-            for line in group.results:
-                self.results.append(line)
