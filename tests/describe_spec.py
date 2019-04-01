@@ -16,7 +16,7 @@ EXPECTATIONS.it(
     # which can be tested for by passing an Actual Value (in this case, 1 + 1)
     # to `expect()`, then passing a comparison method & an expected value to  `to`
     # (in this case, eq & 2). You can read this line as "expect 1 + 1 to equal 2"
-).expect(1 + 1).to(C.eq, 2)
+).expect(lambda: 1 + 1).to(C.eq, 2)
 
 # tests can also be set up to expect a specific error class
 EXPECTATIONS.it(
@@ -28,32 +28,33 @@ EXPECTATIONS.it(
 
 EXPECTATIONS.it(
     'can expect a specific object type',
-).expect(1).to(C.be_a, int)
+).expect(lambda: 1).to(C.be_a, int)
 
 EXPECTATIONS.it(
     'can expect an object to be a member of a collection'
-).expect(['other_member', 'member', 1, 2, 3]).to(C.include, 'member')
+).expect(lambda: ['other_member', 'member', 1, 2, 3]).to(C.include, 'member')
 
 EXPECTATIONS.it(
     'can check that an iterable is empty'
-).expect([]).to(C.be_empty)
+).expect(lambda: []).to(C.be_empty)
 
 EXPECTATIONS.it(
     'can check for the existance of specified keys in a dictionary'
 ).expect(
-    {
-        'a_key': 1,
-        'another_key': 2
-    }
+    lambda:
+        {
+            'a_key': 1,
+            'another_key': 2
+        }
 ).to(C.have_keys, 'a_key', 'another_key')
 
 EXPECTATIONS.it(
     'can check for the existance of specified attributes on an object'
-).expect(EXPECTATIONS).to(C.have_attributes, 'it', 'tests')
+).expect(lambda: EXPECTATIONS).to(C.have_attributes, 'it', 'tests')
 
 EXPECTATIONS.it(
     'can check for methods on an object'
-).expect(EXPECTATIONS).to(C.have_methods, 'it', 'run')
+).expect(lambda: EXPECTATIONS).to(C.have_methods, 'it', 'run')
 
 ### BOOLEAN OPERATIONS ###
 # You can use standard boolean operators to modify a test
@@ -62,7 +63,7 @@ BOOLEANS = describe('use boolean operators')
 
 BOOLEANS.it(
     'can negate an expectation using should_not'
-).expect(True).to_not(C.eq, False)
+).expect(lambda: True).to_not(C.eq, False)
 
 ### FAILURES ###
 # you can also test that a given test will always fail as expected
@@ -71,7 +72,7 @@ FAILURES = describe('communicate failures')
 # to do this, first create a failing test
 FAILURES.fail_pubsub = stable.event('FAILURES')
 FAILURES.fail_group = describe('failure', None, FAILURES.fail_pubsub)
-FAILURES.fail_group.it('should fail').expect(1).to(C.eq, 2)
+FAILURES.fail_group.it('should fail').expect(lambda: 1).to(C.eq, 2)
 FAILURES.fail_group.run(True)
 
 # create a new function to defer re-raising the error
@@ -89,11 +90,11 @@ FAILURES.failed_msg = FAILURES.fail_group.tests[0].result['err']
 # AssertionError as the error that should be raised by the failing test
 FAILURES.it(
     'can show the expected error type'
-).expect(FAILURES.failed).to(C.raise_error, AssertionError)
+).expect(lambda: FAILURES.failed).to(C.raise_error, AssertionError)
 
 FAILURES.it(
     'can show the expected error message'
-).expect(str(FAILURES.failed_msg)).to(C.eq, 'expected 2, but got 1')
+).expect(lambda: str(FAILURES.failed_msg)).to(C.eq, 'expected 2, but got 1')
 
 LET = describe('let')
 
@@ -111,38 +112,78 @@ LET.let('will_error', lambda: 1/0)
 
 LET.let('rand', random.random())
 
+def changed_let():
+    LET.five = 6
+
+    return LET.five
+
+LET.let('changed_let', changed_let)
+
 LET.it(
     'can use common attributes'
-).expect(LET.five).to(C.eq, 5)
+).expect(lambda: LET.five).to(C.eq, 5)
 
 LET.it(
     'can use common methods'
 ).expect(LET.five_mthd).to(C.eq, 5)
 
-# FIXME: this only works if the `let` value isn't called in the test, but
-# instead is deferred until runtime
+LET.it(
+    'can change the value of a let in a test'
+).expect(LET.changed_let).to(C.eq, 6)
+
+LET.it(
+    'can expect changes in a let to persist between tests'
+).expect(lambda: LET.five).to(C.eq, 6)
+
 LET.it(
     'can defer errors thrown by a let'
 ).expect(LET.will_error).to(C.raise_error, ZeroDivisionError)
 
 LET.it(
     'always returns the same object'
-).expect(LET.rand).to(C.eq, LET.rand)
+).expect(lambda: LET.rand).to(C.eq, LET.rand)
 
 LET.it(
     'raises the correct error when an attribute on the Test Group does not exist'
 ).expect(lambda: LET.does_not_exist).to(C.raise_error, AttributeError)
 
 
-# BEFORE = describe('before')
-#
-# BEFORE.before('five', 5)
-#
-# BEFORE.it(
-#     'can execute before for a test in the group'
-# ).expect(BEFORE.five).to(C.eq, 5)
+BEFORE = describe('before')
+
+def changed_before():
+    BEFORE.five = 6
+
+    return BEFORE.five
+
+BEFORE.let('changed_before', changed_before)
+BEFORE.before('five', 5)
+BEFORE.let('will_error', lambda: 1/0)
+BEFORE.let('rand', random.random())
 
 
+BEFORE.it(
+    'is visible to the test'
+).expect(lambda: BEFORE.five).to(C.eq, 5)
+
+BEFORE.it(
+    'can change the value of a before in a test'
+).expect(BEFORE.changed_before).to(C.eq, 6)
+
+BEFORE.it(
+    'resets the value of the before between each test'
+    ).expect(lambda: BEFORE.five).to(C.eq, 5)
+
+BEFORE.it(
+    'can defer errors thrown by a let'
+).expect(BEFORE.will_error).to(C.raise_error, ZeroDivisionError)
+
+BEFORE.it(
+    'always returns the same object'
+).expect(lambda: BEFORE.rand).to(C.eq, BEFORE.rand)
+
+BEFORE.it(
+    'raises the correct error when an attribute on the Test Group does not exist'
+).expect(lambda: BEFORE.does_not_exist).to(C.raise_error, AttributeError)
 
 # # You can also have one group of tests inherit state from another
 # # for example, you may have a standard test group

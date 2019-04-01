@@ -70,6 +70,7 @@ class Describe:
         self.inners = []
         self.results = []
         self.lets = {}
+        self.befores= {}
 
         self.base = ''
         self.tab = '  '
@@ -84,9 +85,15 @@ class Describe:
 
     def let(self, name, value):
         """
-        set common values
+        set common values to be shared between all tests in a group
         """
         self.lets[name] = value
+
+    def before(self, name, value):
+        """
+        set values to be re-evaluated before each test
+        """
+        self.befores[name] = value
 
     # A short name is chosen as the method will be referenced very often by the
     # end user of this test runner; the pylint warning about name snake case
@@ -99,16 +106,13 @@ class Describe:
         Accepts:
 
         - description (STRING)  a short description to be printed when the test is ran
-        - code (EXPRESSION)     a python expression to be executed & have the result
-                                used as the ACTUAL value to be compared against an
-                                EXPECTED value
 
         Returns:
 
-        An instance of Test(), an inner class on Describe()
+        An instance of Test()
         """
 
-        test_obj = Test(description, self.lets)
+        test_obj = Test(description, self.befores)
         self.tests.append(test_obj)
 
         return test_obj
@@ -135,7 +139,17 @@ class Describe:
                 self.results.append(line)
 
         for test in self.tests:
-            test._run()
+            # setup befores
+            for key, value in self.befores.items():
+                setattr(self, key, value)
+
+            # run test
+            test.run()
+
+            # tear down befores
+            # for key in self.befores:
+            #     del get
+
             test_title = f'{self.tab}- {test.description}'
 
             if test.result['success']:
@@ -196,11 +210,13 @@ class Test:
     determines if the test passes or fails
     """
 
-    def __init__(self, description, lets):
+    def __init__(self, description, befores):
         self.description = description
-        self.comparison = lambda x, y, z: x
+        self.befores = befores
+        self.comparison = None
         self.actual = None
         self.expected = None
+        self.error = None
         self.result = {
             'success': None,
             'err': None,
@@ -208,9 +224,15 @@ class Test:
         }
 
     def expect(self, actual):
-        self.actual = actual
+        if callable(actual):
+            self.actual = actual
+        else:
+            msg = 'Actual values must be callable so that execution is deferred until runtime.'
+
+            self.error = Exception(msg)
 
         return self
+
     def to(self, comparison_method, *args):
         def set_result(**kwargs):
             if kwargs['success']:
@@ -247,7 +269,7 @@ class Test:
         self.expected = args
         self._set_result = set_result
 
-    def _run(self):
+    def run(self):
         """
         execute the test
 
@@ -256,8 +278,10 @@ class Test:
         try:
             if isinstance(self.comparison, Exception):
                 raise self.comparison
+            if self.error:
+                raise self.error
 
-            self.comparison(self, self._actual_result, self.expected)
+            self.comparison(self, self.actual, self.expected)
             self._set_result(success=True)
         except Exception:
             exc_obj = sys.exc_info()[1]
@@ -268,7 +292,3 @@ class Test:
                 err=exc_obj,
                 stack_trace=traceback.format_tb(exc_tb)
             )
-
-
-    def _actual_result(self):
-        return self.actual() if callable(self.actual) else self.actual
