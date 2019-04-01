@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """tests for python test runner"""
 
 import random
@@ -185,47 +186,9 @@ BEFORE.it(
     'raises the correct error when an attribute on the Test Group does not exist'
 ).expect(lambda: BEFORE.does_not_exist).to(C.raise_error, AttributeError)
 
-# # You can also have one group of tests inherit state from another
-# # for example, you may have a standard test group
-# OUTER = describe('outer')
-# 
-# # with some state containing methods & attributes
-# def method(arg):
-#     """testing method inheritance"""
-#     return f'cool method, {arg}'
-# 
-# OUTER.attr = 'attribute'
-# OUTER.mthd = method
-# 
-# # then you want to run another set of tests that may use some of those
-# # same methods & attributes, but exist as a separate test group
-# # to designate this new group as 'nested within' or inheriting from another,
-# # just pass the first group as a second argument to `describe()`
-# INNER = describe('inner', OUTER)
-# 
-# # this inner, nested test will be able to referr to the outer group's
-# # attributes & methods as if it were its own without having to directly
-# # refer to the outer test group, seen below by using `inner.attr`, although
-# # an `attr` attribute was never explicitly defined on inner
-# INNER.it('can see outer attributes',
-#          INNER.attr).should.eq('attribute')
-# 
-# INNER.it('can use outer methods',
-#          lambda: INNER.mthd('brah')).should.eq('cool method, brah')
-# 
-# # the nested test can then change the values of any inherited attributes or
-# # methods & continue to use them as desired
-# INNER.attr = 'inner attribute'
-# 
-# INNER.it('can redefine/reassign outer methods/attributes',
-#          INNER.attr).should.eq('inner attribute')
-# 
-# # but the outer, enclosing group will still retain its orinal value for the
-# # changed attribute
-# OUTER.it('but outer methods/attributes will remain unchanged',
-#          OUTER.attr).should.eq('attribute')
-# 
-# # then, you can always refer to an attribute of another test group by explicitly
-# # specifying it, seen here by using `inner.attr` in a test run by `outer`
-# OUTER.it('outer groups can also access the attributes of an inner group',
-#          INNER.attr).should.eq('inner attribute')
+if __name__ == '__main__':
+    EXPECTATIONS.run()
+    BOOLEANS.run()
+    FAILURES.run()
+    LET.run()
+    BEFORE.run()
