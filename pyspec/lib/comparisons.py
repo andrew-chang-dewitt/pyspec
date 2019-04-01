@@ -199,13 +199,15 @@ class AssertionError(Exception):
         try:
             msg = kwargs['message']
         except KeyError:
-            if expected and actual:
+            if expected is not None and actual is not None:
                 msg = f'expected {expected}, but got {actual}'
             else:
                 msg = (
-                    'Unclear Assertion Error raised, pass `expected` & `actual` '
-                    'values as your first & second arguments or use a custom `message` '
-                    'keyword argument to improve error clarity'
+                    f'Unclear Assertion Error raised, pass `expected` & `actual` '
+                    f'values as your first & second arguments or use a custom `message` '
+                    f'keyword argument to improve error clarity'
+                    f'\n'
+                    f'You passed {expected} as expected & {actual} as actual'
                 )
 
         super().__init__(msg)
