@@ -10,8 +10,6 @@ from pub_sub import stable
 
 C = pyspec.Comparisons
 
-print(dir(pyspec))
-print(dir(pyspec.cli))
 COMMANDS = pyspec.describe('the cli has commands for running *_spec files')
 
 COMMANDS.let('cli_run', pyspec.cli.run_tests.RunTests(stable.event('temp spec')))
