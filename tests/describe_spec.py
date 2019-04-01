@@ -1,5 +1,6 @@
 """tests for python test runner"""
 
+import random
 from pyspec import describe
 from pyspec import comparisons as C
 from pyspec.lib.comparisons import AssertionError
@@ -108,6 +109,8 @@ LET.let('five_mthd', five_mthd)
 
 LET.let('will_error', lambda: 1/0)
 
+LET.let('rand', random.random())
+
 LET.it(
     'can use common attributes'
 ).expect(LET.five).to(C.eq, 5)
@@ -121,6 +124,24 @@ LET.it(
 LET.it(
     'can defer errors thrown by a let'
 ).expect(LET.will_error).to(C.raise_error, ZeroDivisionError)
+
+LET.it(
+    'always returns the same object'
+).expect(LET.rand).to(C.eq, LET.rand)
+
+LET.it(
+    'raises the correct error when an attribute on the Test Group does not exist'
+).expect(lambda: LET.does_not_exist).to(C.raise_error, AttributeError)
+
+
+# BEFORE = describe('before')
+#
+# BEFORE.before('five', 5)
+#
+# BEFORE.it(
+#     'can execute before for a test in the group'
+# ).expect(BEFORE.five).to(C.eq, 5)
+
 
 
 # # You can also have one group of tests inherit state from another
