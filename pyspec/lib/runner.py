@@ -109,6 +109,5 @@ class Runner:
             self.stats.number_of_tests += len(inner.tests)
 
             for test in inner.tests:
-                if not test.success:
+                if not test.result['success']:
                     self.stats.number_of_failed_tests += 1
-
