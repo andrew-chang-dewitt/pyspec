@@ -1,0 +1,1 @@
+git+https://github.com/andrew-dewitt/py-pub-sub.git#egg=py-pub-sub-0.0.1
