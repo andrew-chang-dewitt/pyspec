@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'Click==7.0',
-        'pub-sub>=0.0.1 @ git+git://github.com/andrew-dewitt/py-pub-sub#egg=pub-sub-0.0.1'
+        'pub-sub @ git+git://github.com/andrew-dewitt/py-pub-sub#egg=pub-sub'
     ],
     entry_points='''
         [console_scripts]
