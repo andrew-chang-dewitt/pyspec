@@ -6,6 +6,7 @@ setup(
     version='0.1.0',
     packages=find_packages(),
     install_requires=['Click'],
+    dependency_links=['https://github.com/andrew-dewitt/py-pub-sub.git'],
     entry_points='''
         [console_scripts]
         pyspec=pyspec.cli.entry:entry_point
