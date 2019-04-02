@@ -8,7 +8,7 @@ setup(
     dependency_links=[''],
     install_requires=[
         'Click',
-        'py-pub-sub @ git+ssh://git@github.com/andrew-dewitt/py-pub-sub#egg=py-pub-sub'
+        'py-pub-sub @ git+ssh://git@github.com/andrew-dewitt/py-pub-sub'
     ],
     entry_points='''
         [console_scripts]
