@@ -7,7 +7,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'Click==7.0',
-        'py-pub-sub @ git+ssh://git@github.com:andrew-dewitt/py-pub-sub.git#egg=py-pub-sub'
+        'py-pub-sub @ git+https://https://github.com/andrew-dewitt/pyspec/tarball/master#egg=py-pub-sub'
     ],
     entry_points='''
         [console_scripts]
