@@ -72,8 +72,11 @@ FAILURES = describe('communicate failures')
 
 # to do this, first create a failing test
 FAILURES.fail_pubsub = stable.event('FAILURES')
-FAILURES.fail_group = describe('failure', None, FAILURES.fail_pubsub)
+FAILURES.fail_group = describe('failure', FAILURES.fail_pubsub)
 FAILURES.fail_group.it('should fail').expect(lambda: 1).to(C.eq, 2)
+FAILURES.fail_group.it(
+    'should fail on error type'
+).expect(lambda: 1/0).to(C.raise_error, TypeError)
 FAILURES.fail_group.run(True)
 
 # create a new function to defer re-raising the error
@@ -86,6 +89,7 @@ def failed():
 FAILURES.failed = failed
 # you can grab just the error message from the args attribute of the returned error
 FAILURES.failed_msg = FAILURES.fail_group.tests[0].result['err']
+FAILURES.raise_error_failed_msg = FAILURES.fail_group.tests[1].result['err']
 
 # lastly, call it on the common method as the expected value with
 # AssertionError as the error that should be raised by the failing test
@@ -96,6 +100,15 @@ FAILURES.it(
 FAILURES.it(
     'can show the expected error message'
 ).expect(lambda: str(FAILURES.failed_msg)).to(C.eq, 'expected 2, but got 1')
+
+FAILURES.it(
+    'can show the expected error message when expecting an exception'
+).expect(
+    lambda: str(FAILURES.raise_error_failed_msg)
+).to(
+    C.eq,
+    "expected <class 'TypeError'>, but got <class 'ZeroDivisionError'>"
+)
 
 LET = describe('let')
 
@@ -156,11 +169,15 @@ def changed_before():
 
     return BEFORE.five
 
+RAND = random.random()
+
+def will_error():
+    return 1/0
+
 BEFORE.let('changed_before', changed_before)
 BEFORE.before('five', 5)
-BEFORE.let('will_error', lambda: 1/0)
-BEFORE.let('rand', random.random())
-
+BEFORE.before('will_error', will_error)
+BEFORE.before('rand', RAND)
 
 BEFORE.it(
     'is visible to the test'
@@ -175,16 +192,38 @@ BEFORE.it(
     ).expect(lambda: BEFORE.five).to(C.eq, 5)
 
 BEFORE.it(
-    'can defer errors thrown by a let'
-).expect(BEFORE.will_error).to(C.raise_error, ZeroDivisionError)
+    'can defer errors thrown by a before'
+).expect(lambda: BEFORE.will_error()).to(C.raise_error, ZeroDivisionError)
 
 BEFORE.it(
     'always returns the same object'
-).expect(lambda: BEFORE.rand).to(C.eq, BEFORE.rand)
+).expect(lambda: BEFORE.rand).to(C.eq, RAND)
 
 BEFORE.it(
     'raises the correct error when an attribute on the Test Group does not exist'
 ).expect(lambda: BEFORE.does_not_exist).to(C.raise_error, AttributeError)
+
+
+OUTER = describe('outer')
+
+OUTER.let('five', 5)
+OUTER.before('six', 6)
+
+INNER = OUTER.describe('inner')
+
+def changed():
+    INNER.let('five', 6)
+
+    return INNER.five
+
+INNER.let('changed', changed)
+
+INNER.it('can view befores on the outer group').expect(lambda: INNER.six).to(C.eq, 6)
+INNER.it('can view lets on the outer group').expect(lambda: INNER.five).to(C.eq, 5)
+INNER.it('can change the value of lets defined by outer').expect(INNER.changed).to(C.eq, 6)
+
+OUTER.it('but the value on outer will remain the same').expect(lambda: OUTER.five).to(C.eq, 5)
+
 
 if __name__ == '__main__':
     EXPECTATIONS.run()
@@ -192,3 +231,4 @@ if __name__ == '__main__':
     FAILURES.run()
     LET.run()
     BEFORE.run()
+    OUTER.run()

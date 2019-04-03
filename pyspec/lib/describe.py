@@ -13,7 +13,7 @@ COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
-def describe(description, outer=None, alt_pub_sub=None):
+def describe(description, alt_pub_sub=None):
     """
     Initilizes a new test group object using Describe
 
@@ -26,15 +26,14 @@ def describe(description, outer=None, alt_pub_sub=None):
     - An instance of Describe
     """
 
-    group = Describe(description, outer)
+    group = Describe(description)
 
     if alt_pub_sub:
         used_pub_sub = alt_pub_sub
     else:
         used_pub_sub = PUB_SUB
 
-    if outer is None:
-        used_pub_sub.topic('new test group').pub(group)
+    used_pub_sub.topic('new test group').pub(group)
 
     return group
 
@@ -62,26 +61,19 @@ class Describe:
     to Ruby's method_missing.
     """
 
-    def __init__(self, description, outer=None):
+    def __init__(self, description):
         self.description = description
 
-        self.outer = outer
         self.tests = []
+        self.__outer = None
         self.inners = []
         self.results = []
         self.lets = {}
-        self.befores= {}
+        self.befores = {}
 
         self.base = ''
         self.tab = '  '
         self.tabplus = self.tab + '  '
-
-        if outer is not None:
-            self.base = self.tab
-            self.tab += '  '
-            outer.inners.append(self)
-        else:
-            self.run = self._run
 
     def let(self, name, value):
         """
@@ -117,6 +109,43 @@ class Describe:
 
         return test_obj
 
+    def describe(self, description):
+        """
+        Method used for creating an inner test group on an existing group.
+        """
+        inner = Describe(description)
+        self.inners.append(inner)
+        inner.outer = self
+
+        inner.base = self.tab
+        inner.tab += '  '
+
+        return inner
+
+    @property
+    def outer(self):
+        """
+        Property containing a reference to an outer test group. Defaults to None
+        """
+        return self.__outer
+
+    @outer.setter
+    def outer(self, outer):
+        if isinstance(outer, Describe):
+            self.__outer = outer
+        else:
+            raise TypeError(f'{outer} is not an instance of {Describe}')
+
+    def run(self, muted=False):
+        """
+        Runs all tests within a group, so long as it is not an inner group.
+        """
+
+        if self.outer is not None:
+            return None
+
+        return self._run(muted)
+
     def _run(self, muted=False):
         """
         A method used to run the test group & any inners, accessed via the
@@ -131,9 +160,15 @@ class Describe:
         self.results.append(f'{self.base}{self.description}')
 
         for inner in self.inners:
+            # pass outer befores to inner
+            for key, value in self.befores.items():
+                # only if not already defined on the inner
+                if key not in inner.befores:
+                    inner.befores[key] = value
+
             # call to inner's protected run() method first to display any nested
             # test group's results before displaying the outer class results last
-            inner._run(muted) # pylint: disable=protected-access
+            inner._run(True) # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
