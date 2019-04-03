@@ -117,28 +117,6 @@ related test groups.
 The Describe class has four methods used to set up variables & state for tests, 
 create new tests, & run all tests included in the `tests` attribute list.
 
-#### Describe.it:
-(_description_)
-
-A method used to create a new test in the group, adds an instance of Test to
-the self.tests list and returns it.
-
-_Accepts_:
-
-- `description` (STRING)
-
-  a short description to be printed when the test is ran
-
-_Returns_: An instance of Test()
-
-_Example usage_:
-
-```python
-TEST_GROUP = describe('some description')
-
-TEST_GROUP.it('can add 1') # more methods follow...
-```
-
 #### Describe.let
 (_name_, _value_)
 
@@ -178,6 +156,28 @@ _Accepts_:
   an expression that will be retrived by the `before` using `DESCRIBE_INSTANCE.[value]`
 
 `Describe.before()` has no returns.
+
+#### Describe.it:
+(_description_)
+
+A method used to create a new test in the group, adds an instance of Test to
+the self.tests list and returns it.
+
+_Accepts_:
+
+- `description` (STRING)
+
+  a short description to be printed when the test is ran
+
+_Returns_: An instance of Test()
+
+_Example usage_:
+
+```python
+TEST_GROUP = describe('some description')
+
+TEST_GROUP.it('can add 1') # more methods follow...
+```
 
 #### Describe.run:
 (*muted=False*, *verbose=False*)
