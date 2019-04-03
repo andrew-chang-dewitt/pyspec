@@ -228,6 +228,7 @@ if __name__ = '__main__':
 Test class
 ----------
 
+FIXME::::::::::
 An instance of the Test class is created with each call to 
 **[Describe.it()](describeitdescription-code)**. This class is used to store a 
 test's description, code, & success [attributes](#test-attributes) & exposes an 
@@ -236,30 +237,30 @@ results (stored at Test.result).
 
 ### Attributes:
 
-- `description` (STRING) 
+- description (STRING)
 
-  A description to print when running the test. It should be descriptive, 
-  readable, & concise
+  a description to print when running the test, should be descriptive, readable, & concise
 
-- `code` (FUNCTION -or- EXPRESSION)
+- comparison (pyspec.Comparisons)
 
-  A function to be run when the test is executed, the code must return a result 
-  to be handled by one. Alternatively, code can be a non-callable expression such as 
-  `1 + 1` or a variable name where a value desired to be tested is stored.
+  the method to be used for comparing the actual result to the expected value of the Test
 
-- `should` (Should instance)
+- actual (FUNCTION)
 
-  An attribute pointing to an instance of [Should()](#should-class), allowing for more
-  concise & readable syntax when writing tests.
+  a function to be executed when evaluating the test, returns the 'actual' value
 
-After a test has been run, the Test object will also have the following attribute: 
+- expected (EXPRESSION)
 
-- `success` (BOOL)
+  an expression that evaluates to the expected value that will be compared to `actual`
 
-  Represents if the test is successful or not, the value is set by methods on 
-  [Should()](#should-class). This attribute will not exist until after a method on Should()
-  has been used to evaluate the result (or value) of Test().code (the ACTUAL value) against 
-  an EXPECTED value given later.
+- self.error (EXCEPTION)
+
+  used to store any error that is raised before a test is ran; this error will later be
+  re-raised at test run time
+
+- results (DICT)
+
+  a dictionary for storing the results when a test is run
 
 
 Should class

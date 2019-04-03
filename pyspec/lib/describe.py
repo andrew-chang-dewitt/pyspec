@@ -105,7 +105,7 @@ class Describe:
         An instance of Test()
         """
 
-        test_obj = Test(description, self.befores)
+        test_obj = Test(description)
         self.tests.append(test_obj)
 
         return test_obj
@@ -255,20 +255,25 @@ class Test:
     An object used to represent a single test.
 
     On initialization, it takes:
-    - description   (STRING)        a description to print when running the test,
-                                    should be descriptive, readable, & concise
+    - description   (STRING)                a description to print when running the test,
+                                            should be descriptive, readable, & concise
 
     A test object also has the following attribute:
-    - success   (BOOL)          represents if the test is successful or not,
-                                value is set methods on Should
-
-    A Test object also contains a Should object that makes Assertations &
-    determines if the test passes or fails
+    - comparison    (pyspec.Comparisons)    the method to be used for comparing the actual
+                                            result to the expected value of the Test
+    - actual        (FUNCTION)              a function to be executed when evaluating the test,
+                                            returns the 'actual' value
+    - expected      (EXPRESSION)            an expression that evaluates to the expected value
+                                            that will be compared to `actual`
+    - self.error    (EXCEPTION)             used to store any error that is raised before
+                                            a test is ran; this error will later be re-raised at
+                                            test run time
+    - results       (DICT)                  a dictionary for storing the results when a
+                                            test is run
     """
 
-    def __init__(self, description, befores):
+    def __init__(self, description):
         self.description = description
-        self.befores = befores
         self.comparison = None
         self.actual = None
         self.expected = None
