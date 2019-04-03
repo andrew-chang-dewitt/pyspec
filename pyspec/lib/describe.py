@@ -43,22 +43,23 @@ class Describe:
 
     On initialization, accepts:
     - description           (STRING)                see above
-    - [runner]              (SpecStruct instance)   a class used by the CLI to parse the test group
-    - [outer]               (Describe instance)     see above, optional
 
     Returns: An instance of Describe with the following attributes & methods, plus those above:
     - tests                 (LIST)      an empty list where each test function will be stored
+    - [outer]               (Describe)  the outer test group, if nested, optional
     - inners                (LIST)      an empty list where any nested test groups will be stored
+    - results               (LIST)      an empty list where test results are stored by `run`
     - base, tab, & tabplus  (STRING)    strings used to increment tabs for results printing
+    - let                   (METHOD)    set common values to be shared between all tests in a group
+    - before                (METHOD)    set values to be re-evaluated before each test
     - it                    (METHOD)    a method used to create a new test in the group,
                                         adds an instance of Test to the self.tests list
-    - [outer]               (Describe)  the outer test group, if nested, optional
     - [run]                 (METHOD)    a method used to run the test group & any inners,
                                         this one will only exist if it has no outer attribute
 
     This class has a modified __get_attr__() method used to inherit attributes & methods
-    from the Describe object designated at self.outer (if there is one). It is used similarly
-    to Ruby's method_missing.
+    from the Describe object designated at self.outer (if there is one). This is what allows
+    a form of prototypical inheritance between test groups.
     """
 
     def __init__(self, description):

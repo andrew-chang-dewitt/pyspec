@@ -6,63 +6,81 @@ Contents
 
 - Top level functions
   - [pyspec.describe](#pyspecdescribe)
-  - [pyspec.spec_struct](#pyspecspec_struct)
+  - [pyspec.spec\_struct](#pyspecspec_struct)
 - [Describe class](#describe-class)
   - [Attributes](#attributes)
   - [Methods](#methods)
+    - [Describe.let](#describelet)
+    - [Describe.before](#describebefore)
     - [Describe.it](#describeit)
-    - [Describe._run](#describe_run)
+    - [Describe.describe](#describedescribe)
+    - [Describe.run](#describerun)
 - [Test class](#test-class)
   - [Attributes](#attributes-1)
-- [Should class](#should-class)
   - [Methods](#methods-1)
-    - [Should.eq](#shouldeq)
-    - [Should.raise_error](#shouldraise_error)
-    - [Should.be_a](#shouldbe_a)
-    - [Should.include](#shouldinclude)
-- [SpecStruct class](#specstruct-class)
-  - [Attributes](#attributes-2)
+    - [Test.expect](#testexpect)
+    - [Test.to](#testto)
+    - [Test.to\_not](#testto_not)
+    - [Test.run](#testrun)
+- [Comparisons class](#should-class)
   - [Methods](#methods-2)
-    - [SpecStruct.run_all](#specstructrun_all)
-    - [SpecStruct.run_one](#specstructrun_one)
+    - [Comparisons.eq](#comparisonseq)
+    - [Comparisons.raise\_error](#comparisonsraise_error)
+    - [Comparisons.be\_a](#comparisonsbe_a)
+    - [Comparisons.include](#comparisonsinclude)
+    - [Comparisons.be\_empty](#comparisonsbe_empty)
+    - [Comparisons.have\_keys](#comparisonshave_keys)
+    - [Comparisons.have\_attributes](#comparisonshave_attributes)
+    - [Comparisons.have\_methods](#comparisonshave_methods)
+  - [Exceptions](#exceptions)
+    - [Comparisons.AssertionError](#comparisonsassertionerror)
+    - [Comparisons.NoComparison](#comparisonsnocomparison)
+- [Runner class](#runner-class)
+  - [Attributes](#attributes-2)
+  - [Methods](#methods-3)
+    - [Runner.run\_all](#runnerrun_all)
+    - [Runner.run\_one](#runnerrun_one)
+    - [Runner.add\_group](#runneradd_group)
+    - [Runner.remove\_group](#runnerremove_group)
 
 There are two top level functions exposed by the PySpec Library:
 
 #### pyspec.describe:
-(_description_, _metastructure=None_, _outergroup=None_)
+(_description_, *alt_pub_sub=None*)
 
 Initializes & returns a **Describe()** object with the given `description`. If given,
-the returned Describe() object will be initialized with a `metastructure` (an 
-instance of _[SpectStruct](#specstruct-class)_ for making the Describe object available 
-to the PySpec CLI tools, and/or an _outergroup_ that this Describe object will be 
-nested within (see _[class Describe.outer](#describe-class)_ for more).
+the returned Describe() object will be initialized with an alternate pub_sub.Event object (an 
+instance of [PyPubSub's Event class](https://github.com/andrew-dewitt/py-pub-sub).
 
 _Accepts_:
 
 - `description` (STRING) a string describing the test group
-- [`runner`] \(SpecStruct instance) a class used by the CLI to parse the test group, optional
-- [`outer`] \(Describe instance) another test group to inherit common state from, optional
+- [`alt_pub_sub`] \(pub\_sub.Event instance) an Event module to publish & subscribe to
+  used to pass information to PySpec's CLI tool
 
 _Returns_: An instance of Describe
 
-#### pyspec.spec\_struct:
+#### pyspec.runner:
+(*alt_pub_sub=None*)
 
-Initializes & returns a **SpecStruct()** object for PySpec CLI parsing. This 
-object can be passed to any Describe object on initialization to make the test
-group available for the CLI tool to view, run, & print.
+Initializes & returns a **Runner()** object for PySpec CLI parsing. The Describe object 
+has no awareness of the Runner object and has no direct interface with it. The Runner 
+object depends upon an understanding of the structure of Describe & Test.
 
-Arguments: None
+_Accepts_:
 
-_Returns_: An instance of the SpecStruct class with an empty `test_groups` attribute.
+- `alt_pub_sub`] \(pub\_sub.Event instance) an Event module to publish & subscribe to
+  used to receive Describe objects from `pyspec.describe` & commands from the CLI tool
+
+_Returns_: An instance of the Runner class with an empty `test_groups` attribute.
 
 
 Describe class
 --------------
 
 The PySpec Library is organized with one core Class, **[Describe()](#describe-class)**. 
-This class references a few other classes that are used to create tests 
-(**[Test()](#test-class)**) & optionally make tests available to the PySpec CLI tools 
-(**[SpecStruct()](#specstruct-class)**). Describe objects can be nested indefinitely 
+This class references one other classe that is used to create tests 
+(**[Test()](#test-class)**). Describe objects can be nested indefinitely 
 to inherit scope from an outer Describe object & organize testing groups as subsets of 
 related test groups. 
 
@@ -73,21 +91,21 @@ related test groups.
 
   a string describing the test group
 
-- `inners` (LIST)			
+- `tests` (LIST)			
 
-  an empty list where any nested test groups will be stored
+  an empty list where each test function will be stored
 
 - `outer` (Describe instance), optional
 
   another test group to inherit common state from, optional
-  
-- `runner` (SpecStruct instance), optional 
-  
-  a class used by the CLI to parse the test group, optional
 
-- `tests` (LIST)			
+- `inners` (LIST)			
 
-  an empty list where each test function will be stored
+  an empty list where any nested test groups will be stored
+  
+- `results` (LIST)
+
+  an empty list where test results are stored by `run`
 
 - `base`, `tab`, & `tabplus` (STRING)		
   
@@ -96,36 +114,75 @@ related test groups.
 
 ### Methods:
 
-The Describe class has two methods used to create new tests & run all tests 
-included in the `tests` attribute list.
+The Describe class has four methods used to set up variables & state for tests, 
+create new tests, & run all tests included in the `tests` attribute list.
 
 #### Describe.it:
-(_description_, _code_)
+(_description_)
 
 A method used to create a new test in the group, adds an instance of Test to
 the self.tests list and returns it.
 
 _Accepts_:
 
-- `description` (STRING) a short description to be printed when the test is ran
-- `code` (EXPRESSION) a python expression to be executed & have the result used as 
-the ACTUAL value to be compared against an EXPECTED value.
+- `description` (STRING)
 
-_Returns_: An instance of Test(), an inner class on Describe()
+  a short description to be printed when the test is ran
+
+_Returns_: An instance of Test()
 
 _Example usage_:
 
 ```python
-test_group_instance.it('can add 1', some_script.add_one(1)) # more methods follow...
+TEST_GROUP = describe('some description')
+
+TEST_GROUP.it('can add 1') # more methods follow...
 ```
 
-#### Describe.\_run:
+#### Describe.run:
+(*muted=False*, *verbose=False*)
 
 A method used to run the test group & any inners, accessed via the 
 Describe.run attribute (which will only exist for instances with no
-Describe.outer attribute).
+Describe.outer attribute). Prints results to stdout by default; also
+publishes results to Event module for any subscriber listening on 
+the 'test group results' topic.
 
-`Describe._run` accepts no arguments & has no returns.
+_Accepts_:
+
+- `muted` (BOOLEAN)
+
+  defaults to FALSE, will not print results to stdout if TRUE
+
+- `verbose` (BOOLEAN)
+
+  defaults to FALSE, supresses printing results for indivual passing tests
+
+_Returns_:
+
+An a list containing strings to be used to print lines of human-readable
+results for a user.
+
+_Example usage_:
+
+This method can be called directly in a spec file to make it runnable directly
+by Python.
+
+```python
+TEST_GROUP = describe('some description')
+
+# ... some tests here
+
+TEST_GROUP.run() # prints results to stdout
+```
+
+If you want to be able to run the file directly, or by using the CLI tool, 
+guard your calls to `Describe.run()` as follows:
+
+```python
+if __name__ = '__main__':
+    TEST_GROUP.run()
+```
 
 
 Test class

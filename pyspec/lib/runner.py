@@ -9,7 +9,7 @@ from pyspec.lib.stats import StatsObj
 
 PUB_SUB = stable.event('pyspec')
 
-def runner(passed_pub_sub=None):
+def runner(alt_pub_sub=None):
     """
     Used to initialize a new Runner instance. This is the only function
     directly exposed by the API from this module.
@@ -18,8 +18,8 @@ def runner(passed_pub_sub=None):
     Returns: 	An instance of the Runner class with an empty
     		test_groups attribute.
     """
-    if passed_pub_sub:
-        used_pub_sub = passed_pub_sub
+    if alt_pub_sub:
+        used_pub_sub = alt_pub_sub
     else:
         used_pub_sub = PUB_SUB
 
