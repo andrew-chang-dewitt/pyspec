@@ -119,6 +119,7 @@ class Describe:
 
         inner.base = self.tab
         inner.tab += '  '
+        inner.tabplus = inner.tab + '  '
 
         return inner
 
@@ -136,7 +137,7 @@ class Describe:
         else:
             raise TypeError(f'{outer} is not an instance of {Describe}')
 
-    def run(self, muted=False):
+    def run(self, muted=False, verbose=False):
         """
         Runs all tests within a group, so long as it is not an inner group.
         """
@@ -144,9 +145,9 @@ class Describe:
         if self.outer is not None:
             return None
 
-        return self._run(muted)
+        return self._run(muted, verbose)
 
-    def _run(self, muted=False):
+    def _run(self, muted=False, verbose=False):
         """
         A method used to run the test group & any inners, accessed via the
         Describe.run attribute (which will only exist for instances with no
@@ -168,7 +169,7 @@ class Describe:
 
             # call to inner's protected run() method first to display any nested
             # test group's results before displaying the outer class results last
-            inner._run(True) # pylint: disable=protected-access
+            inner._run(True, verbose) # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
@@ -187,9 +188,10 @@ class Describe:
 
             test_title = f'{self.tab}- {test.description}'
 
-            if test.result['success']:
+            # parse results & generate human readable results strings
+            if test.result['success'] and verbose:
                 self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
-            else:
+            elif not test.result['success']:
                 self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
                 self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
@@ -204,11 +206,29 @@ class Describe:
                     f'{self.tabplus}{COLOR_RED}* {err_name}: {err_text}{COLOR_RESET}'
                 )
 
+        def total_num_nested(inners):
+            """
+            helper function to count number of inners in describe groups of an
+            arbitrary nesting depth
+            """
+            if not inners:
+                return 1
+            return 1 + sum(total_num_nested(inner.inners) for inner in inners)
+
+        recursive_length = total_num_nested(self.inners)
+        # check if all tests passed & append 'ok' if true
+        if len(self.results) == recursive_length:
+            self.results[0] += f': {COLOR_GREEN}ok{COLOR_RESET}'
+
+        # hide output if muted
         if not muted:
             for line in self.results:
                 print(line)
 
+        # publish results to any listener
         PUB_SUB.topic('test group results').pub(self.results)
+
+        # return results to any handler that may have called _run
         return self.results
 
     def __getattr__(self, method_name):
