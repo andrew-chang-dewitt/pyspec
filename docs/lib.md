@@ -69,7 +69,7 @@ object depends upon an understanding of the structure of Describe & Test.
 
 _Accepts_:
 
-- `alt_pub_sub`] \(pub\_sub.Event instance) an Event module to publish & subscribe to
+- [`alt_pub_sub`] \(pub\_sub.Event instance) an Event module to publish & subscribe to
   used to receive Describe objects from `pyspec.describe` & commands from the CLI tool
 
 _Returns_: An instance of the Runner class with an empty `test_groups` attribute.
@@ -138,6 +138,46 @@ TEST_GROUP = describe('some description')
 
 TEST_GROUP.it('can add 1') # more methods follow...
 ```
+
+#### Describe.let
+(_name_, _value_)
+
+Sets values on the test group to be parsed later when the test is ran. If an error
+is thrown in the definition of a `let`, it will be raised in any test that depends
+upon it the let. Lets are evaluated once before any tests in the group are ran & 
+are not re-evaluated again.
+
+_Accepts_:
+
+- `name` (STRING)
+
+  the name that will be given to the `let`. 
+
+- `value` (EXPRESSION)
+
+  an expression that will be retrived by the `let` using `DESCRIBE_INSTANCE.[value]`
+
+`Describe.let()` has no returns.
+
+#### Describe.before
+(_name_, _value_)
+
+Sets values on the test group to be parsed later when the test is ran. If an error
+is thrown in the definition of a `before`, it will be raised in any test that depends
+upon it the before. Befores are evaluated right before each test is ran & are re-evaluated
+for each test.
+
+_Accepts_:
+
+- `name` (STRING)
+
+  the name that will be given to the `before`. 
+
+- `value` (EXPRESSION)
+
+  an expression that will be retrived by the `before` using `DESCRIBE_INSTANCE.[value]`
+
+`Describe.before()` has no returns.
 
 #### Describe.run:
 (*muted=False*, *verbose=False*)
