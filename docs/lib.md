@@ -554,7 +554,10 @@ from custom_comparisons import CustomComparisons as C
 
 TEST = describe('some test group')
 
+# you can then use your custom_method
 TEST.it('uses a custom comparison').expect(some_function).to(C.custom_method, 1)
+# as well as any inherited method
+Test.it('uses inherited methods').expect(lambda: 1).to(C.eq, 1)
 ```
 
 
