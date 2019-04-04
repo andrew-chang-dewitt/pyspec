@@ -303,9 +303,18 @@ so that PySpec can deferr evaluation of it, thus allowing exceptions to be
 caught by PySpec instead of being thrown & interupting the test. To get around this,
 you can simply wrap your code in a `lambda`:
 
+Given: 
+
 ```python
-TEST.it('can add numbers').expect(lambda: 1 + 1) # more methods to come ...
+def add(x, y):
+    return x + y
 ```
+
+```python
+TEST.it('can evaluate expressions').expect(lambda: 1 + 1) # more methods to come ...
+TEST.it('can pass arguments').expect(lambda: add(1,1))    # ...
+```
+
 
 #### Test.to
 (_comparison method_, _*expected_)
