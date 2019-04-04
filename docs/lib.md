@@ -396,9 +396,19 @@ Test.it('will fail').expect(lambda: 1).to_not(Comparisons.eq, 2) # => but this t
 Comparisons class
 ------------
 
-An class that stores methods used to evaluate expressions or functions passed to 
-[Test.expect](#testexpect) & make a comparison of ACTUAL vs. EXPECTED values. 
-Exposes a series of methods that each offer different types of comparisons.
+The following methods are all functions that can be used in a test
+to compare an actual result (stored in the test at the `code`
+attribute) against the expected attribute (passed to each method).
+
+Typical usage will be to pass the method to a [Expect.to](#expectto) or
+[Expect.to\_not](#expectto_not) call as the first argument, with the
+expected value (that will be passed to this Comparison method) as the
+second argument. This structure allows the execution of the comparison
+to be deferred until the Test's `run` method is called.
+
+A short name is chosen as the method will be referenced very often by the
+end user of this test runner; the pylint warning about name snake case
+has been disabled.
 
 ### Methods:
 
@@ -407,58 +417,37 @@ passed to `Test` will evaluate to versus the EXPECTED value given to the method.
 methods will return the original Test object that the method was called on.
 
 #### Comparisons.eq:
-(_expected_)
+(_caller_, _actual_, _expected_)
 
-Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test 
-instance's success attribute accordingly, then returns the newly modified Test instance. If 
-`expected` does not equal `Test.code`'s result, then `Test.success` will be made to equal 
-to False, otherwise it will be made to be equal to True.
+_Success_: This method results in a success if `actual` is equal to `expected`
 
-_Accepts_:
-
-- `expected` (EXPRESSION) a value that `Test.code` is expected to evaluate to.
+_Failure_: This method fails in any scenario where Python does not consider the result of
+evaluating `actual` to be equal to `expected`.
 
 #### Comparisons.raise\_error:
-(_expected\_err_)
+(_caller_, _actual_, _expected_)
 
-Compares the evaluated result of `Test.code` to `expected_err` & modifies the outer Test 
-instance's success attribute accordingly, then returns the newly modified Test instance. 
-If `expected_err` does not equal the error that should be raise by executing `Test.code` 
-(or if `Test.code` does not raise an error when evaluated), then `Test.success` will be 
-made to equal to False, otherwise it will be made to be equal to True.
+_Success_: This method results in a success if evaluating `actual` raises an error of 
+the exact type supplied in `expected`. It _will not_ succeed if the `actual` error is _an instance_
+(or child of) the `expected` error type.
 
-_Accepts_:
-
-- `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
+_Failure_: This method fails in any scenario where Python does not raise an error when 
+evaluating `actual`, or when the error that is raised is not of the type supplied by `expected`.
 
 #### Comparisons.be\_a:
-(_expected\_class_)
+(_caller_, _actual_, _expected_)
 
-Compares the class of the evaluated result of `Test.code` to `expected_class` & modifies the 
-outer Test instance's success attribute accordingly, then returns the newly modified Test 
-instance. If `expected_class` does not equal `Test.code`'s result, then `Test.success` will 
-be made to equal to False, otherwise it will be made to be equal to True.
+_Success_: This method results in a success if `actual` is an instance of the `expected` class.
+It _will_ succeed if the result of `actual` is of a type that inherits from `expected`.
 
-_Accepts_:
-
-- `expected_class` (EXPRESSION) a class that the evaluated result of `Test.code` is
-  expected to be a member of.
+_Failure_: This method fails in any scenario where `actual` is not an instance of `expected`.
 
 #### Comparisons.include:
-(_expected\_member_)
+(_caller_, _actual_, _expected_)
 
-Checks if `expected_member` is a member of a collection returned by the evaluated result of 
-`Test.code` & modifies the outer Test instance's success attribute accordingly, then returns 
-the newly modified Test instance. If `expected_member` is not a member of the collection, or if 
-`Test.code` does not evaluate to a collection searchable using Python's `if member in collection`, 
-then `Test.success` will be made to be False. If `expected_member` is found to be in the 
-collection, then `Test.success` will be assigned a value of True.
+_Success_: This method results in a success if `actual` is equal to `expected`
 
-_Accepts_:
-
-- `member` (EXPRESSION) a value that is expected to be a member of the collection that `Test.code` 
-  evaluates to.
-
+_Failure_: This method fails in any scenario where Python does not consider the result of
 
 
 <div style="text-align: right">Copyright (c) 2019 Andrew DeWitt</div>
