@@ -240,6 +240,13 @@ directory that end in `_spec.py`.
 Runs the specified test file given as a module name. `<MODULE>` must be just the file
 name, without any file type extensions.
 
+#### List
+
+`$ pyspec list <PATH>`
+
+Lists all `Describe` objects by their `description` for any `_spec` file found in the 
+given <`PATH`>.
+
 #### See more
 
 For more information on using the CLI, try `$ pyspec --help` for general help text 
