@@ -260,7 +260,21 @@ comparison results [attributes](#test-attributes).
 
   a dictionary for storing the results when a test is run
 
+### Methods:
+
 #### Test.expect
+(_actual_)
+
+A method that is used to tell the test what code to run or expression to evaluate. The value 
+given to `actual` is what will be evaluated & compared to the _expected_ value passed later in 
+[Expect.to](#expectto) or [Expect.to\_not](#expectto_not).
+
+_Accepts_:
+
+- actual (FUNCTION)
+
+  an function to be evaluated at test runtime; this is the code that you are testing &
+  the results will compared
 
 #### Test.to
 
