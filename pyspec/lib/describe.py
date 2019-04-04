@@ -118,8 +118,13 @@ class Describe:
 
     def describe(self, description):
         """
-        Method used for creating an inner test group on an existing group.
+        Similar to the top-level pyspec.describe, but for creating a new test group
+        that will be nested within the existing test group that this method is called
+        on. Defining a test group with this method will automatically add the new
+        group to this instance's `inners` list attribute & initialize the new group
+        with this instance as the new group's `outer` attribute.
         """
+
         inner = Describe(description)
         self.inners.append(inner)
         inner.outer = self

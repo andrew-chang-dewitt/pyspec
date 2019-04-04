@@ -7,7 +7,7 @@ Contents
 - Top level functions
   - [pyspec.describe](#pyspecdescribe)
   - [pyspec.Comparisons](#pyspecComparisons)
-- [Describe class](#describe-class)
+  - [Describe class](#describe-class)
   - [Attributes](#attributes)
   - [Methods](#methods)
     - [Describe.let](#describelet)
@@ -168,6 +168,21 @@ TEST_GROUP = describe('some description')
 
 TEST_GROUP.it('can add 1') # more methods follow...
 ```
+
+#### Describe.describe
+(_description_)
+
+Similar to the top-level [pyspec.describe](#pyspecdescribe), but for creating a new
+test group that will be nested within the existing test group that this method is
+called on. Defining a test group with this method will automatically add the new group
+to this instance's `inners` list attribute & initialize the new group with this instance
+as the new group's `outer` attribute.
+
+_Accepts_:
+
+- `description` (STRING) a string describing the test group
+
+_Returns_: An instance of Describe
 
 #### Describe.run:
 (*muted=False*, *verbose=False*)
