@@ -26,30 +26,19 @@ Currently, the only installation option is through self-installation using
 `git clone` & `pip install .`. In the future, installation may be made available 
 via distribution on PyPi. 
 
-To install **PySpec**, first clone this repo in the directory of your choosing. For 
-this example, we are installing to ~/pyspec. 
+To install **PySpec**, first cd to the directory of your choosing. For 
+this example, we are installing to ~/test. Then, install from git using pip:
 
 ```bash
-user@host:~/ $ git clone git@github.com:andrew-dewitt/pyspec.git
-```
-
-Then `cd` into the project root, activate your chosen python virtual 
-environment (this example assumes virtualenv, installed at pyspec/env), & 
-install using pip: 
-
-```bash
-user@host:~/ $ cd pyspec
-user@host:~/pyspec $ source env/bin/activate
-(env)
-user@host:~/pyspec $ pip install .
+user@host:~/test $ pip install git+https://github.com/andrew-dewitt/pyspec.git
 ```
 
 Confirm the CLI installed correctly & is available at your path using  
-`pyspec -V`, which should return the following: 
+`pyspec --version`, which should return the following: 
 
 ```bash
 user@host:~/pyspec $ pyspec -V
-PySpec: version 0.1.0
+PySpec: version 1.1.0
 --------------------------------------------
 a barebones BDD style test runner for python
 ```

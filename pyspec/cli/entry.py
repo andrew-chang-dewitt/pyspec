@@ -9,7 +9,14 @@ from pyspec.cli.click_cust import ErrorHandlingGroup
 
 run_tests = RunTests()
 
+msg = (
+    'PySpec: version %(version)s\n'
+    '--------------------------------------------\n'
+    'a barebones BDD style test runner for python'
+)
+
 @click.group(cls=ErrorHandlingGroup)
+@click.version_option(message=msg)
 def entry_point():
     """
     CLI companion tool for the Pyspec testing library.
