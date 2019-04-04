@@ -271,12 +271,61 @@ given to `actual` is what will be evaluated & compared to the _expected_ value p
 
 _Accepts_:
 
-- actual (FUNCTION)
+- `actual` (FUNCTION)
 
-  an function to be evaluated at test runtime; this is the code that you are testing &
-  the results will compared
+  a function to be evaluated at test runtime; this is the code that you are testing &
+  the results will compared to their expected value
+
+_Returns_:
+
+The Test object expect was called on.
+
+_Example usage_:
+
+Assuming you have the following function:
+
+```python
+def hello():
+    return 'Hello world!'
+```
+
+You can test it by passing it as the _actual value_ to `expect`:
+
+```python
+TEST = describe('hello')
+
+TEST.it('can expect hello').expect(hello) # more methods to come ...
+```
+
+If your function requires you to pass it some arguments, or you merely 
+need to pass an expression as your _actual value_, it still must be callable
+so that PySpec can deferr evaluation of it, thus allowing exceptions to be 
+caught by PySpec instead of being thrown & interupting the test. To get around this,
+you can simply wrap your code in a `lambda`:
+
+```python
+TEST.it('can add numbers').expect(lambda: 1 + 1) # more methods to come ...
+```
 
 #### Test.to
+(_comparison method_, _*expected_)
+
+A method used to declare an expected result for the test & pass a comparison method that will
+be used to evaluate the test. Comparison methods come from the [Comparisons class](#comparisons)
+which must be imported into the \_spec file along with [PySpec.describe](#pyspecdescribe).
+
+_Accepts_:
+
+- `comparison_method` (bound method on Comparisons)
+
+  a method from [Comparisons](#comparisons) that is used to evaluate the test
+
+- `*expected` (EXPRESSIONS)
+
+  an expression (or multiple expressions, separated by commas) that defines an _expected value_
+  that the function passed as the _actual value_ must return
+
+_Returns_:
 
 #### Test.to\_not
 
