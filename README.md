@@ -54,11 +54,15 @@ by python, without any support for the CLI tool.
 
 Writing a test script begins with **describing** a test group, then 
 adding tests to **it** using `describe()` & `Describe.it()`. To do this, first 
-import `describe` from `pyspec` & any modules your are testing: 
+import `describe` from `pyspec` & any modules your are testing & assign 
+pyspec.describe & pyspec.Comparisons some names:
 
 ```python
-from pyspec import describe
+import pyspec
 import example
+
+describe = pyspec.describe
+C = pyspec.Comparisons
 ```
 
 Next, use PySpec's `describe()` method, giving it a short description of 
@@ -70,26 +74,28 @@ group = describe('this is a test group')
 
 This returns an instance of `Describe` & assigns it to `group`. To create a 
 test, use the `it()` method from `Describe` with a short description of the 
-test as the first argument. The second argument should be the expression 
-being tested.
+test as the only argument.
 
 ```python
-group.it('this test will pass', 1)
+group.it('this test will pass')
 ```
 
-The `it()` method returns a Test object, with an attribute `should` with 
-methods such as `eq` & `raise_error`. These are used to make statements 
-about what the second method passed to `it` should resolve to. For 
-example, you can say 'One should equal one' by writing the following:
+The `it()` method returns a Test object, with an attribute `expect` that is
+used to indicate what code you are testing. `Test.expect` requires a callable
+object as its argument, but if you need to pass only an expression or value, 
+you can simply wrap it in a `lambda`.
 
 ```python
-group.it('this test will pass', 1).should.eq(1)
+group.it('this test will pass').expect(lambda: 1)          # more methods to follow ...
+group.it('this test will also pass').expect(some_function) # ...
 ```
 
-Or you could say 'Two should be an instance of `Int`' with:
+To state what the _expected_ value that the _actual_ passed to `Test.expect` should, 
+result in (or not result in), use `Test.to` or `Test.to_not`:
 
 ```python
-group.it('Two should be an instance of Int', 2).should.be_a(Int)
+group.it('normal testing').expect(lambda: 1).to(C.eq, 1)       # pass `eq` from `pyspec.Comparisons`
+group.it('negative testing').expect(lambda: 1).to_not(C.eq, 2) # use `to_not` to negate a result
 ```
 
 To test something from a module you've written, refer to it by the name you 
@@ -97,11 +103,12 @@ imported it as above, & pass the desired expression or function as your
 second argument to `it`. 
 
 ```python
-group.it('This test is from `example.py`', example.two).should.eq(2)
+group.it('This test is from `example.py`').expect(example.two).to(eq, 2)
 group.it(
-    'Another test from `example.py`',
+    'Another test from `example.py`'
+).expect(
     example.divide_by_zero
-).should.raise_error(ZeroDivisionError)
+).to(C.raise_error, ZeroDivisionError)
 ```
 
 Lastly, to run this example, you just need to call `Describe`'s `run()` 
@@ -118,8 +125,8 @@ return the following:
 $ python example_spec.py
 
 This is a test group
-  - this test will pass ok
-  - Two should be an instance of Int ok
+  - normal testing ok
+  - negative testing ok
   - This test is from `example.py` ok
   - Another test from `example.py` ok
 ```
@@ -127,19 +134,22 @@ This is a test group
 At the end, your `example_spec.py` should look like this:
 
 ```python
-from pyspec import describe
+import pyspec
 import example
+
+describe = pyspec.describe
+C = pyspec.Comparisons
 
 group = describe('this is a test group')
 
-group.it('this test will pass', 1)
-group.it('this test will pass', 1).should.eq(1)
-group.it('Two should be an instance of Int', 2).should.be_a(Int)
-group.it('This test is from `example.py`', example.two).should.eq(2)
+group.it('normal testing').expect(lambda: 1).to(C.eq, 1)       # pass `eq` from `pyspec.Comparisons`
+group.it('negative testing').expect(lambda: 1).to_not(C.eq, 2) # use `to_not` to negate a result
+group.it('This test is from `example.py`').expect(example.two).to(eq, 2)
 group.it(
-    'Another test from `example.py`',
+    'Another test from `example.py`'
+).expect(
     example.divide_by_zero
-).should.raise_error(ZeroDivisionError)
+).to(C.raise_error, ZeroDivisionError)
 
 group.run()
 ```
