@@ -24,25 +24,28 @@ def entry_point():
 
 @entry_point.command('all')
 @click.argument('path')
-def all_tests(path):
+@click.option('--verbose', '-v', is_flag=True, help='turns on verbose mode')
+def all_tests(path, verbose):
     """
     Runs all tests in a given directory. PATH must be relative to the current $PWD.
     This command will only find files in the given directory that end in `_spec.py`.
     """
-    return run_tests.all_tests(path)
+    return run_tests.all_tests(path, verbose)
 
 @entry_point.command()
 @click.argument('module')
-def one(module):
+@click.option('--verbose', '-v', is_flag=True, help='turns on verbose mode')
+def one(module, verbose):
     """
     Runs the specific test file given as a module name. MODULE must be just the file
     name, without any file type extensions.
     """
-    return run_tests.one_file(module)
+    return run_tests.one_file(module, verbose)
 
 @entry_point.command()
 @click.argument('path')
-def list(path):
+@click.option('--verbose', '-v', is_flag=True, help='turns on verbose mode')
+def list(path, verbose):
     """
     Lists all test groups available in in a given directory. PATH must be relative
     to the current $PWD. This command will only find files in the given directory
@@ -53,13 +56,13 @@ def list(path):
 
     click.echo('')
     for group in res:
-        click.echo('%(num)s. %(desc)s' % { 'num': num, 'desc': group.description })
+        click.echo('%(num)s. %(desc)s' % {'num': num, 'desc': group.description})
         num += 1
 
     req = input('\nWhich test group would you like to run? ')
     req_int = int(req)
     print('')
-    results_str = res[req_int].run()
+    results_str = res[req_int].run(verbose)
 
     for line in results_str:
         click.echo(line)

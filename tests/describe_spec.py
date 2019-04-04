@@ -77,7 +77,7 @@ FAILURES.fail_group.it('should fail').expect(lambda: 1).to(C.eq, 2)
 FAILURES.fail_group.it(
     'should fail on error type'
 ).expect(lambda: 1/0).to(C.raise_error, TypeError)
-FAILURES.fail_group.run(True)
+FAILURES.fail_group.run(False, True)
 
 # create a new function to defer re-raising the error
 def failed():

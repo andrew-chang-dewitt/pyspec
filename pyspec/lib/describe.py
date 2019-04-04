@@ -157,7 +157,7 @@ class Describe:
         if self.outer is not None:
             return None
 
-        return self._run(muted, verbose)
+        return self._run(verbose, muted)
 
     def _run(self, verbose=False, muted=False):
         """
@@ -167,7 +167,6 @@ class Describe:
 
         Describe._run accepts no arguments & has no returns.
         """
-
         self.results = []
 
         self.results.append(f'{self.base}{self.description}')
@@ -181,7 +180,7 @@ class Describe:
 
             # call to inner's protected run() method first to display any nested
             # test group's results before displaying the outer class results last
-            inner._run(True, verbose) # pylint: disable=protected-access
+            inner._run(verbose, True) # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
