@@ -17,8 +17,6 @@ Contents
 - [Documentation](#documentation)
   - [Library API](/docs/lib.md)
 
-[//]: # (FIXME: CLI manual still needs to be created & uploaded)
-
 Installation
 ------------
 
@@ -203,7 +201,7 @@ Now, you should be able to run the spec using the CLI command `one`,
 referring to `example_spec` in your arguments:
 
 ```bash
-user@host:~/example $ pyspec one example_spec
+user@host:~/example $ pyspec one -v example_spec
 
 This is a test group
   - this test will pass ok
@@ -215,6 +213,10 @@ Tests ran: 4
 Success rate: 100.0%
 Total time: <some number> microseconds
 ```
+
+Giving the `-v` or `--verbose` flag will supress the individual test results
+if all tests in the group pass, instead first line of the results will look 
+like `This is a test group: ok`.
 
 An added benefit of the CLI is that it generates some small statistics
 on the test results, if you're interested. 
