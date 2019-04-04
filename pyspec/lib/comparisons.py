@@ -8,7 +8,7 @@ class Comparisons:
     to compare an actual result (stored in the test at the `code`
     attribute) against the expected attribute (passed to each method).
 
-    Typical usage will be to pass the method to a `should` or `should_not`
+    Typical usage will be to pass the method to a `to` or `to_not`
     call (above) as the first argument, with the expected value (that will
     be passed to this Comparison method) as the second argument. This
     structure allows the execution of the comparison to be deferred until

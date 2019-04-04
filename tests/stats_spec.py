@@ -10,6 +10,7 @@ STATS_OBJ = pyspec.describe('generate stats info in the runner metastructure')
 
 test_run = pyspec.cli.run_tests.RunTests(stable.event('temp spec')).one_file(
     'tests/test_examples/temp_spec',
+    False,
     True
 )
 

@@ -43,22 +43,23 @@ class Describe:
 
     On initialization, accepts:
     - description           (STRING)                see above
-    - [runner]              (SpecStruct instance)   a class used by the CLI to parse the test group
-    - [outer]               (Describe instance)     see above, optional
 
     Returns: An instance of Describe with the following attributes & methods, plus those above:
     - tests                 (LIST)      an empty list where each test function will be stored
+    - [outer]               (Describe)  the outer test group, if nested, optional
     - inners                (LIST)      an empty list where any nested test groups will be stored
+    - results               (LIST)      an empty list where test results are stored by `run`
     - base, tab, & tabplus  (STRING)    strings used to increment tabs for results printing
+    - let                   (METHOD)    set common values to be shared between all tests in a group
+    - before                (METHOD)    set values to be re-evaluated before each test
     - it                    (METHOD)    a method used to create a new test in the group,
                                         adds an instance of Test to the self.tests list
-    - [outer]               (Describe)  the outer test group, if nested, optional
     - [run]                 (METHOD)    a method used to run the test group & any inners,
                                         this one will only exist if it has no outer attribute
 
     This class has a modified __get_attr__() method used to inherit attributes & methods
-    from the Describe object designated at self.outer (if there is one). It is used similarly
-    to Ruby's method_missing.
+    from the Describe object designated at self.outer (if there is one). This is what allows
+    a form of prototypical inheritance between test groups.
     """
 
     def __init__(self, description):
@@ -77,13 +78,19 @@ class Describe:
 
     def let(self, name, value):
         """
-        set common values to be shared between all tests in a group
+        Sets values on the test group to be parsed later when the test is ran. If an
+        error is thrown in the definition of a `let`, it will be raised in any test
+        that depends upon it the let. Lets are evaluated once before any tests in the
+        group are ran & are not re-evaluated again.
         """
         self.lets[name] = value
 
     def before(self, name, value):
         """
-        set values to be re-evaluated before each test
+        Sets values on the test group to be parsed later when the test is ran. If an error
+        is thrown in the definition of a `before`, it will be raised in any test that
+        depends upon it the before. Befores are evaluated right before each test is ran &
+        are re-evaluated for each test.
         """
         self.befores[name] = value
 
@@ -104,15 +111,20 @@ class Describe:
         An instance of Test()
         """
 
-        test_obj = Test(description, self.befores)
+        test_obj = Test(description)
         self.tests.append(test_obj)
 
         return test_obj
 
     def describe(self, description):
         """
-        Method used for creating an inner test group on an existing group.
+        Similar to the top-level pyspec.describe, but for creating a new test group
+        that will be nested within the existing test group that this method is called
+        on. Defining a test group with this method will automatically add the new
+        group to this instance's `inners` list attribute & initialize the new group
+        with this instance as the new group's `outer` attribute.
         """
+
         inner = Describe(description)
         self.inners.append(inner)
         inner.outer = self
@@ -137,7 +149,7 @@ class Describe:
         else:
             raise TypeError(f'{outer} is not an instance of {Describe}')
 
-    def run(self, muted=False, verbose=False):
+    def run(self, verbose=False, muted=False):
         """
         Runs all tests within a group, so long as it is not an inner group.
         """
@@ -145,9 +157,9 @@ class Describe:
         if self.outer is not None:
             return None
 
-        return self._run(muted, verbose)
+        return self._run(verbose, muted)
 
-    def _run(self, muted=False, verbose=False):
+    def _run(self, verbose=False, muted=False):
         """
         A method used to run the test group & any inners, accessed via the
         Describe.run attribute (which will only exist for instances with no
@@ -155,7 +167,6 @@ class Describe:
 
         Describe._run accepts no arguments & has no returns.
         """
-
         self.results = []
 
         self.results.append(f'{self.base}{self.description}')
@@ -169,7 +180,7 @@ class Describe:
 
             # call to inner's protected run() method first to display any nested
             # test group's results before displaying the outer class results last
-            inner._run(True, verbose) # pylint: disable=protected-access
+            inner._run(verbose, True) # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
@@ -180,7 +191,7 @@ class Describe:
                 setattr(self, key, value)
 
             # run test
-            test.run()
+            test._run() # pylint: disable=protected-access
 
             # tear down befores
             # for key in self.befores:
@@ -254,24 +265,30 @@ class Test:
     An object used to represent a single test.
 
     On initialization, it takes:
-    - description   (STRING)        a description to print when running the test,
-                                    should be descriptive, readable, & concise
+    - description   (STRING)                a description to print when running the test,
+                                            should be descriptive, readable, & concise
 
     A test object also has the following attribute:
-    - success   (BOOL)          represents if the test is successful or not,
-                                value is set methods on Should
-
-    A Test object also contains a Should object that makes Assertations &
-    determines if the test passes or fails
+    - comparison    (pyspec.Comparisons)    the method to be used for comparing the actual
+                                            result to the expected value of the Test
+    - actual        (FUNCTION)              a function to be executed when evaluating the test,
+                                            returns the 'actual' value
+    - expected      (EXPRESSION)            an expression that evaluates to the expected value
+                                            that will be compared to `actual`
+    - self.error    (EXCEPTION)             used to store any error that is raised before
+                                            a test is ran; this error will later be re-raised at
+                                            test run time
+    - results       (DICT)                  a dictionary for storing the results when a
+                                            test is run
     """
 
-    def __init__(self, description, befores):
+    def __init__(self, description):
         self.description = description
-        self.befores = befores
         self.comparison = None
         self.actual = None
         self.expected = None
         self.error = None
+        self._set_result = None
         self.result = {
             'success': None,
             'err': None,
@@ -279,6 +296,21 @@ class Test:
         }
 
     def expect(self, actual):
+        """
+        A method that is used to tell the test what code to run or expression to evaluate. The
+        value given to `actual` is what will be evaluated & compared to the expected value
+        passed later in Expect.to or Expect.to_not.
+
+        Accepts:
+        - `actual` (FUNCTION) a function to be evaluated at test runtime; this is the code
+                              that you are testing & the results will compared to their
+                              expected value; `Test.expect` will throw an Exception if this
+                              argument is not callable
+
+        Returns:
+        The Test object expect was called on.
+        """
+
         if callable(actual):
             self.actual = actual
         else:
@@ -288,7 +320,24 @@ class Test:
 
         return self
 
-    def to(self, comparison_method, *args):
+    def to(self, comparison_method, *args): # pylint: disable=invalid-name
+        """
+        A method used to declare an expected result for the test & pass a comparison method that
+        will be used to evaluate the test. Comparison methods come from the Comparisons class
+        which must be imported into the _spec file along with PySpec.describe.
+
+        Accepts:
+        - `comparison_method` (bound method on Comparisons) a method from Comparisons that is
+                                                            used to evaluate the test
+        - `*expected`         (EXPRESSIONS)                 an expression (or multiple expressions,
+                                                            separated by commas) that defines an
+                                                            expected value that the function passed
+                                                            as the actual value must return
+
+        Returns:
+        The instance of Test that `Test.to` was called on.
+        """
+
         def set_result(**kwargs):
             if kwargs['success']:
                 self.result['success'] = True
@@ -306,6 +355,22 @@ class Test:
         return self
 
     def to_not(self, comparison_method, *args):
+        """
+        The same as Test.to, but it negates the test result. This means that a test that would
+        have succeeded in `Test.to` will fail in `Test.to_not` & vice versa.
+
+        Accepts:
+        - `comparison_method` (bound method on Comparisons) a method from Comparisons that is
+                                                            used to evaluate the test
+        - `*expected`         (EXPRESSIONS)                 an expression (or multiple expressions,
+                                                            separated by commas) that defines an
+                                                            expected value that the function passed
+                                                            as the actual value must return
+
+        Returns:
+        The instance of Test that `Test.to` was called on.
+        """
+
         def set_result(**kwargs):
             incorrect_success = (
                 f'The test passed when it should have failed in a should_not statement'
@@ -324,12 +389,7 @@ class Test:
         self.expected = args
         self._set_result = set_result
 
-    def run(self):
-        """
-        execute the test
-
-        accepts no args & returns the evaluated test with new values in self.result
-        """
+    def _run(self):
         try:
             if isinstance(self.comparison, Exception):
                 raise self.comparison
@@ -338,7 +398,8 @@ class Test:
 
             self.comparison(self, self.actual, self.expected)
             self._set_result(success=True)
-        except Exception:
+        # all Exceptions must be caught to allow the test runner to keep going
+        except Exception: # pylint: disable=broad-except
             exc_obj = sys.exc_info()[1]
             exc_tb = sys.exc_info()[2]
 

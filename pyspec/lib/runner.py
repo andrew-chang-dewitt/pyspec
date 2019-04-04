@@ -9,7 +9,7 @@ from pyspec.lib.stats import StatsObj
 
 PUB_SUB = stable.event('pyspec')
 
-def runner(passed_pub_sub=None):
+def runner(alt_pub_sub=None):
     """
     Used to initialize a new Runner instance. This is the only function
     directly exposed by the API from this module.
@@ -18,8 +18,8 @@ def runner(passed_pub_sub=None):
     Returns: 	An instance of the Runner class with an empty
     		test_groups attribute.
     """
-    if passed_pub_sub:
-        used_pub_sub = passed_pub_sub
+    if alt_pub_sub:
+        used_pub_sub = alt_pub_sub
     else:
         used_pub_sub = PUB_SUB
 
@@ -60,7 +60,7 @@ class Runner:
 
         return self.test_groups
 
-    def run_all(self, muted=False):
+    def run_all(self, parms):
         """
         This function is the single entry point for running all tests held in
         test_groups. This allows any other program interfacing with the library
@@ -70,8 +70,10 @@ class Runner:
         # start time tracking for stats
         self.stats.start_time_tracking()
 
+        muted = parms['muted']
+
         for group in self.test_groups:
-            self.run_one(group)
+            self.run_one(group, parms)
 
         # end time tracking for stats
         self.stats.stop_time_tracking()
@@ -85,16 +87,19 @@ class Runner:
         self.pub_sub.topic('run results').pub(self)
         return self
 
-    def run_one(self, group):
+    def run_one(self, group, parms):
         """
         A simple wrapper to a Describe object's `run()` method. Includes a
         guard against calling `run()` on an inner test group since this would
         result in an AttributeError.
         """
+        muted = parms['muted']
+        verbose = parms['verbose']
+
         # increment number of tests counter by number of tests in group
         self.stats.number_of_tests += len(group.tests)
         if not group.outer:
-            group.run(True)
+            group.run(verbose, True)
 
             for line in group.results:
                 self.results.append(line)
