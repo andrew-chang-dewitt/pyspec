@@ -235,28 +235,28 @@ comparison results [attributes](#test-attributes).
 
 ### Attributes:
 
-- description (STRING)
+- `description` (STRING)
 
   a description to print when running the test, should be descriptive, readable, & concise
 
-- comparison (pyspec.Comparisons)
+- `comparison` (pyspec.Comparisons)
 
   the method to be used for comparing the actual result to the expected value of the Test
 
-- actual (FUNCTION)
+- `actual` (FUNCTION)
 
   a function to be executed when evaluating the test, returns the 'actual' value
 
-- expected (EXPRESSION)
+- `expected` (EXPRESSION)
 
   an expression that evaluates to the expected value that will be compared to `actual`
 
-- self.error (EXCEPTION)
+- `error` (EXCEPTION)
 
   used to store any error that is raised before a test is ran; this error will later be
   re-raised at test run time
 
-- results (DICT)
+- `results` (DICT)
 
   a dictionary for storing the results when a test is run
 
@@ -302,8 +302,6 @@ need to pass an expression as your _actual value_, it still must be callable
 so that PySpec can deferr evaluation of it, thus allowing exceptions to be 
 caught by PySpec instead of being thrown & interupting the test. To get around this,
 you can simply wrap your code in a `lambda`:
-
-Given: 
 
 ```python
 def add(x, y):
