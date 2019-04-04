@@ -112,10 +112,11 @@ group.it(
 ```
 
 Lastly, to run this example, you just need to call `Describe`'s `run()` 
-method on `group`, like this:
+method on `group`, like this (passing True as an argument to enable 
+verbose mode):
 
 ```python
-group.run()
+group.run(True)
 ```
 
 Then, run this script using `$ python example_spec.py`, which will 
@@ -130,6 +131,16 @@ This is a test group
   - This test is from `example.py` ok
   - Another test from `example.py` ok
 ```
+
+Or you can just call `Describe.run()` with no arguments to disable 
+verbose mode to return the following:
+
+```python
+This is a test group: ok
+```
+
+Disabling verbose mode will still print any failed tests with their
+associated stack trace.
 
 At the end, your `example_spec.py` should look like this:
 
@@ -175,53 +186,11 @@ With a file structure like this:
 
 ### Adding CLI support
 
-To add CLI support to the above example, a few small changes need to
-be made.
-
-First, another method needs imported from the PySpec library: 
-`spec_struct`. This method builds a meta structure of the spec file
-that is used by the CLI tools to parse & run the tests. Add the following
-import statement between `from pyspec import describe` & `import example` 
-in `example_spec.py`
-
-```python
-from pyspec import describe
-from pyspec import spec_struct
-import example
-
-...
-```
-
-Next, a SpectStruct object needs to be initialized using the `spect_struct()`
-method after `import example`
-
-```python 
-...
-
-import example
-
-RUNNER = spect_struct()
-
-group = describe('...
-```
-
-Then, the newly created SpectStruct object, `RUNNER` needs passed as the 
-second argument each time a test group is described:
-
-```python
-...
-
-RUNNER = spect_struct()
-
-group = describe('this is a test group', RUNNER)
-
-...
-```
-
-Lastly, you must remove the last line, `group.run()`, of `example_spec.py` 
-as `Describe.run()`will now be invoked by the CLI through the metastructure 
-RUNNER. Alternatively, you can guard the line by wrapping it in an `if` 
-statement checking if the file is imported, or ran directly:
+To add CLI support to the above example, only one small change needs to be
+made: you must remove the last line, `group.run()`, of `example_spec.py` 
+as `Describe.run()`will now be invoked by the CLI. Alternatively, you can
+guard the line by wrapping it in an `if` statement checking if the file
+is imported, or ran directly:
 
 ```python
 ...
@@ -241,7 +210,14 @@ This is a test group
   - Two should be an instance of Int ok
   - This test is from `example.py` ok
   - Another test from `example.py` ok
+
+Tests ran: 4
+Success rate: 100.0%
+Total time: <some number> microseconds
 ```
+
+An added benefit of the CLI is that it generates some small statistics
+on the test results, if you're interested. 
 
 ### Using the PySpec CLI
 

@@ -149,7 +149,7 @@ class Describe:
         else:
             raise TypeError(f'{outer} is not an instance of {Describe}')
 
-    def run(self, muted=False, verbose=False):
+    def run(self, verbose=False, muted=False):
         """
         Runs all tests within a group, so long as it is not an inner group.
         """
@@ -159,7 +159,7 @@ class Describe:
 
         return self._run(muted, verbose)
 
-    def _run(self, muted=False, verbose=False):
+    def _run(self, verbose=False, muted=False):
         """
         A method used to run the test group & any inners, accessed via the
         Describe.run attribute (which will only exist for instances with no
