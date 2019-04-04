@@ -311,7 +311,6 @@ TEST.it('can evaluate expressions').expect(lambda: 1 + 1) # more methods to come
 TEST.it('can pass arguments').expect(lambda: add(1,1))    # ...
 ```
 
-
 #### Test.to
 (_comparison method_, _*expected_)
 
@@ -332,7 +331,52 @@ _Accepts_:
 
 _Returns_:
 
+The Test object expect was called on.
+
+_Example usage_:
+
+Continuing from the examples above, you add `.to()` at the end of each `Test.it` line
+to complete the test expression.
+
+```python
+def hello():
+    return 'Hello world!'
+
+def add(x, y):
+    return x + y
+
+TEST.it('can expect hello').expect(hello).to(Comparisons.eq, 'Hello world!')
+TEST.it('can evaluate expressions').expect(lambda: 1 + 1).to(Comparisons.eq, 2)
+TEST.it('can pass arguments').expect(lambda: add(1,1)).to(Comparisons.eq, 2)
+```
+
 #### Test.to\_not
+(_comparison method_, _*expected_)
+
+The same as [Test.to](#testto), but it negates the test result. This means that a test
+that would have succeeded in `Test.to` will fail in `Test.to_not` & vice versa.
+
+_Accepts_:
+
+- `comparison_method` (bound method on Comparisons)
+
+  a method from [Comparisons](#comparisons) that is used to evaluate the test
+
+- `*expected` (EXPRESSIONS)
+
+  an expression (or multiple expressions, separated by commas) that defines an _expected value_
+  that the function passed as the _actual value_ must _not_ return
+
+_Returns_:
+
+The Test object expect was called on.
+
+_Example usage_:
+
+```python
+Test.it('will fail').expect(lambda: 1).to_not(Comparisons.eq, 1) # => this test will fail
+Test.it('will fail').expect(lambda: 1).to_not(Comparisons.eq, 2) # => but this test will pass
+```
 
 #### Test.run
 
