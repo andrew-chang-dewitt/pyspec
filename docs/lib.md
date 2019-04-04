@@ -228,12 +228,10 @@ if __name__ = '__main__':
 Test class
 ----------
 
-FIXME::::::::::
 An instance of the Test class is created with each call to 
 **[Describe.it()](describeitdescription-code)**. This class is used to store a 
-test's description, code, & success [attributes](#test-attributes) & exposes an 
-inner class, [Should()](#should-class), used to make assertations & evaluate 
-results (stored at Test.result).
+test's description, actual code/value, expected value, comparison method, & 
+comparison results [attributes](#test-attributes).
 
 ### Attributes:
 
@@ -262,13 +260,21 @@ results (stored at Test.result).
 
   a dictionary for storing the results when a test is run
 
+#### Test.expect
 
-Should class
+#### Test.to
+
+#### Test.to\_not
+
+#### Test.run
+
+
+Comparisons class
 ------------
 
-An inner class on [Test()](#test-class) used to evaluate expression or function passed to 
-_Test().code_ & make a comparison of ACTUAL vs. EXPECTED values. Exposes a series of methods 
-that each offer different types of comparisons.
+An class that stores methods used to evaluate expressions or functions passed to 
+[Test.expect](#testexpect) & make a comparison of ACTUAL vs. EXPECTED values. 
+Exposes a series of methods that each offer different types of comparisons.
 
 ### Methods:
 
@@ -276,7 +282,7 @@ Each of the following methods is used to make an assertation about the ACTUAL re
 passed to `Test` will evaluate to versus the EXPECTED value given to the method. All of these 
 methods will return the original Test object that the method was called on.
 
-#### Should.eq:
+#### Comparisons.eq:
 (_expected_)
 
 Compares the evaluated result of `Test.code` to `expected` & modifies the outer Test 
@@ -288,7 +294,7 @@ _Accepts_:
 
 - `expected` (EXPRESSION) a value that `Test.code` is expected to evaluate to.
 
-#### Should.raise\_error:
+#### Comparisons.raise\_error:
 (_expected\_err_)
 
 Compares the evaluated result of `Test.code` to `expected_err` & modifies the outer Test 
@@ -301,7 +307,7 @@ _Accepts_:
 
 - `expected_err` (EXPRESSION) A class of Exception that `Test.code` is expected to raise.
 
-#### Should.be\_a:
+#### Comparisons.be\_a:
 (_expected\_class_)
 
 Compares the class of the evaluated result of `Test.code` to `expected_class` & modifies the 
@@ -314,7 +320,7 @@ _Accepts_:
 - `expected_class` (EXPRESSION) a class that the evaluated result of `Test.code` is
   expected to be a member of.
 
-#### Should.include:
+#### Comparisons.include:
 (_expected\_member_)
 
 Checks if `expected_member` is a member of a collection returned by the evaluated result of 
