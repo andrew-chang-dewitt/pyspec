@@ -35,7 +35,7 @@ Contents
   - [Exceptions](#exceptions)
     - [Comparisons.AssertionError](#comparisonsassertionerror)
     - [Comparisons.NoComparison](#comparisonsnocomparison)
-  - [Extending Comparisons](#extending_comparisons)
+  - [Extending Comparisons](#extending-comparisons)
 
 There are two top level objects exposed by the PySpec Library:
 
