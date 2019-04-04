@@ -308,9 +308,7 @@ Given:
 ```python
 def add(x, y):
     return x + y
-```
 
-```python
 TEST.it('can evaluate expressions').expect(lambda: 1 + 1) # more methods to come ...
 TEST.it('can pass arguments').expect(lambda: add(1,1))    # ...
 ```
