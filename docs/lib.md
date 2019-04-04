@@ -416,10 +416,31 @@ Each of the following methods is used to make an assertation about the ACTUAL re
 passed to `Test` will evaluate to versus the EXPECTED value given to the method. All of these 
 methods will return the original Test object that the method was called on.
 
+These methods are not intended to be called directly, but rather, to be passed to a Test in
+a `to` or `to_not` method call. All methods are used in the same manner:
+
+```python
+TEST = pyspec.describe('test group')
+
+TEST.it('can add').expect(lambda: add(1,2)).to(Comparisons.eq, 3)
+```
+
+It may be easier to assign the Comparisons class a shorter name for easier test writing:
+
+```python
+C = pyspec.Comparisons
+
+Test.it('can add').expect(lambda: 1 + 2).to(C.eq, 3)
+```
+
+In this usage, the Comparison method desired is always passed as the first argument to
+`Expect.to` to `Expect.to_not` so that it can be executed later when the Test is ran
+using `Describe.run`.
+
 #### Comparisons.eq:
 (_caller_, _actual_, _expected_)
 
-_Success_: This method results in a success if `actual` is equal to `expected`
+_Success_: This method results in a success if `actual` is equal to `expected`.
 
 _Failure_: This method fails in any scenario where Python does not consider the result of
 evaluating `actual` to be equal to `expected`.
@@ -445,9 +466,47 @@ _Failure_: This method fails in any scenario where `actual` is not an instance o
 #### Comparisons.include:
 (_caller_, _actual_, _expected_)
 
-_Success_: This method results in a success if `actual` is equal to `expected`
+_Success_: This method results in a success if `actual` is an iterable that includes _all_ of the 
+values given by the `expected` list.
 
-_Failure_: This method fails in any scenario where Python does not consider the result of
+_Failure_: This method fails in any scenario where one or more of the members of `expected` are not 
+included in the iterable given by evaluating `actual`. It will also fail if `actual` does not 
+result in an iterable.
+
+#### Comparisons.be\_empty:
+(_caller_, _actual_, _expected_
+
+_Success_: This method results in a success if `actual` is an empty iterable.
+
+_Failure_: This method results in a failure in any situation where `actual` does not result in an
+iterable, or where it results in an iterable that contains members.
+
+#### Comparisons.have\_keys:
+(_caller_, _actual_, _expected_
+
+_Success_: This method results in a success if `actual` is a dictionary that a member for _every_
+key listed in `expected`.
+
+_Failure_: This method results in a failure in any situation where `actual` is not a dictionary,
+or any situation where one or more values given in `expected` does not have a matching key.
+
+#### Comparisons.have\_attributes:
+(_caller_, _actual_, _expected_
+
+_Success_: This method results in a success if all of the names listed in `expected` can be 
+matched to an attribute in the object given by evaluating `actual`.
+
+_Failure_: This method results in a failure in any situation where one or more of the names given by
+`expected` is not represented as an attribute on the `actual` result.
+
+#### Comparisons.have\_methods:
+(_caller_, _actual_, _expected_
+
+_Success_: This method results in a success if all of the names listed in `expected` can be matched
+to a method on the object returned by `actual`.
+
+_Failure_: This method results in a failure in any situation where one or more of the names can not
+be matched to a method on `actual`.
 
 
 <div style="text-align: right">Copyright (c) 2019 Andrew DeWitt</div>
