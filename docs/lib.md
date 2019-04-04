@@ -35,15 +35,8 @@ Contents
   - [Exceptions](#exceptions)
     - [Comparisons.AssertionError](#comparisonsassertionerror)
     - [Comparisons.NoComparison](#comparisonsnocomparison)
-- [Runner class](#runner-class)
-  - [Attributes](#attributes-2)
-  - [Methods](#methods-3)
-    - [Runner.run\_all](#runnerrun_all)
-    - [Runner.run\_one](#runnerrun_one)
-    - [Runner.add\_group](#runneradd_group)
-    - [Runner.remove\_group](#runnerremove_group)
 
-There are two top level functions exposed by the PySpec Library:
+There are two top level objects exposed by the PySpec Library:
 
 #### pyspec.describe:
 (_description_, *alt_pub_sub=None*)
@@ -60,19 +53,16 @@ _Accepts_:
 
 _Returns_: An instance of Describe
 
-#### pyspec.runner:
-(*alt_pub_sub=None*)
+#### pyspec.Comparisons:
 
-Initializes & returns a **Runner()** object for PySpec CLI parsing. The Describe object 
-has no awareness of the Runner object and has no direct interface with it. The Runner 
-object depends upon an understanding of the structure of Describe & Test.
+A class of static methods used to compare an _actual result_ to an _expected value_.
 
-_Accepts_:
+_Accepts_: pyspec.Comparisons takes no arguments
 
-- [`alt_pub_sub`] \(pub\_sub.Event instance) an Event module to publish & subscribe to
-  used to receive Describe objects from `pyspec.describe` & commands from the CLI tool
+_Returns_: 
 
-_Returns_: An instance of the Runner class with an empty `test_groups` attribute.
+A class of comparisons methods that all accept an _actual result_ & a list of one
+or more _expected values_.
 
 
 Describe class
@@ -274,7 +264,8 @@ _Accepts_:
 - `actual` (FUNCTION)
 
   a function to be evaluated at test runtime; this is the code that you are testing &
-  the results will compared to their expected value
+  the results will compared to their expected value; `Test.expect` will throw an Exception if 
+  this argument is not callable
 
 _Returns_:
 
@@ -448,42 +439,5 @@ _Accepts_:
   evaluates to.
 
 
-SpecStruct class
-----------------
-
-The SpecStruct class is a separate part of the PySpec Library that is only necessary if you 
-wish to use the PySpec CLI tool with your test scripts. The class is used by passing an instance 
-to **[pyspec.describe()](#pyspecdescribe)** when creating a test group.
-
-### Attributes:
-
-- `test_groups` (LIST) SpecStruct initializes with just one attribute: test_groups. All groups will be stored here. A list is used because it preserves member order with a numbered index & is easily searchable. This list starts as empty, but each time a SpecStruct instance is passed to **[pyspec.describe()](#pyspecdescribe)** the resulting **[Describe()](#describe-class) will also be added to this list.
-
-### Methods:
-
-SpecStruct exposes the following methods for consumption by the CLI.
-
-#### SpecStruct.run\_all:
-
-This function is the single entry point for running all tests held in
-`test_groups`. This allows any other program interfacing with the library
-to not need to know anything about how individual test groups are
-structured.
-
-`SpecStruct.run_all()` accepts no arguments & returns no results.
-
-#### SpecStruct.run\_one:
-(group)
-
-A simple wrapper to a Describe object's `run()` method. Includes a
-guard against calling `run()` on an inner test group since this would
-result in an AttributeError.
-
-_Accepts_: 
-
-- `group` (Describe instance) The Describe instance for the single group of 
-  tests you wish to run.
-
-`SpecStruct.run_one()` returns no results.
 
 <div style="text-align: right">Copyright (c) 2019 Andrew DeWitt</div>
