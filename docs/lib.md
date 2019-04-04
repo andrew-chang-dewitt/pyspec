@@ -184,6 +184,14 @@ _Accepts_:
 
 _Returns_: An instance of Describe
 
+_Example usage_:
+
+```python
+OUTER = describe('outer group')
+
+INNER = OUTER.describe('inner group')
+```
+
 #### Describe.run:
 (*muted=False*, *verbose=False*)
 
