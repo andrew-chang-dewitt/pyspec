@@ -3,7 +3,7 @@ import sys
 import glob
 import importlib.machinery
 from types import ModuleType
-from pyspec import runner
+from pyspec.lib.runner import runner
 # from pyspec.cli import click_cust
 from pub_sub import stable
 
