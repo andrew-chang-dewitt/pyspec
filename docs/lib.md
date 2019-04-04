@@ -6,7 +6,7 @@ Contents
 
 - Top level functions
   - [pyspec.describe](#pyspecdescribe)
-  - [pyspec.spec\_struct](#pyspecspec_struct)
+  - [pyspec.Comparisons](#pyspecComparisons)
 - [Describe class](#describe-class)
   - [Attributes](#attributes)
   - [Methods](#methods)
