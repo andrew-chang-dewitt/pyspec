@@ -369,8 +369,6 @@ Test.it('will fail').expect(lambda: 1).to_not(Comparisons.eq, 1) # => this test 
 Test.it('will fail').expect(lambda: 1).to_not(Comparisons.eq, 2) # => but this test will pass
 ```
 
-#### Test.run
-
 
 Comparisons class
 ------------

@@ -78,13 +78,19 @@ class Describe:
 
     def let(self, name, value):
         """
-        set common values to be shared between all tests in a group
+        Sets values on the test group to be parsed later when the test is ran. If an
+        error is thrown in the definition of a `let`, it will be raised in any test
+        that depends upon it the let. Lets are evaluated once before any tests in the
+        group are ran & are not re-evaluated again.
         """
         self.lets[name] = value
 
     def before(self, name, value):
         """
-        set values to be re-evaluated before each test
+        Sets values on the test group to be parsed later when the test is ran. If an error
+        is thrown in the definition of a `before`, it will be raised in any test that
+        depends upon it the before. Befores are evaluated right before each test is ran &
+        are re-evaluated for each test.
         """
         self.befores[name] = value
 
@@ -181,7 +187,7 @@ class Describe:
                 setattr(self, key, value)
 
             # run test
-            test.run()
+            test._run() # pylint: disable=protected-access
 
             # tear down befores
             # for key in self.befores:
@@ -278,6 +284,7 @@ class Test:
         self.actual = None
         self.expected = None
         self.error = None
+        self._set_result = None
         self.result = {
             'success': None,
             'err': None,
@@ -285,6 +292,21 @@ class Test:
         }
 
     def expect(self, actual):
+        """
+        A method that is used to tell the test what code to run or expression to evaluate. The
+        value given to `actual` is what will be evaluated & compared to the expected value
+        passed later in Expect.to or Expect.to_not.
+
+        Accepts:
+        - `actual` (FUNCTION) a function to be evaluated at test runtime; this is the code
+                              that you are testing & the results will compared to their
+                              expected value; `Test.expect` will throw an Exception if this
+                              argument is not callable
+
+        Returns:
+        The Test object expect was called on.
+        """
+
         if callable(actual):
             self.actual = actual
         else:
@@ -294,7 +316,24 @@ class Test:
 
         return self
 
-    def to(self, comparison_method, *args):
+    def to(self, comparison_method, *args): # pylint: disable=invalid-name
+        """
+        A method used to declare an expected result for the test & pass a comparison method that
+        will be used to evaluate the test. Comparison methods come from the Comparisons class
+        which must be imported into the _spec file along with PySpec.describe.
+
+        Accepts:
+        - `comparison_method` (bound method on Comparisons) a method from Comparisons that is
+                                                            used to evaluate the test
+        - `*expected`         (EXPRESSIONS)                 an expression (or multiple expressions,
+                                                            separated by commas) that defines an
+                                                            expected value that the function passed
+                                                            as the actual value must return
+
+        Returns:
+        The instance of Test that `Test.to` was called on.
+        """
+
         def set_result(**kwargs):
             if kwargs['success']:
                 self.result['success'] = True
@@ -312,6 +351,22 @@ class Test:
         return self
 
     def to_not(self, comparison_method, *args):
+        """
+        The same as Test.to, but it negates the test result. This means that a test that would
+        have succeeded in `Test.to` will fail in `Test.to_not` & vice versa.
+
+        Accepts:
+        - `comparison_method` (bound method on Comparisons) a method from Comparisons that is
+                                                            used to evaluate the test
+        - `*expected`         (EXPRESSIONS)                 an expression (or multiple expressions,
+                                                            separated by commas) that defines an
+                                                            expected value that the function passed
+                                                            as the actual value must return
+
+        Returns:
+        The instance of Test that `Test.to` was called on.
+        """
+
         def set_result(**kwargs):
             incorrect_success = (
                 f'The test passed when it should have failed in a should_not statement'
@@ -330,12 +385,7 @@ class Test:
         self.expected = args
         self._set_result = set_result
 
-    def run(self):
-        """
-        execute the test
-
-        accepts no args & returns the evaluated test with new values in self.result
-        """
+    def _run(self):
         try:
             if isinstance(self.comparison, Exception):
                 raise self.comparison
@@ -344,7 +394,8 @@ class Test:
 
             self.comparison(self, self.actual, self.expected)
             self._set_result(success=True)
-        except Exception:
+        # all Exceptions must be caught to allow the test runner to keep going
+        except Exception: # pylint: disable=broad-except
             exc_obj = sys.exc_info()[1]
             exc_tb = sys.exc_info()[2]
 
