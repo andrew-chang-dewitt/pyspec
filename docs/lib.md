@@ -35,6 +35,7 @@ Contents
   - [Exceptions](#exceptions)
     - [Comparisons.AssertionError](#comparisonsassertionerror)
     - [Comparisons.NoComparison](#comparisonsnocomparison)
+  - [Extending Comparisons](#extending_comparisons)
 
 There are two top level objects exposed by the PySpec Library:
 
@@ -507,6 +508,54 @@ to a method on the object returned by `actual`.
 
 _Failure_: This method results in a failure in any situation where one or more of the names can not
 be matched to a method on `actual`.
+
+### Exceptions:
+
+#### AssertionError:
+(_actual_, _expected_)
+
+A custom re-write of Python's built-in `AssertionError` Exception that makes for simpler formatting
+of the Error message displayed to the end user.
+
+#### NoComparison:
+
+A custom error returned when the method given at runtime is not a method on the Comparisons class.
+
+### Extending Comparisons:
+
+An end user could easily extend the built-in Comparisons by writing a separate library that inherits
+from PySpec's `Comparisons`. For example, consider the below `custom_comparisons.py` & a test
+file named `test_spec.py`.
+
+custom\_comparisons.py:
+
+```python
+import pyspec
+
+class CustomComparisons(pyspec.Comparisons):
+    def custom_method(caller, actual, expected):
+        # evaluate actual
+        actual_result = actual()
+
+        # some code to evaluate actual vs expected
+        # on failure
+        if some_failure:
+            raise AssertionError(expected, actual_result)
+
+        # on success, return the Test object
+        return caller
+```
+
+test\_spec.py:
+
+```python
+from pyspec import describe
+from custom_comparisons import CustomComparisons as C
+
+TEST = describe('some test group')
+
+TEST.it('uses a custom comparison').expect(some_function).to(C.custom_method, 1)
+```
 
 
 <div style="text-align: right">Copyright (c) 2019 Andrew DeWitt</div>
