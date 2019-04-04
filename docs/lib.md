@@ -22,7 +22,7 @@ Contents
     - [Test.to](#testto)
     - [Test.to\_not](#testto_not)
     - [Test.run](#testrun)
-- [Comparisons class](#should-class)
+- [Comparisons class](#comparisons-class)
   - [Methods](#methods-2)
     - [Comparisons.eq](#comparisonseq)
     - [Comparisons.raise\_error](#comparisonsraise_error)
