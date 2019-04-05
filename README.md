@@ -214,9 +214,9 @@ Success rate: 100.0%
 Total time: <some number> microseconds
 ```
 
-Giving the `-v` or `--verbose` flag will supress the individual test results
-if all tests in the group pass, instead first line of the results will look 
-like `This is a test group: ok`.
+Giving the `-v` or `--verbose` flag will show the individual test results
+if all tests in the group pass. Without the flag, the first line of the
+results will instead look like `This is a test group: ok`.
 
 An added benefit of the CLI is that it generates some small statistics
 on the test results, if you're interested. 
