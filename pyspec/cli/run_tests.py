@@ -3,7 +3,7 @@ import sys
 import glob
 import importlib.machinery
 from types import ModuleType
-from pyspec import runner
+from pyspec.lib.runner import runner
 # from pyspec.cli import click_cust
 from pub_sub import stable
 
@@ -18,25 +18,35 @@ class RunTests:
         self.pub_sub = pub_sub
         self.runner = None
 
-    def all_tests(self, test_dir_str, muted=False):
+    def all_tests(self, test_dir_str, verbose=False, muted=False):
+        parms = {
+            'verbose': verbose,
+            'muted': muted
+        }
+
         self._publish_runner()
         self._get_directory(test_dir_str)
 
         self.pub_sub.topic('run results').sub(self._results_received)
-        self.pub_sub.topic('run requested').pub(muted)
+        self.pub_sub.topic('run requested').pub(parms)
 
         return self.results
 
-    def one_file(self, file_path_str, muted=False):
+    def one_file(self, file_path_str, verbose=False, muted=False):
+        parms = {
+            'verbose': verbose,
+            'muted': muted
+        }
+
         self._publish_runner()
 
         self._import_module(file_path_str)
         self.pub_sub.topic('run results').sub(self._results_received)
-        self.pub_sub.topic('run requested').pub(muted)
+        self.pub_sub.topic('run requested').pub(parms)
 
         return self.results
 
-    def explore(self, test_dir_str, muted=False):
+    def explore(self, test_dir_str):
         self._publish_runner()
         self._get_directory(test_dir_str)
         res = []
