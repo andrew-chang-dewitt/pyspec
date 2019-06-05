@@ -57,7 +57,8 @@ class RunTests:
         return res
 
     def _import_module(self, name, full_path=False):
-        path = name if full_path else self.CWD + '/' + name + '.py'
+        ftype_name = name if name[-3:] == '.py' else name + '.py'
+        path = ftype_name if full_path else self.CWD + '/' + ftype_name
 
         # using SourceFileLoader & .exec_module from this answer on SO:
         # https://stackoverflow.com/a/19011259/4642869
