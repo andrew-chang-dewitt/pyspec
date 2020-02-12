@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import  pyspec
+import pyspec
 from pub_sub import stable
 
 C = pyspec.Comparisons

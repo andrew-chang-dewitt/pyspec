@@ -7,6 +7,7 @@ from pyspec.lib.runner import runner
 # from pyspec.cli import click_cust
 from pub_sub import stable
 
+
 class RunTests:
     CWD = os.getcwd()
     # ugly sys.path hack, necessary to allow tests to correctly import any

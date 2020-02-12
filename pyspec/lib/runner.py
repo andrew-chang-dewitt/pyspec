@@ -9,6 +9,7 @@ from pyspec.lib.stats import StatsObj
 
 PUB_SUB = stable.event('pyspec')
 
+
 def runner(alt_pub_sub=None):
     """
     Used to initialize a new Runner instance. This is the only function
@@ -16,7 +17,7 @@ def runner(alt_pub_sub=None):
 
     Arguments: 	None
     Returns: 	An instance of the Runner class with an empty
-    		test_groups attribute.
+                test_groups attribute.
     """
     if alt_pub_sub:
         used_pub_sub = alt_pub_sub
@@ -30,12 +31,14 @@ def runner(alt_pub_sub=None):
 
     return result
 
+
 class Runner:
     """
     Runner initializes with just one attribute: test_groups.
     All groups will be stored here. A list is used because it preserves
     member order with a numbered index & is easily searchable.
     """
+
     def __init__(self, passed_pub_sub):
         self.pub_sub = passed_pub_sub
         self.test_groups = []

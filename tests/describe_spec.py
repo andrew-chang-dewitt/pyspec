@@ -22,7 +22,7 @@ EXPECTATIONS.it(
 # tests can also be set up to expect a specific error class
 EXPECTATIONS.it(
     'can expect exceptions'
-).expect(lambda: 1/0).to(C.raise_error, ZeroDivisionError)
+).expect(lambda: 1 / 0).to(C.raise_error, ZeroDivisionError)
 # note: when directly evaluating an expression that will result in an error, it
 # must be wrapped in a function, otherwise the error will be raised before the
 # expression is passed to the test runner
@@ -76,18 +76,22 @@ FAILURES.fail_group = describe('failure', FAILURES.fail_pubsub)
 FAILURES.fail_group.it('should fail').expect(lambda: 1).to(C.eq, 2)
 FAILURES.fail_group.it(
     'should fail on error type'
-).expect(lambda: 1/0).to(C.raise_error, TypeError)
+).expect(lambda: 1 / 0).to(C.raise_error, TypeError)
 FAILURES.fail_group.run(False, True)
 
 # create a new function to defer re-raising the error
+
+
 def failed():
     """this mehod will fail"""
     # & grab the error off the test result object & re-raise it
     raise FAILURES.fail_group.tests[0].result['err']
 
+
 # then assign that function to a method on common state for the test group
 FAILURES.failed = failed
-# you can grab just the error message from the args attribute of the returned error
+# you can grab just the error message from the args attribute of the
+# returned error
 FAILURES.failed_msg = FAILURES.fail_group.tests[0].result['err']
 FAILURES.raise_error_failed_msg = FAILURES.fail_group.tests[1].result['err']
 
@@ -117,19 +121,25 @@ LET.let('five', 5)
 
 # you can assign simple values (or values from expressions) as above,
 # or you can define a function & assign it as a new method
+
+
 def five_mthd():
     """testing common methods"""
     return 5
+
+
 LET.let('five_mthd', five_mthd)
 
-LET.let('will_error', lambda: 1/0)
+LET.let('will_error', lambda: 1 / 0)
 
 LET.let('rand', random.random())
+
 
 def changed_let():
     LET.five = 6
 
     return LET.five
+
 
 LET.let('changed_let', changed_let)
 
@@ -164,15 +174,19 @@ LET.it(
 
 BEFORE = describe('before')
 
+
 def changed_before():
     BEFORE.five = 6
 
     return BEFORE.five
 
+
 RAND = random.random()
 
+
 def will_error():
-    return 1/0
+    return 1 / 0
+
 
 BEFORE.let('changed_before', changed_before)
 BEFORE.before('five', 5)
@@ -189,7 +203,7 @@ BEFORE.it(
 
 BEFORE.it(
     'resets the value of the before between each test'
-    ).expect(lambda: BEFORE.five).to(C.eq, 5)
+).expect(lambda: BEFORE.five).to(C.eq, 5)
 
 BEFORE.it(
     'can defer errors thrown by a before'
@@ -211,18 +225,28 @@ OUTER.before('six', 6)
 
 INNER = OUTER.describe('inner')
 
+
 def changed():
     INNER.let('five', 6)
 
     return INNER.five
 
+
 INNER.let('changed', changed)
 
-INNER.it('can view befores on the outer group').expect(lambda: INNER.six).to(C.eq, 6)
-INNER.it('can view lets on the outer group').expect(lambda: INNER.five).to(C.eq, 5)
-INNER.it('can change the value of lets defined by outer').expect(INNER.changed).to(C.eq, 6)
+INNER.it('can view befores on the outer group').expect(
+    lambda: INNER.six).to(
+        C.eq, 6)
+INNER.it('can view lets on the outer group').expect(
+    lambda: INNER.five).to(
+        C.eq, 5)
+INNER.it('can change the value of lets defined by outer').expect(
+    INNER.changed).to(
+        C.eq, 6)
 
-OUTER.it('but the value on outer will remain the same').expect(lambda: OUTER.five).to(C.eq, 5)
+OUTER.it('but the value on outer will remain the same').expect(
+    lambda: OUTER.five).to(
+        C.eq, 5)
 
 
 if __name__ == '__main__':

@@ -15,12 +15,14 @@ msg = (
     'a barebones BDD style test runner for python'
 )
 
+
 @click.group(cls=ErrorHandlingGroup)
 @click.version_option(message=msg)
 def entry_point():
     """
     CLI companion tool for the Pyspec testing library.
     """
+
 
 @entry_point.command('all')
 @click.argument('path')
@@ -32,6 +34,7 @@ def all_tests(path, verbose):
     """
     return run_tests.all_tests(path, verbose)
 
+
 @entry_point.command()
 @click.argument('module')
 @click.option('--verbose', '-v', is_flag=True, help='turns on verbose mode')
@@ -41,6 +44,7 @@ def one(module, verbose):
     name, without any file type extensions.
     """
     return run_tests.one_file(module, verbose)
+
 
 @entry_point.command()
 @click.argument('path')
@@ -56,7 +60,8 @@ def list(path, verbose):
 
     click.echo('')
     for group in res:
-        click.echo('%(num)s. %(desc)s' % {'num': num, 'desc': group.description})
+        click.echo('%(num)s. %(desc)s' %
+                   {'num': num, 'desc': group.description})
         num += 1
 
     req = input('\nWhich test group would you like to run? ')

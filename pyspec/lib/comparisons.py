@@ -2,6 +2,7 @@
 Comparison methods
 """
 
+
 class Comparisons:
     """
     The following methods are all functions that can be used in a test
@@ -23,7 +24,7 @@ class Comparisons:
         return NoComparison(method_name)
 
     @staticmethod
-    def eq(caller, actual, expected_arr): # pylint: disable=invalid-name
+    def eq(caller, actual, expected_arr):  # pylint: disable=invalid-name
         """
         Compares _code_result() to expected, modifies the outer Test instance's
         success attribute accordingly, & returns the newly modified Test instance
@@ -32,7 +33,8 @@ class Comparisons:
         actual_result = actual()
 
         if len(expected_arr) > 1:
-            raise Exception('Too many positional arguments given in expect.to()')
+            raise Exception(
+                'Too many positional arguments given in expect.to()')
 
         expected = expected_arr[0]
 
@@ -49,27 +51,30 @@ class Comparisons:
         """
 
         if len(expected_arr) > 1:
-            raise Exception('Too many positional arguments given in expect.to()')
+            raise Exception(
+                'Too many positional arguments given in expect.to()')
 
         expected = expected_arr[0]
 
         try:
             actual_result = actual()
 
-            raise AssertionError(message=f'No error was raised, instead got {actual_result}')
+            raise AssertionError(
+                message=f'No error was raised, instead got {actual_result}')
 
         # All exceptions are caught in order to continue parsing other tests.
         # Caught exceptions are stored at the Test instance's `err` & `stack_trace`
         # attributes & will be displayed in the test failure message
-        except Exception as err: # pylint: disable=broad-except
+        except Exception as err:  # pylint: disable=broad-except
             # disabling pylint warning on typecheck as the only test that should
             # pass is if the exact specified error is passed, not any children of
             # the exception class
             err_type = type(err)
 
-            if not err_type == expected: # pylint: disable=unidiomatic-typecheck
+            if not err_type == expected:  # pylint: disable=unidiomatic-typecheck
                 # AssertionErrors are re-raised if the type of error does not match
-                # the expected error class, these will be caught in the next block
+                # the expected error class, these will be caught in the next
+                # block
                 raise AssertionError(expected, err_type)
 
         return caller
@@ -82,7 +87,8 @@ class Comparisons:
         """
 
         if len(expected_arr) > 1:
-            raise Exception('Too many positional arguments given in expect.to()')
+            raise Exception(
+                'Too many positional arguments given in expect.to()')
 
         expected_class = expected_arr[0]
 
@@ -128,12 +134,14 @@ class Comparisons:
         """
 
         if expected_empty:
-            raise TypeError('Actual.to() be_empty must be the only argument when it is used')
+            raise TypeError(
+                'Actual.to() be_empty must be the only argument when it is used')
         try:
             actual_result = actual()
 
             if len(actual_result) > 0:
-                raise AssertionError(f'expected an empty iterable, but got {actual_result}')
+                raise AssertionError(
+                    f'expected an empty iterable, but got {actual_result}')
 
         except TypeError:
             raise TypeError(f'the result of the test is not an iterable')
@@ -171,7 +179,7 @@ class Comparisons:
 
         for item in expected_attributes:
             if item not in actual_keys:
-                raise AssertionError(expected_attributes,actual_keys)
+                raise AssertionError(expected_attributes, actual_keys)
 
         return caller
 
@@ -194,6 +202,7 @@ class Comparisons:
 
         return caller
 
+
 class AssertionError(Exception):
     def __init__(self, expected=None, actual=None, **kwargs):
         try:
@@ -207,10 +216,10 @@ class AssertionError(Exception):
                     f'values as your first & second arguments or use a custom `message` '
                     f'keyword argument to improve error clarity'
                     f'\n'
-                    f'You passed {expected} as expected & {actual} as actual'
-                )
+                    f'You passed {expected} as expected & {actual} as actual')
 
         super().__init__(msg)
+
 
 class NoComparison(Exception):
     def __init__(self, method_name):

@@ -1,5 +1,6 @@
 import datetime
 
+
 class StatsObj:
     """
     A class for creating & tracking statistics for the Runner class
@@ -57,6 +58,7 @@ class StatsObj:
         number_of_failed_tests
         """
         try:
-            return (self.number_of_tests - self.number_of_failed_tests) / self.number_of_tests
+            return (self.number_of_tests -
+                    self.number_of_failed_tests) / self.number_of_tests
         except ZeroDivisionError:
             return 0

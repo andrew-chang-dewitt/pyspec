@@ -13,6 +13,7 @@ COLOR_GREEN = "\033[32m"
 COLOR_RED = "\033[31m"
 COLOR_RESET = "\033[0m"
 
+
 def describe(description, alt_pub_sub=None):
     """
     Initilizes a new test group object using Describe
@@ -36,6 +37,7 @@ def describe(description, alt_pub_sub=None):
     used_pub_sub.topic('new test group').pub(group)
 
     return group
+
 
 class Describe:
     """
@@ -97,7 +99,7 @@ class Describe:
     # A short name is chosen as the method will be referenced very often by the
     # end user of this test runner; the pylint warning about name snake case
     # has been disabled.
-    def it(self, description): # pylint: disable=invalid-name
+    def it(self, description):  # pylint: disable=invalid-name
         """
         A method used to create a new test in the group, adds an instance of Test to
         the self.tests list.
@@ -179,8 +181,9 @@ class Describe:
                     inner.befores[key] = value
 
             # call to inner's protected run() method first to display any nested
-            # test group's results before displaying the outer class results last
-            inner._run(verbose, True) # pylint: disable=protected-access
+            # test group's results before displaying the outer class results
+            # last
+            inner._run(verbose, True)  # pylint: disable=protected-access
 
             for line in inner.results:
                 self.results.append(line)
@@ -191,7 +194,7 @@ class Describe:
                 setattr(self, key, value)
 
             # run test
-            test._run() # pylint: disable=protected-access
+            test._run()  # pylint: disable=protected-access
 
             # tear down befores
             # for key in self.befores:
@@ -201,14 +204,18 @@ class Describe:
 
             # parse results & generate human readable results strings
             if test.result['success'] and verbose:
-                self.results.append(f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
+                self.results.append(
+                    f'{test_title}: {COLOR_GREEN}ok{COLOR_RESET}')
             elif not test.result['success']:
-                self.results.append(f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
+                self.results.append(
+                    f'{test_title}: {COLOR_RED}fail{COLOR_RESET}')
 
-                self.results.append(f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
+                self.results.append(
+                    f'{self.tabplus}{COLOR_RED}* STACK TRACE{COLOR_RESET}')
 
                 for line in test.result['stack_trace']:
-                    self.results.append(f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
+                    self.results.append(
+                        f'{self.tabplus}{COLOR_RED}|{COLOR_RESET} {line}')
 
                 err_text = test.result['err']
                 err_name = err_text.__class__.__name__
@@ -259,6 +266,7 @@ class Describe:
                     return doesnt_exist()
 
             return doesnt_exist()
+
 
 class Test:
     """
@@ -320,7 +328,7 @@ class Test:
 
         return self
 
-    def to(self, comparison_method, *args): # pylint: disable=invalid-name
+    def to(self, comparison_method, *args):  # pylint: disable=invalid-name
         """
         A method used to declare an expected result for the test & pass a comparison method that
         will be used to evaluate the test. Comparison methods come from the Comparisons class
@@ -399,7 +407,7 @@ class Test:
             self.comparison(self, self.actual, self.expected)
             self._set_result(success=True)
         # all Exceptions must be caught to allow the test runner to keep going
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             exc_obj = sys.exc_info()[1]
             exc_tb = sys.exc_info()[2]
 
