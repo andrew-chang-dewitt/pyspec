@@ -1,2 +1,2 @@
 Click==7.0
--r dependency_links.txt
+pub-sub>=0.0.2
